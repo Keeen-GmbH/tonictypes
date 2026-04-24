@@ -1,0 +1,140 @@
+<T3DataStructure>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <info>
+                <label></label>
+                <config>
+                    <type>user</type>
+                    <userFunc>K3n\Tonictypes\UserFunc\Template->displayTemplate</userFunc>
+                    <parameters>
+                        <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/Notice.html</template>
+                    </parameters>
+                </config>
+            </info>
+            <datatype>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.datatype_selection</label>
+                <config>
+                    <type>select</type>
+                    <renderType>selectSingle</renderType>
+                    <multiple>1</multiple>
+                    <itemsProcFunc>K3n\Tonictypes\UserFunc\Datatype->populateDatatypesAction</itemsProcFunc>
+                    <autosizemax>2</autosizemax>
+                    <maxitems>1</maxitems>
+                    <minitems>1</minitems>
+                    <size>1</size>
+                    <eval></eval>
+                    <required>1</required>
+                </config>
+            </datatype>
+            <foreign_field>
+                <label>foreign_field</label>
+                <config>
+                    <type>select</type>
+                    <renderType>selectSingle</renderType>
+                    <items type="array">
+                        <numIndex index="0" type="array">
+                            <numIndex index="0"></numIndex>
+                            <numIndex index="1"></numIndex>
+                        </numIndex>
+                    </items>
+                    <multiple>0</multiple>
+                    <itemsProcFunc>K3n\Tonictypes\UserFunc\Field->populateFieldsFromDatatype</itemsProcFunc>
+                    <maxitems>1</maxitems>
+                    <minitems>1</minitems>
+                    <size>1</size>
+                </config>
+            </foreign_field>
+            <foreign_record_defaults>
+              <title>foreign_record_defaults</title>
+              <section>1</section>
+              <type>array</type>
+              <el>
+                <defaults>
+                  <type>array</type>
+                  <title></title>
+                  <el>
+                    <field>
+                        <label>LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:show_item.php.field</label>
+                        <config>
+                          <type>input</type>
+                          <size>15</size>
+                        </config>
+                    </field>
+                    <default>
+                        <label>LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.default_value</label>
+                        <config>
+                          <type>input</type>
+                          <size>15</size>
+                        </config>
+                    </default>
+                  </el>
+                </defaults>
+              </el>
+            </foreign_record_defaults>
+            <foreign_sortby>
+                <label>foreign_sortby</label>
+                <config>
+                    <type>select</type>
+                    <renderType>selectSingle</renderType>
+                    <items type="array">
+                        <numIndex index="0" type="array">
+                            <numIndex index="0"></numIndex>
+                            <numIndex index="1"></numIndex>
+                        </numIndex>
+                    </items>
+                    <multiple>0</multiple>
+                    <itemsProcFunc>K3n\Tonictypes\UserFunc\Field->populateFieldsFromDatatype</itemsProcFunc>
+                    <maxitems>1</maxitems>
+                    <minitems>1</minitems>
+                    <size>1</size>
+                </config>
+            </foreign_sortby>
+            <sort_order>
+                <label>sort_order</label>
+                <config>
+                    <type>select</type>
+                    <renderType>selectSingle</renderType>
+                    <items type="array">
+                        <numIndex index="0" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sort_order_ascending</numIndex>
+                            <numIndex index="1">ASC</numIndex>
+                        </numIndex>
+                        <numIndex index="1" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sort_order_descending</numIndex>
+                            <numIndex index="1">DESC</numIndex>
+                        </numIndex>
+                    </items>
+                    <default>ASC</default>
+                </config>
+            </sort_order>
+            <size>
+                <label>size</label>
+                <config>
+                    <type>input</type>
+                    <size>3</size>
+                    <eval>int</eval>
+                    <default>1</default>
+                </config>
+            </size>
+            <minitems>
+                <label>minitems</label>
+                <config>
+                    <type>input</type>
+                    <size>3</size>
+                    <eval>int</eval>
+                    <default>0</default>
+                </config>
+            </minitems>
+            <maxitems>
+                <label>maxitems</label>
+                <config>
+                    <type>input</type>
+                    <size>3</size>
+                    <eval>int</eval>
+                    <default>999</default>
+                </config>
+            </maxitems>
+        </el>
+    </ROOT>
+</T3DataStructure>

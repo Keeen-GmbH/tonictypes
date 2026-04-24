@@ -1,0 +1,25 @@
+<div class="callout callout-success d-flex flex-column">
+    <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.message.table_created" arguments="{0:tableName}" />
+</div>
+
+<f:if condition="{tcaFileStatus} == 'created' || {tcaFileStatus} == 'updated' || {tcaFileStatus} == 'unchanged'">
+    <div class="callout callout-info d-flex flex-column">
+        <f:switch expression="{tcaFileStatus}">
+            <f:case value="created">
+                <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.tca_file.created" arguments="{0:tcaFilePath}" />
+            </f:case>
+            <f:case value="updated">
+                <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.tca_file.updated" arguments="{0:tcaFilePath}" />
+            </f:case>
+            <f:defaultCase>
+                <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.tca_file.unchanged" arguments="{0:tcaFilePath}" />
+            </f:defaultCase>
+        </f:switch>
+    </div>
+</f:if>
+
+<f:if condition="{tcaFileStatus} == 'failed' || {tcaFileStatus} == 'skipped'">
+    <div class="callout callout-warning d-flex flex-column">
+        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.tca_file.failed" arguments="{0:tcaFilePath}" />
+    </div>
+</f:if>

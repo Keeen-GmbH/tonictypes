@@ -1,0 +1,764 @@
+<T3DataStructure>
+  <meta>
+    <langDisable>1</langDisable>
+  </meta>
+  <sheets>
+    <general_settings>
+      <ROOT>
+          <sheetTitle>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.general_settings</sheetTitle>
+        <type>array</type>
+        <el>
+          <settings.logo>
+              <label></label>
+              <config>
+                <type>user</type>
+                <userFunc>K3n\Tonictypes\UserFunc\Logo->displayLogoAndMessageOnEmptyRecordStoragePage</userFunc>
+              </config>
+          </settings.logo>
+          <settings.datatype_selection>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.datatype_selection</label>
+              <onChange>reload</onChange>
+              <config>
+                <type>select</type>
+                <renderType>selectSingle</renderType>
+                <multiple>0</multiple>
+                <items type="array"></items>
+                <foreign_table>tx_tonictypes_domain_model_datatype</foreign_table>
+                <foreign_table_where><![CDATA[AND tx_tonictypes_domain_model_datatype.sys_language_uid IN (-1, 0)]]></foreign_table_where>
+                <maxitems>1</maxitems>
+                <minitems>0</minitems>
+                <size>1</size>
+              </config>
+          </settings.datatype_selection>
+          <settings.detail_pid>
+            <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.detail_page_id</title>
+            <section>1</section>
+            <type>array</type>
+            <config>
+              <type>array</type>
+            </config>
+            <el>
+              <pageids>
+                <type>array</type>
+                <title></title>
+                <el>
+                  <info>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.available_markers</label>
+                      <config>
+                        <type>user</type>
+                        <userFunc>K3n\Tonictypes\UserFunc\Template->displayAvailableMarkers</userFunc>
+                        <parameters>
+                          <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/AvailableMarkers.html</template>
+                          <envVariables>1</envVariables>
+                        </parameters>
+                      </config>
+                  </info>
+                  <pageid>
+                      <label>{detailPid}</label>
+                      <exclude>1</exclude>
+                      <config>
+                        <type>input</type>
+                        <renderType>inputLink</renderType>
+                        <size>30</size>
+                        <eval>trim</eval>
+                        <fieldControl>
+                          <linkPopup>
+                            <options>
+                              <allowedLinkOptions>page</allowedLinkOptions>
+                            </options>
+                          </linkPopup>
+                        </fieldControl>
+                      </config>
+                  </pageid>
+                  <condition>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.activate_condition</label>
+                      <description>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.empty_condition_is_active</description>
+                      <config>
+                        <type>input</type>
+                        <size>50</size>
+                        <placeholder>{variableFromGetParameter} = 'xyz'</placeholder>
+                      </config>
+                  </condition>
+                </el>
+              </pageids>
+            </el>
+          </settings.detail_pid>
+        </el>
+      </ROOT>
+    </general_settings>
+    <field_value_filter_setting>
+      <ROOT>
+          <sheetTitle>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.field_value_filter_setting</sheetTitle>
+        <type>array</type>
+        <el>
+          <info>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.available_markers</label>
+              <config>
+                <type>user</type>
+                <userFunc>K3n\Tonictypes\UserFunc\Template->displayAvailableMarkers</userFunc>
+                <parameters>
+                  <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/AvailableMarkers.html</template>
+                  <envVariables>1</envVariables>
+                </parameters>
+              </config>
+          </info>
+          <settings.field_value_filter>
+            <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.selection_by_field_value_filter</title>
+            <section>1</section>
+            <type>array</type>
+            <config>
+              <type>array</type>
+            </config>
+            <el>
+              <filters>
+                <type>array</type>
+                <title></title>
+                <el>
+                  <querybuilder>
+                      <label></label>
+                      <config>
+                        <type>user</type>
+                        <renderType>queryBuilder</renderType>
+                      </config>
+                  </querybuilder>
+                  <activate_condition>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.filter_activate_condition</label>
+                      <description>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.empty_condition_is_active</description>
+                      <config>
+                        <type>input</type>
+                        <size>50</size>
+                        <placeholder>{variableFromGetParameter} = 'includeFilter'</placeholder>
+                      </config>
+                  </activate_condition>
+                  <post_process>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.process_query_result</label>
+                      <description>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.process_query_result.description</description>
+                      <config>
+                        <type>select</type>
+                        <renderType>selectSingle</renderType>
+                        <items type="array">
+                          <numIndex index="0" type="array">
+                            <numIndex index="0">Default bahaviour</numIndex>
+                            <numIndex index="1"></numIndex>
+                          </numIndex>
+                          <numIndex index="1" type="array">
+                            <numIndex index="0">diff</numIndex>
+                            <numIndex index="1">diff</numIndex>
+                          </numIndex>
+                        </items>
+                        <default></default>
+                      </config>
+                  </post_process>
+                </el>
+              </filters>
+            </el>
+          </settings.field_value_filter>
+        </el>
+      </ROOT>
+    </field_value_filter_setting>
+    <display_settings_list>
+      <ROOT>
+          <sheetTitle>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.repository_settings</sheetTitle>
+        <type>array</type>
+        <el>
+          <settings.include_hidden>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.repository_settings.include_hidden</label>
+              <config>
+                <checkbox>1</checkbox>
+                <type>check</type>
+              </config>
+          </settings.include_hidden>
+          <settings.include_recursive>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.repository_settings.include_recursive</label>
+              <config>
+                <checkbox>1</checkbox>
+                <type>check</type>
+              </config>
+          </settings.include_recursive>
+          <settings.limit>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.repository_settings.limit</label>
+              <config>
+                <type>input</type>
+                <size>4</size>
+                <placeholder>10</placeholder>
+                <default></default>
+                <eval>num</eval>
+              </config>
+          </settings.limit>
+          <settings.offset>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.repository_settings.offset</label>
+              <displayCond>FIELD:settings.limit:>:0</displayCond>
+              <config>
+                <type>input</type>
+                <size>4</size>
+                <placeholder>0</placeholder>
+                <default>0</default>
+                <eval>num</eval>
+              </config>
+          </settings.offset>
+          <settings.orderings>
+            <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sorting</title>
+            <section>1</section>
+            <type>array</type>
+            <config>
+              <type>array</type>
+            </config>
+            <el>
+              <ordering>
+                <type>array</type>
+                <title></title>
+                <el>
+                  <field>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.default_sort_field</label>
+                      <onChange>reload</onChange>
+                      <config>
+                        <type>select</type>
+                        <renderType>selectSingle</renderType>
+                        <items type="array">
+                          <numIndex index="0" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:tx_tonictypes_domain_model_record.title</numIndex>
+                            <numIndex index="1">title</numIndex>
+                          </numIndex>
+                          <numIndex index="1" type="array">
+                            <numIndex index="0">ID (uid)</numIndex>
+                            <numIndex index="1">uid</numIndex>
+                          </numIndex>
+                          <numIndex index="2" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sorting</numIndex>
+                            <numIndex index="1">sorting</numIndex>
+                          </numIndex>
+                          <numIndex index="3" type="array">
+                            <numIndex index="0">LLL:EXT:filelist/Resources/Private/Language/locallang_mod_file_list.xlf:c_tstamp</numIndex>
+                            <numIndex index="1">tstamp</numIndex>
+                          </numIndex>
+                          <numIndex index="4" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.crdate</numIndex>
+                            <numIndex index="1">crdate</numIndex>
+                          </numIndex>
+                          <numIndex index="5" type="array">
+                            <numIndex index="0">LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime</numIndex>
+                            <numIndex index="1">starttime</numIndex>
+                          </numIndex>
+                          <numIndex index="6" type="array">
+                            <numIndex index="0">LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime</numIndex>
+                            <numIndex index="1">endtime</numIndex>
+                          </numIndex>
+                          <numIndex index="7" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:sort.random</numIndex>
+                            <numIndex index="1">RAND()</numIndex>
+                          </numIndex>
+                        </items>
+                        <default>title</default>
+                        <multiple>0</multiple>
+                        <itemsProcFunc>K3n\Tonictypes\UserFunc\Field->populateFieldIds</itemsProcFunc>
+                        <maxitems>1</maxitems>
+                        <minitems>1</minitems>
+                        <size>1</size>
+                      </config>
+                  </field>
+                  <subfield>
+                      <label></label>
+                      <onChange>reload</onChange>
+                      <config>
+                        <type>user</type>
+                        <userFunc>K3n\Tonictypes\UserFunc\Field->displayFlexFormSubFields</userFunc>
+                      </config>
+                  </subfield>
+                  <order>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.default_sort_order</label>
+                      <config>
+                        <type>select</type>
+                        <renderType>selectSingle</renderType>
+                        <items type="array">
+                          <numIndex index="0" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sort_order_ascending</numIndex>
+                            <numIndex index="1">ASC</numIndex>
+                          </numIndex>
+                          <numIndex index="1" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sort_order_descending</numIndex>
+                            <numIndex index="1">DESC</numIndex>
+                          </numIndex>
+                        </items>
+                        <itemsProcFunc>K3n\Tonictypes\UserFunc\Variable->populateGetPostVariables</itemsProcFunc>
+                        <default>ASC</default>
+                      </config>
+                  </order>
+                  <info>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.available_markers</label>
+                      <config>
+                        <type>user</type>
+                        <userFunc>K3n\Tonictypes\UserFunc\Template->displayAvailableMarkers</userFunc>
+                        <parameters>
+                          <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/AvailableMarkers.html</template>
+                          <datatype>0</datatype>
+                          <envVariables>1</envVariables>
+                        </parameters>
+                      </config>
+                  </info>
+                  <condition>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.fluid_condition</label>
+                      <description>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.empty_condition_is_active</description>
+                      <config>
+                        <type>input</type>
+                        <size>150</size>
+                        <placeholder><![CDATA[{yourVariable} == '1337']]></placeholder>
+                      </config>
+                  </condition>
+                </el>
+              </ordering>
+            </el>
+          </settings.orderings>
+        </el>
+      </ROOT>
+    </display_settings_list>
+    <pagination_settings>
+      <ROOT>
+          <sheetTitle>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.pagination</sheetTitle>
+        <type>array</type>
+        <el>
+          <settings.enable_pagination>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.pagination.enable_pagination</label>
+              <description>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.pagination.description</description>
+              <onChange>reload</onChange>
+              <config>
+                <checkbox>1</checkbox>
+                <type>check</type>
+              </config>
+          </settings.enable_pagination>
+          <settings.items_per_page_variable>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.pagination.items_per_page_variable</label>
+              <displayCond>FIELD:settings.enable_pagination:=:1</displayCond>
+              <config>
+                <type>select</type>
+                <renderType>selectSingle</renderType>
+                <multiple>0</multiple>
+                <items type="array">
+                  <numIndex index="0" type="array">
+                    <numIndex index="0"></numIndex>
+                    <numIndex index="1"></numIndex>
+                  </numIndex>
+                </items>
+                <itemsProcFunc>K3n\Tonictypes\UserFunc\Variable->populateOverrideVariables</itemsProcFunc>
+                <maxitems>1</maxitems>
+                <minitems>0</minitems>
+                <size>1</size>
+              </config>
+          </settings.items_per_page_variable>
+          <settings.page_number_variable>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.pagination.page_number_variable</label>
+              <displayCond>FIELD:settings.enable_pagination:=:1</displayCond>
+              <config>
+                <type>select</type>
+                <renderType>selectSingle</renderType>
+                <multiple>0</multiple>
+                <items type="array">
+                  <numIndex index="0" type="array">
+                    <numIndex index="0"></numIndex>
+                    <numIndex index="1"></numIndex>
+                  </numIndex>
+                </items>
+                <itemsProcFunc>K3n\Tonictypes\UserFunc\Variable->populateOverrideVariables</itemsProcFunc>
+                <maxitems>1</maxitems>
+                <minitems>0</minitems>
+                <size>1</size>
+              </config>
+          </settings.page_number_variable>
+          <settings.default_page>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.pagination.default_page_number</label>
+              <displayCond>FIELD:settings.enable_pagination:=:1</displayCond>
+              <config>
+                <type>number</type>
+                <size>10</size>
+                <required>1</required>
+                <default>1</default>
+              </config>
+          </settings.default_page>
+          <pagination_info>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.pagination.info</label>
+              <displayCond>FIELD:settings.enable_pagination:=:1</displayCond>
+              <config>
+                <type>user</type>
+                <userFunc>K3n\Tonictypes\UserFunc\Template->displayTemplate</userFunc>
+                <parameters>
+                  <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/PaginationInfo.html</template>
+                </parameters>
+              </config>
+          </pagination_info>
+        </el>
+      </ROOT>
+    </pagination_settings>
+    <template_settings>
+      <ROOT>
+          <sheetTitle>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.template_settings</sheetTitle>
+        <type>array</type>
+        <el>
+          <settings.template_selection>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.template_selection</label>
+              <onChange>reload</onChange>
+              <config type="array">
+                <type>select</type>
+                <renderType>selectSingle</renderType>
+                <items type="array">
+                  <numIndex index="0" type="array">
+                    <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.debug_template</numIndex>
+                    <numIndex index="1"></numIndex>
+                  </numIndex>
+                  <numIndex index="1" type="array">
+                    <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.custom_template_path</numIndex>
+                    <numIndex index="1">CUSTOM</numIndex>
+                  </numIndex>
+                  <numIndex index="2" type="array">
+                    <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.custom_fluid_code</numIndex>
+                    <numIndex index="1">FLUID</numIndex>
+                  </numIndex>
+                </items>
+                <multiple>0</multiple>
+                <itemsProcFunc>K3n\Tonictypes\UserFunc\Template->populateTemplates</itemsProcFunc>
+                <maxitems>1</maxitems>
+                <minitems>1</minitems>
+                <size>1</size>
+                <fieldWizard>
+                  <selectIcons>
+                    <disabled>0</disabled>
+                  </selectIcons>
+                </fieldWizard>
+              </config>
+          </settings.template_selection>
+          <settings.fluid_code>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.fluid</label>
+              <displayCond>FIELD:settings.template_selection:=:FLUID</displayCond>
+              <config>
+                <type>text</type>
+                <renderType>t3editor</renderType>
+                <format>html</format>
+                <rows>15</rows>
+              </config>
+          </settings.fluid_code>
+          <settings.template_override>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.template_override</label>
+              <displayCond>FIELD:settings.template_selection:=:CUSTOM</displayCond>
+              <config type="array">
+                <type>inline</type>
+                <maxitems>1</maxitems>
+                <minitems>1</minitems>
+                <foreign_table>sys_file_reference</foreign_table>
+                <foreign_field>uid_foreign</foreign_field>
+                <foreign_sortby>sorting_foreign</foreign_sortby>
+                <foreign_table_field>tablenames</foreign_table_field>
+                <foreign_match_fields>
+                  <!-- this will be stored in sys_file_reference.fieldname -->
+                  <fieldname>settings.template_override</fieldname>
+                </foreign_match_fields>
+                <foreign_label>uid_local</foreign_label>
+                <foreign_selector>uid_local</foreign_selector>
+                <overrideChildTca>
+                  <columns>
+                    <uid_local>
+                      <config>
+                        <type>group</type>
+                        <internal_type>db</internal_type>
+                        <allowed>sys_file</allowed>
+                        <size>1</size>
+                        <maxitems>1</maxitems>
+                        <appearance>
+                          <elementBrowserType>file</elementBrowserType>
+                          <elementBrowserAllowed>html</elementBrowserAllowed>
+                        </appearance>
+                      </config>
+                    </uid_local>
+                  </columns>
+                </overrideChildTca>
+                <filter>
+                  <userFunc>TYPO3\CMS\Core\Resource\Filter\FileExtensionFilter->filterInlineChildren</userFunc>
+                  <parameters>
+                    <allowedFileExtensions>html</allowedFileExtensions>
+                    <disallowedFileExtensions>*</disallowedFileExtensions>
+                  </parameters>
+                </filter>
+                <appearance>
+                  <useSortable>0</useSortable>
+                  <enabledControls>
+                    <info>1</info>
+                    <new>0</new>
+                    <dragdrop>1</dragdrop>
+                    <sort>0</sort>
+                    <hide>1</hide>
+                    <delete>1</delete>
+                  </enabledControls>
+                </appearance>
+              </config>
+          </settings.template_override>
+          <settings.render_only_template>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.render_only_template</label>
+              <config>
+                <checkbox>1</checkbox>
+                <type>check</type>
+              </config>
+          </settings.render_only_template>
+          <settings.template_switch>
+            <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.template_switch</title>
+            <section>1</section>
+            <type>array</type>
+            <config>
+              <type>array</type>
+            </config>
+            <el>
+              <switches>
+                <type>array</type>
+                <title></title>
+                <el>
+                  <info>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.available_markers</label>
+                      <config>
+                        <type>user</type>
+                        <userFunc>K3n\Tonictypes\UserFunc\Template->displayAvailableMarkers</userFunc>
+                        <parameters>
+                          <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/AvailableMarkers.html</template>
+                          <envVariables>1</envVariables>
+                        </parameters>
+                      </config>
+                  </info>
+                  <template_selection>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.template_selection</label>
+                      <onChange>reload</onChange>
+                      <config type="array">
+                        <type>select</type>
+                        <renderType>selectSingle</renderType>
+                        <items type="array">
+                          <numIndex index="0" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.custom_fluid_code</numIndex>
+                            <numIndex index="1">FLUID</numIndex>
+                          </numIndex>
+                        </items>
+                        <multiple>0</multiple>
+                        <itemsProcFunc>K3n\Tonictypes\UserFunc\Template->populateTemplates</itemsProcFunc>
+                        <maxitems>1</maxitems>
+                        <minitems>1</minitems>
+                        <size>1</size>
+                      </config>
+                  </template_selection>
+                  <fluid_code>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.fluid</label>
+                      <displayCond>FIELD:template_selection:=:FLUID</displayCond>
+                      <config>
+                        <type>text</type>
+                        <renderType>t3editor</renderType>
+                        <format>html</format>
+                        <rows>15</rows>
+                      </config>
+                  </fluid_code>
+                  <condition>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.fluid_condition</label>
+                      <description>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.empty_condition_is_active</description>
+                      <config>
+                        <type>input</type>
+                        <size>150</size>
+                        <placeholder><![CDATA[{yourVariable} == '1337']]></placeholder>
+                      </config>
+                  </condition>
+                </el>
+              </switches>
+            </el>
+          </settings.template_switch>
+          <settings.variables>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.variable_injection</label>
+              <config>
+                <type>group</type>
+                <internal_type>db</internal_type>
+                <multiple>0</multiple>
+                <autosizemax>10</autosizemax>
+                <items type="array"></items>
+                <allowed>tx_tonictypes_domain_model_variable</allowed>
+                <maxitems>99999</maxitems>
+                <minitems>0</minitems>
+                <size>5</size>
+              </config>
+          </settings.variables>
+
+
+
+
+
+
+
+
+
+        </el>
+      </ROOT>
+    </template_settings>
+
+    <!--
+    @later!
+    <template_configuration>
+    <ROOT>
+      <sheetTitle>Template Configuration</sheetTitle>
+    <type>array</type>
+    <el>
+      <templateConfigurator>
+          <label></label>
+          <config>
+            <type>user</type>
+            <renderType>templateConfigurator</renderType>
+          </config>
+      </templateConfigurator>
+    </el>
+    </ROOT>
+    </template_configuration>
+    -->
+
+    <overrides>
+      <ROOT>
+          <sheetTitle>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.overrides</sheetTitle>
+        <type>array</type>
+        <el>
+          <settings.limit_variable>
+              <label>LIMIT</label>
+              <config>
+                <type>select</type>
+                <renderType>selectSingle</renderType>
+                <multiple>0</multiple>
+                <items type="array">
+                  <numIndex index="0" type="array">
+                    <numIndex index="0"></numIndex>
+                    <numIndex index="1"></numIndex>
+                  </numIndex>
+                </items>
+                <itemsProcFunc>K3n\Tonictypes\UserFunc\Variable->populateOverrideVariables</itemsProcFunc>
+                <maxitems>1</maxitems>
+                <minitems>0</minitems>
+                <size>1</size>
+              </config>
+          </settings.limit_variable>
+          <settings.offset_variable>
+              <label>OFFSET</label>
+              <config>
+                <type>select</type>
+                <renderType>selectSingle</renderType>
+                <multiple>0</multiple>
+                <items type="array">
+                  <numIndex index="0" type="array">
+                    <numIndex index="0"></numIndex>
+                    <numIndex index="1"></numIndex>
+                  </numIndex>
+                </items>
+                <itemsProcFunc>K3n\Tonictypes\UserFunc\Variable->populateOverrideVariables</itemsProcFunc>
+                <maxitems>1</maxitems>
+                <minitems>0</minitems>
+                <size>1</size>
+              </config>
+          </settings.offset_variable>
+          <settings.sorting_variable>
+              <label>SORTING</label>
+              <config>
+                <type>select</type>
+                <renderType>selectSingle</renderType>
+                <multiple>0</multiple>
+                <items type="array">
+                  <numIndex index="0" type="array">
+                    <numIndex index="0"></numIndex>
+                    <numIndex index="1"></numIndex>
+                  </numIndex>
+                </items>
+                <itemsProcFunc>K3n\Tonictypes\UserFunc\Variable->populateOverrideVariables</itemsProcFunc>
+                <maxitems>1</maxitems>
+                <minitems>0</minitems>
+                <size>1</size>
+              </config>
+          </settings.sorting_variable>
+          <settings.order_variable>
+              <label>ORDER</label>
+              <config>
+                <type>select</type>
+                <renderType>selectSingle</renderType>
+                <multiple>0</multiple>
+                <items type="array">
+                  <numIndex index="0" type="array">
+                    <numIndex index="0"></numIndex>
+                    <numIndex index="1"></numIndex>
+                  </numIndex>
+                </items>
+                <itemsProcFunc>K3n\Tonictypes\UserFunc\Variable->populateOverrideVariables</itemsProcFunc>
+                <maxitems>1</maxitems>
+                <minitems>0</minitems>
+                <size>1</size>
+              </config>
+          </settings.order_variable>
+        </el>
+      </ROOT>
+    </overrides>
+    <developer_settings>
+      <ROOT>
+          <sheetTitle>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.developer_settings</sheetTitle>
+        <type>array</type>
+        <el>
+          <settings.debug>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.debug</label>
+              <config>
+                <checkbox>1</checkbox>
+                <type>check</type>
+              </config>
+          </settings.debug>
+          <settings.static_cache>
+              <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.static_cache</label>
+              <config>
+                <checkbox>1</checkbox>
+                <type>check</type>
+              </config>
+          </settings.static_cache>
+          <settings.custom_headers>
+            <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.custom_headers</title>
+            <section>1</section>
+            <type>array</type>
+            <config>
+              <type>array</type>
+            </config>
+            <el>
+              <headers>
+                <type>array</type>
+                <title></title>
+                <el>
+                  <info>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.available_markers</label>
+                      <config>
+                        <type>user</type>
+                        <userFunc>K3n\Tonictypes\UserFunc\Template->displayAvailableMarkers</userFunc>
+                        <parameters>
+                          <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/AvailableMarkers.html</template>
+                          <envVariables>1</envVariables>
+                        </parameters>
+                      </config>
+                  </info>
+                  <name>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.header_name</label>
+                      <config>
+                        <type>input</type>
+                        <size>50</size>
+                        <placeholder>Content-Type</placeholder>
+                      </config>
+                  </name>
+                  <value>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.header_value</label>
+                      <config>
+                        <type>input</type>
+                        <size>50</size>
+                        <placeholder>text/html; charset=utf-8</placeholder>
+                      </config>
+                  </value>
+                  <condition>
+                      <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.fluid_condition</label>
+                      <description>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.empty_condition_is_active</description>
+                      <config>
+                        <type>input</type>
+                        <size>150</size>
+                        <placeholder><![CDATA[{yourVariable} == '1337']]></placeholder>
+                      </config>
+                  </condition>
+                </el>
+              </headers>
+            </el>
+          </settings.custom_headers>
+        </el>
+      </ROOT>
+    </developer_settings>
+  </sheets>
+</T3DataStructure>

@@ -1,0 +1,34 @@
+<T3DataStructure>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <info>
+                    <label></label>
+                    <config>
+                        <type>user</type>
+                        <userFunc>K3n\Tonictypes\UserFunc\Template->displayTemplate</userFunc>
+                        <parameters>
+                            <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/Notice.html</template>
+                        </parameters>
+                    </config>
+            </info>
+            <tca>
+                    <label>tca xml</label>
+                    <config>
+                        <type>text</type>
+                        <size>15</size>
+                        <cols>50</cols>
+                        <rows>20</rows>
+                        <renderType>t3editor</renderType>
+                        <format>xml</format>
+                        <default><![CDATA[<config>
+  <type>input</type>
+  <size>30</size>
+  <eval>trim</eval>
+  <placeholder>placeholder</placeholder>
+</config>]]></default>
+                    </config>
+            </tca>
+        </el>
+    </ROOT>
+</T3DataStructure>

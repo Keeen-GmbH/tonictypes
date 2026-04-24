@@ -1,0 +1,28 @@
+<!-- TABLE OK -->
+<div class="callout callout-success d-flex flex-column">
+    <h4 class="callout-title">
+        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.message.table_up_to_date" arguments="{0:tableName}"/>
+    </h4>
+    <div class="callout-body">
+        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.description.table_up_to_date" arguments="{0:tableName}"/>
+    </div>
+</div>
+
+<div class="d-flex flex-column m-3">
+    <button type="button" class="btn btn-danger w-auto align-self-start" id="tonictypes_table_delete">
+        <core:icon identifier="apps-filetree-folder-recycler" size="small" />&nbsp;<f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.button.delete_table" />
+    </button>
+</div>
+
+<f:if condition="{tcaFileExists} == 0">
+    <div class="callout callout-warning">
+        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.tca_file.missing" />
+        <div class="d-flex flex-column m-3">
+            <button type="button" class="btn btn-default w-auto align-self-start" id="tonictypes_table_generate_tca">
+                <core:icon identifier="actions-refresh" size="small" />&nbsp;<f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.button.create_tca" />
+            </button>
+        </div>
+    </div>
+</f:if>
+
+<!-- /TABLE OK -->

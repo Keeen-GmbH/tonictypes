@@ -1,0 +1,91 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    K3n\Tonictypes\:
+        resource: '../Classes/*'
+
+    K3n\Tonictypes\Configuration\ConfigurationRegistry:
+        public: true
+
+    K3n\Tonictypes\Icon\TonictypesIconRegistry:
+        public : true
+
+    K3n\Tonictypes\Controller\Backend\AbstractBackendController:
+        public : true
+
+    K3n\Tonictypes\Controller\Backend\ClassController:
+        public: true
+
+    K3n\Tonictypes\Controller\Backend\TableController:
+        public: true
+
+    K3n\Tonictypes\Controller\Backend\EditDocumentController:
+        public: true
+
+    K3n\Tonictypes\Controller\Backend\QueryBuilderController:
+        public: true
+
+    K3n\Tonictypes\Controller\RecordController:
+        public: true
+
+    K3n\Tonictypes\Form\Element\QueryBuilderElement:
+        public: true
+        autowire: false
+
+    K3n\Tonictypes\Form\Element\UserElement:
+        public: true
+        autowire: false
+
+    K3n\Tonictypes\Hooks\Constants:
+        public: true
+
+    K3n\Tonictypes\LabelUserFunc\Field:
+        public: true
+
+    K3n\Tonictypes\LabelUserFunc\Record:
+        public: true
+
+    K3n\Tonictypes\LabelUserFunc\Variable:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Database:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Datatype:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Extension:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Field:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Icon:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Logo:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Record:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Rte:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Template:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Text:
+        public: true
+
+    K3n\Tonictypes\UserFunc\Variable:
+        public: true
+
+    K3n\Tonictypes\Database\EventListener\TonictypesDynamicTableSchemaListener:
+        tags:
+            - name: event.listener
+              identifier: 'tonictypes/dynamic-table-schema-listener'
+              event: TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent

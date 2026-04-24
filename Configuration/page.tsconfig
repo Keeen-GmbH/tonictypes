@@ -1,0 +1,2 @@
+@import 'EXT:tonictypes/Configuration/TsConfig/mod_wizards.tsconfig'
+@import 'EXT:tonictypes/Configuration/TsConfig/mod_web_layout.tsconfig'

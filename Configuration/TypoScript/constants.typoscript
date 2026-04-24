@@ -1,0 +1,27 @@
+# customsubcategory=developer=LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:constants.developer
+
+plugin.tx_tonictypes {
+	developer {
+		# cat=plugin.tx_tonictypes/developer/100; type=user[K3n\Tonictypes\Hooks\Constants->displayExtensionInformation]; label=Extension Information
+		html = SHOW / HIDE
+
+		# cat=plugin.tx_tonictypes/developer/200; type=int+; label=Cache Lifetime (seconds): Sets the general cache lifetime in seconds
+		cache_lifetime = 86400
+
+		# cat=plugin.tx_tonictypes/developer/300; type=string; label=Global Variable Name for injected records
+		recordsVariableName = records
+
+		# cat=plugin.tx_tonictypes/developer/400; type=string; label=Global Variable Name for injected single record
+		singleRecordVariableName = record
+	}
+	view {
+		# cat=plugin.tx_tonictypes/view/1; type=string; label=Path to template root (FE)
+		templateRootPath = EXT:tonictypes/Resources/Private/Templates/
+
+		# cat=plugin.tx_tonictypes/view/2; type=string; label=Path to template partials (FE)
+		partialRootPath = EXT:tonictypes/Resources/Private/Partials/
+
+		# cat=plugin.tx_tonictypes/view/3; type=string; label=Path to template layouts (FE)
+		layoutRootPath = EXT:tonictypes/Resources/Private/Layouts/
+	}
+}

@@ -1,0 +1,17 @@
+<T3DataStructure>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <info>
+                    <label></label>
+                    <config>
+                        <type>user</type>
+                        <userFunc>K3n\Tonictypes\UserFunc\Template->displayTemplate</userFunc>
+                        <parameters>
+                            <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/Notice.html</template>
+                        </parameters>
+                    </config>
+            </info>
+        </el>
+    </ROOT>
+</T3DataStructure>

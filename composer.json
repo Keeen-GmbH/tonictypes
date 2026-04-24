@@ -1,0 +1,47 @@
+{
+  "name": "k3n/tonictypes",
+  "type": "typo3-cms-extension",
+  "description": "Build easy and intuitive TCA-records (e.g. News, Jobs, Events and more) on the fly without developing a new extension. Only templating is needed. Huge amount of time savings possible!",
+  "homepage": "https://www.tonictypes.com",
+  "version": "1.0.0",
+  "license": [
+    "GPL-2.0-or-later"
+  ],
+  "keywords": [
+    "TYPO3",
+    "CMS",
+    "recordbuilder",
+    "tonictypes",
+    "typo3",
+    "aix",
+    "records",
+    "k3n"
+  ],
+  "support": {
+    "issues": "https://github.com/Keeen-GmbH/tonictypes"
+  },
+  "require": {
+    "php": ">=8.1 <=8.3",
+    "typo3/cms-core": ">=12.4.0 <=13.4.99"
+  },
+  "autoload": {
+    "psr-4": {
+      "K3n\\Tonictypes\\": "Classes/"
+    }
+  },
+  "replace": {
+    "typo3-ter/tonictypes": "self.version"
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "tonictypes"
+    }
+  },
+  "authors": [
+    {
+      "name": "Auth: B. Zagar / Maint: J. Pietschmann",
+      "email": "support@tonictypes.com",
+      "homepage": "http://www.tonictypes.com"
+    }
+  ]
+}

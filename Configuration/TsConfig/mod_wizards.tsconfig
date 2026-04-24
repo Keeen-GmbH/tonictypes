@@ -1,0 +1,48 @@
+mod.wizards {
+  newContentElement {
+    wizardItems {
+      tonictypes {
+        header = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:tx_tonictypes
+        elements {
+          tx_tonictypes_list {
+            iconIdentifier = tonictypes-icon-tonictypes-list
+            title = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.list
+            description = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.list.description
+            tt_content_defValues {
+              CType = list
+              list_type = tonictypes_list
+            }
+          }
+          tx_tonictypes_detail {
+            iconIdentifier = tonictypes-icon-tonictypes-detail
+            title = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.detail
+            description = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.detail.description
+            tt_content_defValues {
+              CType = list
+              list_type = tonictypes_detail
+            }
+          }
+          tx_tonictypes_dynamic {
+            iconIdentifier = tonictypes-icon-tonictypes-dynamic
+            title = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.dynamic
+            description = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.dynamic.description
+            tt_content_defValues {
+              CType = list
+              list_type = tonictypes_dynamic
+            }
+          }
+          tx_tonictypes_plain {
+            iconIdentifier = tonictypes-icon-tonictypes-plain
+            title = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.plain
+            description = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.plain.description
+            tt_content_defValues {
+              CType = list
+              list_type = tonictypes_plain
+            }
+          }
+        }
+        show = *
+      }
+    }
+  }
+}

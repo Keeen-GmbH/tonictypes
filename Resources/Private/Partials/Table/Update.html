@@ -1,0 +1,42 @@
+<!-- UPDATE TABLE -->
+<div class="callout callout-info d-flex flex-column">
+    <h5>
+        <strong>
+            <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.error.update_needed" arguments="{0:tableName}" />
+        </strong>
+    </h5>
+    <div class="d-flex flex-column gap-2">
+      <f:if condition="{missingColumns->f:count()} > 0">
+        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.message.missing_columns" />
+        <ul>
+          <f:for each="{missingColumns}" as="missingColumn">
+            <li>{missingColumn.frontendLabel} ({missingColumn.code})</li>
+          </f:for>
+        </ul>
+      </f:if>
+      <f:if condition="{updateStatements.change->f:count()} > 0">
+        <ul>
+          <f:for each="{updateStatements.change}" as="updateStatement">
+            <li><code>{updateStatement}</code></li>
+          </f:for>
+        </ul>
+      </f:if>
+        <div class="d-flex flex-column mt-2">
+            <button type="button" class="btn btn-default w-auto align-self-start" id="tonictypes_table_status_migrate">
+                <core:icon identifier="actions-refresh" size="small" />&nbsp;<f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.button.update_table" />
+            </button>
+        </div>
+    </div>
+</div>
+<!-- /UPDATE TABLE -->
+
+<f:if condition="{tcaFileExists} == 0">
+    <div class="callout callout-warning">
+        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.tca_file.missing" />
+        <div class="d-flex flex-column m-3">
+            <button type="button" class="btn btn-default w-auto align-self-start" id="tonictypes_table_generate_tca">
+                <core:icon identifier="actions-refresh" size="small" />&nbsp;<f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.button.create_tca" />
+            </button>
+        </div>
+    </div>
+</f:if>

@@ -1,0 +1,10 @@
+# Backend Preview Fix @see https://stackoverflow.com/questions/55691663/typo3-how-to-configure-plugin-preview-in-backend
+mod.web_layout.tt_content.preview.list = EXT:
+
+# Backend Preview
+mod.web_layout.tt_content.preview.list {
+  tonictypes_list = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/tonictypes_list.html
+  tonictypes_detail = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/tonictypes_detail.html
+  tonictypes_dynamic = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/tonictypes_dynamic.html
+  tonictypes_plain = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/tonictypes_plain.html
+}

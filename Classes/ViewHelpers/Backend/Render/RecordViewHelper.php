@@ -1,0 +1,54 @@
+<?php
+declare(strict_types=1);
+/*
+ * This file is part of the package k3n/tonictypes.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ *
+ * Many thanks to Auth: B. Zagar / Maint: J. Pietschmann for sharing this extension – TYPO3 inspiring people to share!
+ * Contact: support@tonictypes.com
+ *
+ */
+
+namespace K3n\Tonictypes\ViewHelpers\Backend\Render;
+
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+
+class RecordViewHelper extends AbstractRenderViewHelper
+{
+    /**
+     * Arguments initialization
+     * @throws Exception
+     */
+    public function initializeArguments()
+    {
+        parent::initializeArguments();
+        $this->registerArgument('uid', 'int', 'Uid of the record', true);
+        $this->registerArgument('table', 'string', 'Name of the table', true);
+    }
+
+    /**
+     * @return string
+     */
+    public function render(): string
+    {
+        $table = $this->arguments['table'];
+        $record = BackendUtility::getRecordWSOL($table,$this->arguments['uid']);
+
+        $string = '';
+        if(is_array($record) && !empty($record)) {
+            $labelField = $GLOBALS['TCA'][$table]['ctrl']['label'];
+
+            $string .= $this->iconFactory->getIconForRecord($table,$record,Icon::SIZE_SMALL)->render();
+            $string .= ' ';
+            $string .= '['.$record['uid'].']'.' '.$record[$labelField];
+        } else {
+            $string .= $table.':'.$this->arguments['uid'].' not found!';
+        }
+
+        return $string;
+    }
+}

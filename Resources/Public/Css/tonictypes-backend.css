@@ -1,0 +1,55 @@
+.tonictypes-body {  }
+.tonictypes-backend-form div.pre-module-body { background-color: #fff; padding: 20px 20px 0 20px; margin:20px; border: 1px solid #ddd; -webkit-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.34); -moz-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.34); box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.34); }
+.tonictypes-backend-form div.tonictypes-header { padding:10px 0 20px 0; }
+.tonictypes-backend-form img.tonictypes-logo { }
+.tonictypes-backend-form div.tonictypes-datatype-title div.h1 { margin-top:0 !important; }
+
+.tonictypes-backend-form div.pre-module-body h1:first-child { display:none; }
+.tonictypes-backend-form div.pre-module-body .support { margin-right:10px; }
+
+.tonictypes-backend-form div.pre-module-body div.tonictypes-header { padding:0; }
+.tonictypes-backend-form div.pre-module-body div.tonictypes-header span.icon { float:left; margin: 5px 8px 0 0; }
+.tonictypes-backend-form div.tonictypes-alerts { padding:20px 20px 0 20px; }
+
+.tonictypes-backend-form .module,
+.tonictypes-backend-form .module-body { height:auto !important; }
+.tonictypes-backend-form .module-body.t3js-module-body { padding:0 !important; }
+.tonictypes-module-content .module-body.t3js-module-body { padding:24px 0 !important;  }
+.tonictypes-module-content { margin-top:10px; }
+
+/* Bugfix for backend form with palettes */
+.tonictypes-backend-form div.row { margin-right:0 !important; }
+
+/* Style Improvements for certain fields */
+.tonictypes-backend-form div.form-wizards-element label { font-size:12px !important; }
+.tonictypes-backend-form .bootstrap-datetimepicker-widget  { background-color:white !important; }
+.tonictypes-backend-form .bootstrap-datetimepicker-widget td  { font-size:smaller !important; }
+.tonictypes-backend-form .bootstrap-datetimepicker-widget { z-index:9999 !important; position:absolute !important; }
+.tonictypes-backend-form .bootstrap-datetimepicker-widget td.day:hover,
+.tonictypes-backend-form .bootstrap-datetimepicker-widget td.hour:hover,
+.tonictypes-backend-form .bootstrap-datetimepicker-widget td.minute:hover,
+.tonictypes-backend-form .bootstrap-datetimepicker-widget td.second:hover,
+.tonictypes-backend-form .bootstrap-datetimepicker-widget table td span:hover,
+.tonictypes-backend-form .bootstrap-datetimepicker-widget table thead tr:first-child th:hover { background-color: lightgrey !important; }
+
+.tonictypes-backend-content .module-body { padding:0 !important; }
+.tonictypes-backend-content .text-end { margin-bottom:10px;  }
+
+
+/* Style Additions for QueryBuilder */
+.btn-group-xs>.btn, .btn-xs {
+    padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+.query-builder .rule-value-container select, .query-builder .rule-value-container input[type=text], .query-builder .rule-value-container input[type=number] {
+    padding:.375rem .75rem;
+}
+
+.pull-right {
+    float: right!important;
+}
+.query-builder .rule-actions {
+    padding:3px 5px 0px 0px;
+}

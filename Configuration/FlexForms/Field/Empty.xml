@@ -1,0 +1,14 @@
+<T3DataStructure>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <info>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:no_configuration</label>
+                <config>
+                    <type>user</type>
+                    <userFunc>K3n\Tonictypes\UserFunc\Text->displayNoConfigurationMessage</userFunc>
+                </config>
+            </info>
+        </el>
+    </ROOT>
+</T3DataStructure>

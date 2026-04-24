@@ -1,0 +1,203 @@
+<T3DataStructure>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <info>
+                    <label></label>
+                    <config>
+                        <type>user</type>
+                        <userFunc>K3n\Tonictypes\UserFunc\Template->displayTemplate</userFunc>
+                        <parameters>
+                            <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/Notice.html</template>
+                        </parameters>
+                    </config>
+            </info>
+            <renderType>
+                    <label>renderType</label>
+                    <config>
+                        <type>select</type>
+                        <renderType>selectSingle</renderType>
+                        <multiple>0</multiple>
+                        <items type="array">
+                            <numIndex index="0" type="array">
+                                <numIndex index="0">selectMultipleSideBySide</numIndex>
+                                <numIndex index="1">selectMultipleSideBySide</numIndex>
+                            </numIndex>
+                            <numIndex index="1" type="array">
+                                <numIndex index="0">selectCheckBox</numIndex>
+                                <numIndex index="1">selectCheckBox</numIndex>
+                            </numIndex>
+                            <numIndex index="2" type="array">
+                                <numIndex index="0">selectSingleBox</numIndex>
+                                <numIndex index="1">selectSingleBox</numIndex>
+                            </numIndex>
+                        </items>
+                        <maxitems>1</maxitems>
+                        <minitems>1</minitems>
+                        <size>1</size>
+                    </config>
+            </renderType>
+            <size>
+                    <label>size</label>
+                    <config>
+                        <type>input</type>
+                        <size>3</size>
+                        <eval>int</eval>
+                        <default>5</default>
+                    </config>
+            </size>
+            <minitems>
+                    <label>minitems</label>
+                    <config>
+                        <type>input</type>
+                        <size>3</size>
+                        <eval>int</eval>
+                        <default>0</default>
+                    </config>
+            </minitems>
+            <maxitems>
+                    <label>maxitems</label>
+                    <config>
+                        <type>input</type>
+                        <size>3</size>
+                        <eval>int</eval>
+                        <default>999</default>
+                    </config>
+            </maxitems>
+            <multiple>
+                    <label>multiple</label>
+                    <config>
+                        <checkbox>1</checkbox>
+                        <type>check</type>
+                    </config>
+            </multiple>
+            <itemsProcFunc>
+                    <label>itemsProcFunc</label>
+                    <config>
+                        <type>input</type>
+                        <size>50</size>
+                        <placeholder><![CDATA[VendorName\ExtensionName\Domain\Model\Class->itemsProcFuncMethod]]></placeholder>
+                        <eval>trim,nospace</eval>
+                    </config>
+            </itemsProcFunc>
+            <foreign>
+                    <label>foreign</label>
+                    <onChange>reload</onChange>
+                    <config>
+                        <checkbox>1</checkbox>
+                        <type>check</type>
+                    </config>
+            </foreign>
+            <foreign_table>
+                    <label>foreign_table</label>
+                    <displayCond>FIELD:foreign:=:1</displayCond>
+                    <onChange>reload</onChange>
+                    <config>
+                        <type>select</type>
+                        <renderType>selectSingle</renderType>
+                        <multiple>1</multiple>
+                        <itemsProcFunc>K3n\Tonictypes\UserFunc\Database->populateTablesAction</itemsProcFunc>
+                        <autosizemax>2</autosizemax>
+                        <items type="array">
+                            <numIndex index="0" type="array">
+                                <numIndex index="0"></numIndex>
+                                <numIndex index="1"></numIndex>
+                            </numIndex>
+                        </items>
+                        <maxitems>1</maxitems>
+                        <minitems>1</minitems>
+                        <size>1</size>
+                    </config>
+            </foreign_table>
+            <info_markers>
+                    <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.available_markers</label>
+                    <displayCond>FIELD:foreign:=:1</displayCond>
+                    <config>
+                        <type>user</type>
+                        <userFunc>K3n\Tonictypes\UserFunc\Template->displayAvailableMarkers</userFunc>
+                        <parameters>
+                            <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/AvailableMarkers.html</template>
+                            <includeRecord>1</includeRecord>
+                            <markers>
+                                <field>
+                                    <type>K3n\Tonictypes\Domain\Model\Field</type>
+                                    <name>field</name>
+                                </field>
+                                <fieldtype>
+                                    <type>K3n\Tonictypes\Form\Fieldtype\AbstractFieldtype</type>
+                                    <name>fieldtype</name>
+                                </fieldtype>
+                            </markers>
+                        </parameters>
+                    </config>
+            </info_markers>
+            <foreign_table_where>
+                    <label>foreign_table_where</label>
+                    <displayCond>FIELD:foreign:=:1</displayCond>
+                    <config>
+                        <type>text</type>
+                        <rows>5</rows>
+                        <cols>50</cols>
+                        <eval>trim</eval>
+                        <placeholder>AND tablename.pid = X</placeholder>
+                        <renderType>t3editor</renderType>
+                        <format>php</format>
+                    </config>
+            </foreign_table_where>
+            <sort_field>
+                    <label>sort_field</label>
+                    <displayCond>FIELD:foreign:=:1</displayCond>
+                    <config>
+                        <type>select</type>
+                        <renderType>selectSingle</renderType>
+                        <items type="array">
+                            <numIndex index="0" type="array">
+                                <numIndex index="0"></numIndex>
+                                <numIndex index="1"></numIndex>
+                            </numIndex>
+                        </items>
+                        <multiple>0</multiple>
+                        <itemsProcFunc>K3n\Tonictypes\UserFunc\Field->populateFieldsFromTable</itemsProcFunc>
+                        <maxitems>1</maxitems>
+                        <minitems>1</minitems>
+                        <size>1</size>
+                    </config>
+            </sort_field>
+            <sort_order>
+                    <label>sort_order</label>
+                    <displayCond>FIELD:foreign:=:1</displayCond>
+                    <config>
+                        <type>select</type>
+                        <renderType>selectSingle</renderType>
+                        <items type="array">
+                            <numIndex index="0" type="array">
+                                <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sort_order_ascending</numIndex>
+                                <numIndex index="1">ASC</numIndex>
+                            </numIndex>
+                            <numIndex index="1" type="array">
+                                <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sort_order_descending</numIndex>
+                                <numIndex index="1">DESC</numIndex>
+                            </numIndex>
+                        </items>
+                        <default>ASC</default>
+                    </config>
+            </sort_order>
+            <suggest_wizard>
+                    <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:add_suggest_wizard</label>
+                    <displayCond>FIELD:foreign:=:1</displayCond>
+                    <config>
+                        <checkbox>1</checkbox>
+                        <type>check</type>
+                    </config>
+            </suggest_wizard>
+            <include_field_values_as_options>
+                    <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:include_field_values_as_options</label>
+                    <displayCond>FIELD:foreign:=:1</displayCond>
+                    <config>
+                        <checkbox>1</checkbox>
+                        <type>check</type>
+                    </config>
+            </include_field_values_as_options>
+        </el>
+    </ROOT>
+</T3DataStructure>

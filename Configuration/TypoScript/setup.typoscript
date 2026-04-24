@@ -1,0 +1,253 @@
+plugin.tx_tonictypes {
+	settings {
+		recordsVariableName = {$plugin.tx_tonictypes.developer.recordsVariableName}
+		singleRecordVariableName = {$plugin.tx_tonictypes.developer.singleRecordVariableName}
+	}
+	developer {
+		cache_lifetime = {$plugin.tx_tonictypes.developer.cache_lifetime}
+	}
+	view {
+		templateRootPaths {
+			100 = {$plugin.tx_tonictypes.view.templateRootPath}
+		}
+		partialRootPaths {
+			100 = {$plugin.tx_tonictypes.view.partialRootPath}
+		}
+		layoutRootPaths {
+			100 = {$plugin.tx_tonictypes.view.layoutRootPath}
+		}
+	}
+}
+
+page.importmap {
+     QueryBuilderElement {
+        path = EXT:tonictypes/Resources/Public/JavaScript/QueryBuilderElement.js
+        preload = 1
+     }
+}
+
+plugin.tx_tonictypes.fieldtypes {
+
+  ## ---------------------------------------------------------------------------
+  ## Default Configuration for Tonictypes Field Types
+  ## ================================================
+  ## You can manually add additional fieldtypes if you want, if
+  ## you implement \K3n\Tonictypes\Tca\FieldInterface
+  ##
+  ## Generating values, post-processing
+  ## ==================================
+  ## A potential value generator class can be attached that re-generates
+  ## values after save, you need to implement the following interface for this
+  ## extend \K3n\Tonictypes\Form\Value\AbstractValue
+  ## implements \K3n\Tonictypes\Form\Value\ValueInterface
+  ## ---------------------------------------------------------------------------
+
+  # Field Declaration for your custom field
+  # customfieldtype {
+  #	class = Vendor\Extension\Tca\Field\CustomFieldtype
+  #	icon = EXT:extension/Resources/Public/Icons/Field/customfieldtype.gif
+  #	label = LLL:EXT:extension/Resources/Private/Language/locallang.xlf:type.customfieldtype
+  #   flexform = EXT:extension/Configuration/FlexForms/Field/CustomFieldtype.xml
+  #   value = Vendor\Extension\Form\FieldtypeValue
+  # }
+
+  # Field Declaration for Input Field
+  input {
+    class = K3n\Tonictypes\Tca\Field\Input
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/input.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.input
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Input.xml
+  }
+
+  # Field Declaration for Textarea
+  textarea {
+    class = K3n\Tonictypes\Tca\Field\Textarea
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/textarea.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.textarea
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Text.xml
+  }
+
+  # Field Declaration for Single Select Field
+  select {
+    class = K3n\Tonictypes\Tca\Field\Select
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/select.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.select
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Select.xml
+  }
+
+  # Field Declaration for Multiselect Field
+  multiselect {
+    class = K3n\Tonictypes\Tca\Field\MultiSelect
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/multiselect.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.multiselect
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Multiselect.xml
+  }
+
+  # Field Declaration for Group Field
+  group {
+    class = K3n\Tonictypes\Tca\Field\Group
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/group.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.group
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Group.xml
+  }
+
+  # Field Declaration for Folder Field
+  folder {
+    class = K3n\Tonictypes\Tca\Field\Folder
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/folder.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.folder
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Folder.xml
+  }
+
+  # Field Declaration for Radio Buttons
+  radio {
+    class = K3n\Tonictypes\Tca\Field\Radio
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/radio.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.radio
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Radio.xml
+  }
+
+  # Field Declaration for Checkboxes
+  checkbox {
+    class = K3n\Tonictypes\Tca\Field\Checkbox
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/checkbox.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.checkbox
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Checkbox.xml
+  }
+
+  # Field Declaration for a date field
+  date {
+    class = K3n\Tonictypes\Tca\Field\Date
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/date.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.date
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Date.xml
+  }
+
+  # Field Declaration for a Date and Time field
+  datetime {
+    class = K3n\Tonictypes\Tca\Field\DateTime
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/datetime.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.datetime
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Date.xml
+  }
+
+  # Field Declaration for the Rich Text Editor
+  rte {
+    class = K3n\Tonictypes\Tca\Field\Rte
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/rte.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.rte
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Rte.xml
+  }
+
+  # Field Declaration for the Table / Table Wizard
+  table {
+    class = K3n\Tonictypes\Tca\Field\Table
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/table.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.table
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Table.xml
+  }
+
+  # Field Declaration for a general code editor
+  editor {
+    class = K3n\Tonictypes\Tca\Field\Editor
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/editor.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.editor
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Editor.xml
+  }
+
+  # Field Declaration for a Link Input Field
+  link {
+    class = K3n\Tonictypes\Tca\Field\Link
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/link.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.link
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Link.xml
+  }
+
+  # Field Declaration for Input Field
+  dyninput {
+    class = K3n\Tonictypes\Tca\Field\DynamicInput
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/dyninput.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.dynamic_input
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/DynamicInput.xml
+  }
+
+  # Field Declaration for Images
+  image {
+    class = K3n\Tonictypes\Tca\Field\Image
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/image.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.image
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Image.xml
+  }
+
+  # Field Declaration for Page Selection
+  page {
+    class = K3n\Tonictypes\Tca\Field\Page
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/page.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.page
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Page.xml
+  }
+
+  # Field Declaration for a category selection
+  tree {
+    class = K3n\Tonictypes\Tca\Field\Tree
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/tree.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.tree
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Tree.xml
+  }
+
+  # Field Declaration for a flexform field
+  flex {
+    class = K3n\Tonictypes\Tca\Field\Flex
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/flex.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.flex
+  }
+
+  # Field Declaration for inline elements
+  inline {
+    class = K3n\Tonictypes\Tca\Field\Inline
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/inline.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.inline
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Inline.xml
+  }
+
+  # Field Declaration for inline elements
+  datatype {
+    class = K3n\Tonictypes\Tca\Field\Datatype
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/datatype.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.datatype
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Datatype.xml
+  }
+
+  # Field Declaration for database elements
+  relation {
+    class = K3n\Tonictypes\Tca\Field\FileRelation
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/relation.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.file_relation
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/FileRelation.xml
+  }
+
+  # Field Declaration for a tca field
+  tca {
+    class = K3n\Tonictypes\Tca\Field\Tca
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/tca.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.tca
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Tca.xml
+  }
+
+  # Field Declaration for Color Picker Field
+  colorpicker {
+    class = K3n\Tonictypes\Tca\Field\ColorPicker
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/colorpicker.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.colorpicker
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/ColorPicker.xml
+  }
+
+  # Field Declaration for a  passthrough field
+  passthrough {
+    class = K3n\Tonictypes\Tca\Field\PassThrough
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/passthrough.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.passthrough
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/PassThrough.xml
+  }
+
+}
