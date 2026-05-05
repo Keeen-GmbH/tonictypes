@@ -1,2 +1,3 @@
-/Domain/Model/Record/*
-/Domain/Repository/Record/*
+/Classes/Domain/Model/Record/*
+/Classes/Domain/Repository/Record/*
+/Configuration/TCA/tx_tonictypes_domain_model_record_*.php

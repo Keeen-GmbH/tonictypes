@@ -523,7 +523,7 @@ class RecordController extends AbstractController
         $record = $variables[$singleRecordVariableName] ?? null;
         $datatype  = $variables[self::DEFAULT_VAR_DATATYPE];
 
-        //////////////////////////////////////////////////////////clear//////////////
+        ////////////////////////////////////////////////////////////////////////
         /// This is an administration layer to quickly access the record
         /// when a backend user is logged in
         ////////////////////////////////////////////////////////////////////////
