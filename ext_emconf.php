@@ -10,11 +10,11 @@
  *
  */
 $EM_CONF[$_EXTKEY] = [
-	'title' => 'Tonictypes Core',
-	'description' => 'Build easy and intuitive TCA-records (e.g. News, Jobs, Events and more) on the fly without developing a new extension. Only templating is needed; includes many plugins for all kinds of usage!',
+	'title' => 'tonictypes - Rapid TCA & Advanced Plugins',
+	'description' => 'Maximize development speed with tonictypes, the evolution of the proven typotonic extension (over 1,000 downloads). Build on a foundation of success and create custom TCA records like news, jobs, or events on the fly directly in the TYPO3 backend—no PHP extension coding required. This successor features powerful new list and detail plugins alongside adjustable backend filters for total control. Only Fluid templating is needed to match any design. Stop managing overhead and start building faster.',
 	'category' => 'plugin',
 	'shy' => 0,
-	'version' => '1.0.0',
+	'version' => '1.0.1',
 	'dependencies' => 'cms,extbase,fluid',
 	'conflicts' => '',
 	'priority' => '',
@@ -27,7 +27,7 @@ $EM_CONF[$_EXTKEY] = [
 	'lockType' => '',
 	'author' => 'Auth: B. Zagar / Maint: J. Pietschmann',
 	'author_email' => 'support@tonictypes.com',
-	'author_company' => 'tonictypes.com',
+	'author_company' => 'Keeen GmbH',
 	'CGLcompliance' => '',
 	'CGLcompliance_note' => '',
 	'constraints' => [
