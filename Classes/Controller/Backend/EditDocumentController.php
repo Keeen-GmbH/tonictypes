@@ -27,6 +27,7 @@ use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
+use K3n\Tonictypes\Utility\UrlUtility;
 
 class EditDocumentController extends \TYPO3\CMS\Backend\Controller\EditDocumentController
 {
@@ -155,7 +156,14 @@ class EditDocumentController extends \TYPO3\CMS\Backend\Controller\EditDocumentC
             $variables = [
                 'datatype' => $datatype,
                 'record' => $record,
-                'logoUrl' => $this->backendAccessService->getLogoUrl(),
+                'logoUrl' => UrlUtility::getFileUrl(
+                    (string)($this->backendAccessService->getTonictypesTSConfig('customLogo')
+                        ?? 'EXT:tonictypes/Resources/Public/Images/logo_tonictypes_pro.svg')
+                ),
+                'logoBrightUrl' => UrlUtility::getFileUrl(
+                    (string)($this->backendAccessService->getTonictypesTSConfig('customLogoBright')
+                        ?? 'EXT:tonictypes/Resources/Public/Images/logo_tonictypes_pro_bright.svg')
+                ),
                 'supportEmail' => $this->backendAccessService->getSupportEmail(),
                 'supportMessage' => $this->backendAccessService->disableSupportMessage(),
                 'version' => ExtensionManagementUtility::getExtensionVersion('tonictypes'),

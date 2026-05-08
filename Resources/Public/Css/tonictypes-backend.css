@@ -1,5 +1,5 @@
 .tonictypes-body {  }
-.tonictypes-backend-form div.pre-module-body { background-color: #fff; padding: 20px 20px 0 20px; margin:20px; border: 1px solid #ddd; -webkit-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.34); -moz-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.34); box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.34); }
+.tonictypes-backend-form div.pre-module-body { padding: 20px 20px 0 20px; margin:20px; -webkit-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.34); -moz-box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.34); box-shadow: 3px 3px 5px 0px rgba(0,0,0,0.34); }
 .tonictypes-backend-form div.tonictypes-header { padding:10px 0 20px 0; }
 .tonictypes-backend-form img.tonictypes-logo { }
 .tonictypes-backend-form div.tonictypes-datatype-title div.h1 { margin-top:0 !important; }
@@ -15,7 +15,7 @@
 .tonictypes-backend-form .module-body { height:auto !important; }
 .tonictypes-backend-form .module-body.t3js-module-body { padding:0 !important; }
 .tonictypes-module-content .module-body.t3js-module-body { padding:24px 0 !important;  }
-.tonictypes-module-content { margin-top:10px; }
+.tonictypes-module-content { margin-top:10px; padding-bottom: 10px; }
 
 /* Bugfix for backend form with palettes */
 .tonictypes-backend-form div.row { margin-right:0 !important; }

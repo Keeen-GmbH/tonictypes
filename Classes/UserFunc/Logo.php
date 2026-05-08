@@ -52,13 +52,17 @@ class Logo
         }
 
 		$logoUrl = $this->backendAccessService->getLogoUrl();
+		$logoBrightUrl = $this->backendAccessService->getBrightLogoUrl();
 		$supportEmail = $this->backendAccessService->getSupportEmail();
 
 		$version = ExtensionManagementUtility::getExtensionVersion('tonictypes');
 
 		$html = '';
 		$html .= "<div class=\"form-control-wrap\">";
+		$html .= "<picture>";
+		$html .= "<source srcset=\"{$logoBrightUrl}\" media=\"(prefers-color-scheme: dark)\">";
 		$html .= "<img src=\"{$logoUrl}\" border=\"0\" alt=\"Tonictypes\" title=\"Tonictypes {$version}\" height=\"70\" />";
+		$html .= "</picture>";
 
 		$html .= "<div style=\"margin-top:10px;\">Version <strong>{$version}</strong>&nbsp;| Mail:&nbsp;<a href=\"mailto:{$supportEmail}\">{$supportEmail}</a></div>";
 
