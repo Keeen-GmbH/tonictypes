@@ -111,6 +111,7 @@ class Constants
         $this->standaloneView->assign('emConf', $EM_CONF[$_EXTKEY]);
         $this->standaloneView->assign('icons', $icons);
         $this->standaloneView->assign('logoUrl', $this->backendAccessService->getLogoUrl());
+        $this->standaloneView->assign('logoBrightUrl', $this->backendAccessService->getBrightLogoUrl());
         $this->standaloneView->assign('supportMessage', $this->backendAccessService->disableSupportMessage());
 
         return $this->standaloneView->render();

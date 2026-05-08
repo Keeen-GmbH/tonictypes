@@ -1,5 +1,8 @@
 <div style="padding:25px;">
-    <img src="{logoUrl}" height="100" width="350" />
+    <picture>
+        <source srcset="{logoBrightUrl}" media="(prefers-color-scheme: dark)">
+        <img src="{logoUrl}" height="100" width="350" />
+    </picture>
     <br />
     <h1 style="margin-top:15px;">{emConf.title} Extension, Version {emConf.version}</h1>
     <p>
