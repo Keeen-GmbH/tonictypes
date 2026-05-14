@@ -27,7 +27,7 @@ We recommend installing the extension using [Composer](https://getcomposer.org):
 
 ## Compatibility
 
-+ TYPO3 CMS 12.4.X
++ TYPO3 CMS 14.3.X
 
 ## Professional
 
