@@ -15,14 +15,17 @@ namespace K3n\Tonictypes\ViewHelpers\Backend\Render;
 
 use Doctrine\DBAL\Driver\Exception as DoctrineDBALDriverException;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer;
 use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconSize;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
-use TYPO3\CMS\Core\Database\Connection;
+
 class FileViewHelper extends AbstractRenderViewHelper
 {
     /**
@@ -42,7 +45,7 @@ class FileViewHelper extends AbstractRenderViewHelper
      * Arguments initialization
      * @throws Exception
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         parent::initializeArguments();
         $this->registerArgument('uid', 'int', 'Uid of the file', true);
@@ -88,7 +91,7 @@ class FileViewHelper extends AbstractRenderViewHelper
 
             $string = '';
             if($fileReference instanceof FileReference) {
-                $string .= $this->iconFactory->getIconForFileExtension($fileReference->getExtension(),Icon::SIZE_SMALL);
+                $string .= $this->iconFactory->getIconForFileExtension($fileReference->getExtension(), GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13 ? Icon::SIZE_SMALL : IconSize::SMALL);
                 $string .= ' ';
                 $string .= $fileReference->getPublicUrl();
             } else {

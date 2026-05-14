@@ -44,7 +44,7 @@ class jQueryQueryBuilderParser
      * @throws \Exception
      * @return QueryBuilder
      */
-    public function jQueryToDoctrine(string $json, QueryBuilder $queryBuilder, array $fields = null): QueryBuilder
+    public function jQueryToDoctrine(string $json, QueryBuilder $queryBuilder, ?array $fields = null): QueryBuilder
     {
         $this->fields = $fields;
 

@@ -1,8 +1,15 @@
 <div style="padding:25px;">
-    <picture>
-        <source srcset="{logoBrightUrl}" media="(prefers-color-scheme: dark)">
-        <img src="{logoUrl}" height="100" width="350" />
-    </picture>
+    <f:if condition="{typo3IsV12}">
+        <f:then>
+            <img src="{logoUrl}" height="100" width="350" />
+        </f:then>
+        <f:else>
+            <picture>
+                <source srcset="{logoBrightUrl}" media="(prefers-color-scheme: dark)">
+                <img src="{logoUrl}" height="100" width="350" />
+            </picture>
+        </f:else>
+    </f:if>
     <br />
     <h1 style="margin-top:15px;">{emConf.title} Extension, Version {emConf.version}</h1>
     <p>

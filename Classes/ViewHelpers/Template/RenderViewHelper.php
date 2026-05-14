@@ -18,6 +18,7 @@ use K3n\Tonictypes\Domain\Repository\VariableRepository;
 use K3n\Tonictypes\Factory\VariableFactory;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Context\Context;
@@ -124,8 +125,8 @@ class RenderViewHelper extends AbstractViewHelper
         $template   = $this->arguments['template'];
         $predefined = $this->pluginSettingsService->getPredefinedTemplateById($template);
 
-        if (!is_null($predefined)) {
-            $template = $predefined;
+        if (is_string($predefined) && trim($predefined) !== '') {
+            $template = trim($predefined);
         }
 
         $cache = $this->cacheManager->getCache('core');
@@ -147,7 +148,16 @@ class RenderViewHelper extends AbstractViewHelper
             $view = GeneralUtility::makeInstance(StandaloneView::class);
             $view->setTemplatePathAndFilename($templateFile);
             $view->assignMultiple($this->arguments['arguments']);
-            $view->setRequest($this->renderingContext->getRequest());
+            $request = null;
+            if (method_exists($this->renderingContext, 'getAttribute')) {
+                $request = $this->renderingContext->getAttribute(ServerRequestInterface::class);
+            }
+            if (!$request instanceof ServerRequestInterface && isset($GLOBALS['TYPO3_REQUEST']) && $GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
+                $request = $GLOBALS['TYPO3_REQUEST'];
+            }
+            if ($request instanceof ServerRequestInterface) {
+                $view->setRequest($request);
+            }
             $view->assign('cacheIdentifier', $cacheIdentifier);
             if (!empty($this->arguments['variables'])) {
                 $variables = $this->variableRepository->findByUids($this->arguments['variables']);

@@ -16,6 +16,7 @@ namespace K3n\Tonictypes\ViewHelpers\Link;
 use K3n\Tonictypes\Domain\Model\AbstractRecordModel;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\ApplicationType;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -40,7 +41,6 @@ class RecordViewHelper extends AbstractTagBasedViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerUniversalTagAttributes();
 
         // DV-specific
         $this->registerArgument('record', 'mixed', 'The tonictypes record for creating a detail link', true);
@@ -50,10 +50,6 @@ class RecordViewHelper extends AbstractTagBasedViewHelper
         $this->registerArgument('extensionName', 'string', 'Target Extension Name (without `tx_` prefix and no underscores). If NULL the current extension name is used', false, 'Tonictypes');
 
         // Default arguments
-        $this->registerTagAttribute('name', 'string', 'Specifies the name of an anchor');
-        $this->registerTagAttribute('rel', 'string', 'Specifies the relationship between the current document and the linked document');
-        $this->registerTagAttribute('rev', 'string', 'Specifies the relationship between the linked document and the current document');
-        $this->registerTagAttribute('target', 'string', 'Specifies where to open the linked document');
         $this->registerArgument('pageUid', 'int', 'Target page. See TypoLink destination');
         $this->registerArgument('pageType', 'int', 'Type of the target page. See typolink.parameter');
         $this->registerArgument('noCache', 'bool', 'Set this to disable caching for the target page. You should not need this.');
@@ -72,7 +68,18 @@ class RecordViewHelper extends AbstractTagBasedViewHelper
     {
         /** @var RenderingContext $renderingContext */
         $renderingContext = $this->renderingContext;
-        $request = $renderingContext->getRequest();
+        $request = null;
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14) {
+            $request = $renderingContext->getRequest();
+        } else {
+            if (method_exists($renderingContext, 'getAttribute')) {
+                $request = $renderingContext->getAttribute(ServerRequestInterface::class);
+            }
+            if (!$request instanceof ServerRequestInterface && isset($GLOBALS['TYPO3_REQUEST']) && $GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
+                $request = $GLOBALS['TYPO3_REQUEST'];
+            }
+        }
+
         if ($request instanceof ExtbaseRequestInterface) {
             return $this->renderWithExtbaseContext($request);
         }

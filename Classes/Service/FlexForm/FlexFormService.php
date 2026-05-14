@@ -13,16 +13,34 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Service\FlexForm;
 
+use TYPO3\CMS\Core\Service\FlexFormService as Typo3FlexFormService;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class FlexFormService extends \TYPO3\CMS\Core\Service\FlexFormService implements SingletonInterface
+class FlexFormService implements SingletonInterface
 {
+    public function __construct(
+        private readonly Typo3FlexFormService $typo3FlexFormService,
+    ) {
+    }
+
+    /**
+     * Parses flex form XML into a nested array. Delegates to TYPO3 core (FlexFormTools in v14+).
+     *
+     * Optional $languagePointer and $valuePointer are retained for backward compatibility; core TYPO3
+     * uses fixed lDEF/vDEF handling since v14 (see Breaking #107945).
+     */
+    public function convertFlexFormContentToArray(
+        string $flexFormContent,
+    ): array {
+        return $this->typo3FlexFormService->convertFlexFormContentToArray($flexFormContent);
+    }
+
 	/**
 	 * extractFlexformConfig
 	 * Extract a specified flexform config by typename and fieldname
 	 *
-	 * @param string $conf Flexform Xml Configuration
+	 * @param array $conf Flexform Xml Configuration
 	 * @param string $field
 	 * @param string $type
 	 * @return string
@@ -56,7 +74,7 @@ class FlexFormService extends \TYPO3\CMS\Core\Service\FlexFormService implements
 	 */
     public function getSimpleArrayFromFlexForm(string $conf, string $element, string $field, string $item): array
 	{
-		$extractedConfigurationArray = $this->convertFlexFormContentToArray($conf);
+		$extractedConfigurationArray = $this->typo3FlexFormService->convertFlexFormContentToArray($conf);
 		$simpleArray = [];
 
 		if (isset($extractedConfigurationArray[$element])) {

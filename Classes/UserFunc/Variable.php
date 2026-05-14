@@ -79,17 +79,24 @@ class Variable
     public function populateGetPostVariables(array &$config, &$parentObject): void
     {
         $row = (isset($config['flexParentDatabaseRow']))?$config['flexParentDatabaseRow']:$config['row'];
-        $flex = $this->flexFormService->walkFlexFormNode($row['pi_flexform'], 'vDEF');
-        $flex = $this->flexFormService->walkFlexFormNode($flex, 'lDEF');
+        if (is_array($row['pi_flexform'] ?? null)) {
+            $flex = $row['pi_flexform'];
+        } elseif (is_string($row['pi_flexform'] ?? null)) {
+            $flex = $this->flexFormService->convertFlexFormContentToArray($row['pi_flexform']);
+        } else {
+            $flex = [];
+        }
 
         $variableIds = [];
-        if(isset($flex['data']['template_settings']['settings']['variables'])) {
-            $vs = $flex['data']['template_settings']['settings']['variables'];
-            if(is_array($vs)) {
-                $variableIds = $vs;
+        $vs = $flex['data']['template_settings']['settings']['variables'] ?? [];
+        if (is_array($vs)) {
+            if (isset($vs[0]) && is_array($vs[0])) {
+                $variableIds = array_column($vs, 'uid');
             } else {
-                $variableIds = GeneralUtility::intExplode(',', $vs, true);
+                $variableIds = array_values($vs);
             }
+        } elseif (is_scalar($vs) && (string)$vs !== '') {
+            $variableIds = GeneralUtility::intExplode(',', (string)$vs, true);
         }
 
         $variables = [];

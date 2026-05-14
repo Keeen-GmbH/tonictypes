@@ -1,4 +1,7 @@
 <?php
+
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -104,6 +107,7 @@ return [
 		"tstamp" => "tstamp",
 		"crdate" => "crdate",
 		"cruser_id" => "cruser_id",
+        'type' => 'type',
 		"dividers2tabs" => TRUE,
 		"default_sortby" => "ORDER BY uid DESC",
         "hideTable" => false,
@@ -335,13 +339,16 @@ return [
             'l10n_mode' => 'exclude',
 			'exclude' => true,
 			'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_field.field_configuration',
-			'config' => [
-				'type' => 'flex',
-				'ds_pointerField' => 'type',
+			'config' => GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14 ? [
+                'type' => 'flex',
+                'ds_pointerField' => 'type',
                 'ds' => [
                     'default' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Field/Empty.xml',
                 ],
-			],
+            ] : [
+				'type' => 'flex',
+                'ds' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Field/Empty.xml',
+            ],
 		],
 		'frontend_label' => [
 			'exclude' => true,

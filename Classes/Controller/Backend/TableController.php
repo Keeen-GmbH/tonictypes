@@ -146,16 +146,16 @@ class TableController extends AbstractBackendController
      * Get a view instance
      * @return StandaloneView
      */
-    public function getView(): StandaloneView
+    public function getView(int $pid = 0): StandaloneView
     {
         /* @var StandaloneView $view */
         $view = GeneralUtility::makeInstance(StandaloneView::class);
         /** @var array $layoutRootPaths */
-        $layoutRootPaths = $this->pluginSettingsService->getLayoutPaths();
+        $layoutRootPaths = $this->pluginSettingsService->getLayoutPaths($pid);
         /** @var array $templateRootPaths */
-        $templateRootPaths = $this->pluginSettingsService->getTemplatePaths();
+        $templateRootPaths = $this->pluginSettingsService->getTemplatePaths($pid);
         /** @var array $partialRootPaths */
-        $partialRootPaths = $this->pluginSettingsService->getPartialPaths();
+        $partialRootPaths = $this->pluginSettingsService->getPartialPaths($pid);
 
         $view->setLayoutRootPaths($layoutRootPaths);
         $view->setTemplateRootPaths($templateRootPaths);
@@ -209,8 +209,8 @@ class TableController extends AbstractBackendController
                 }
             }
         }
-
-        $view = $this->getView();
+        $pid = $this->resolveBackendPageId($request);
+        $view = $this->getView($pid);
         $templateFile = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Resources/Private/Templates/UserFunc/Table/Status.html');
         $view->setTemplatePathAndFilename($templateFile);
 
@@ -336,7 +336,8 @@ class TableController extends AbstractBackendController
             return $response;
         }
 
-        $view = $this->getView();
+        $pid = $this->resolveBackendPageId($request);
+        $view = $this->getView($pid);
         $templateFile = 'EXT:tonictypes/Resources/Private/Templates/UserFunc/Table/Migrate.html';
         $templateFile = GeneralUtility::getFileAbsFileName($templateFile);
         $view->setTemplatePathAndFilename($templateFile);
@@ -396,5 +397,36 @@ class TableController extends AbstractBackendController
         $response = GeneralUtility::makeInstance(Response::class);
         $response->getBody()->write(json_encode(['success' => true,'html' => $output]));
         return $response;
+    }
+
+    protected function resolveBackendPageId(ServerRequestInterface $request): int
+    {
+        $referer = $request->getHeaderLine('referer');
+        if ($referer === '') {
+            return 0;
+        }
+        $refererQuery = parse_url($referer, PHP_URL_QUERY);
+        if (!is_string($refererQuery) || $refererQuery === '') {
+            return 0;
+        }
+        parse_str($refererQuery, $refererQueryParams);
+        if (isset($refererQueryParams['id'])) {
+            $pageId = (int)$refererQueryParams['id'];
+            if ($pageId > 0) {
+                return $pageId;
+            }
+        }
+        if (isset($refererQueryParams['returnUrl']) && is_string($refererQueryParams['returnUrl'])) {
+            $returnUrlQuery = parse_url($refererQueryParams['returnUrl'], PHP_URL_QUERY);
+            if (is_string($returnUrlQuery) && $returnUrlQuery !== '') {
+                parse_str($returnUrlQuery, $returnUrlQueryParams);
+                $pageId = (int)($returnUrlQueryParams['id'] ?? 0);
+                if ($pageId > 0) {
+                    return $pageId;
+                }
+            }
+        }
+
+        return 0;
     }
 }

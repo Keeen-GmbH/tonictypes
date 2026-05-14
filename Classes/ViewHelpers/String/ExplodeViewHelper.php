@@ -27,7 +27,7 @@ class ExplodeViewHelper extends AbstractViewHelper
      */
     public function initializeArguments(): void
     {
-        $this->registerArgument('string', 'string', 'String to explode', true, '');
+        $this->registerArgument('string', 'string', 'String to explode', true);
         $this->registerArgument('delimeter', 'string', 'Delimeter', false, ',');
         $this->registerArgument('removeEmptyValues', 'bool', 'Remove empty values', false, true);
         $this->registerArgument('limit', 'int', 'Limit', false, 0);

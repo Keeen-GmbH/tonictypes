@@ -71,11 +71,16 @@ class PluginSettingsService extends AbstractSettingsService
      */
     public function getRecordsVarName(): string
     {
-        $name = (string)$this->getConfiguration('plugin.tx_tonictypes.settings.recordsVariableName');
-        if(!is_string($name)) {
+        $name = $this->getConfiguration('plugin.tx_tonictypes.settings.recordsVariableName');
+        if (!is_scalar($name)) {
             return 'records';
         }
-        return StringUtility::createCodeFromString($name);
+        $name = trim((string)$name);
+        if ($name === '') {
+            return 'records';
+        }
+        $normalizedName = StringUtility::createCodeFromString($name);
+        return $normalizedName !== '' ? $normalizedName : 'records';
     }
 
     /**
@@ -86,11 +91,16 @@ class PluginSettingsService extends AbstractSettingsService
      */
     public function getRecordVarName(): string
     {
-        $name = (string)$this->getConfiguration('plugin.tx_tonictypes.settings.singleRecordVariableName');
-        if(!is_string($name)) {
+        $name = $this->getConfiguration('plugin.tx_tonictypes.settings.singleRecordVariableName');
+        if (!is_scalar($name)) {
             return 'record';
         }
-        return StringUtility::createCodeFromString($name);
+        $name = trim((string)$name);
+        if ($name === '') {
+            return 'record';
+        }
+        $normalizedName = StringUtility::createCodeFromString($name);
+        return $normalizedName !== '' ? $normalizedName : 'record';
     }
 
     /**
@@ -99,9 +109,9 @@ class PluginSettingsService extends AbstractSettingsService
      *
      * @return array
      */
-    public function getPredefinedTemplates(): array
+    public function getPredefinedTemplates(int $pid = 0): array
     {
-        $configuration = $this->getConfiguration('plugin.tx_tonictypes.templates');
+        $configuration = $this->getConfiguration('plugin.tx_tonictypes.templates', $pid);
         if (is_array($configuration) && !empty($configuration)) {
             $configuration = GeneralUtility::removeDotsFromTS($configuration);
         }
@@ -119,13 +129,13 @@ class PluginSettingsService extends AbstractSettingsService
     public function getPredefinedTemplateById(string $templateId): ?string
     {
         $templates = $this->getPredefinedTemplates();
-        $info = (isset($templates[$templateId]))?$templates[$templateId]:null;
+        $info = $templates[$templateId] ?? ($templates[$templateId . '.'] ?? null);
 
         if (isset($info['file'])) {
             return $info['file'];
         }
 
-        return $info;
+        return is_string($info) ? $info : '';
     }
 
     /**

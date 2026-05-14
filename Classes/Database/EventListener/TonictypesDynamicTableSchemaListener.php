@@ -53,6 +53,12 @@ final class TonictypesDynamicTableSchemaListener
         // TYPO3 SQL parser expects "CHARACTER SET", not MySQL's "CHARSET" shorthand.
         $statement = preg_replace('/\bDEFAULT\s+CHARSET\s*=\s*/i', 'DEFAULT CHARACTER SET ', $statement) ?? $statement;
         $statement = preg_replace('/\bCHARSET\s*=\s*/i', 'CHARACTER SET ', $statement) ?? $statement;
+        // MySQL 8.0.13+ returns DEFAULT (NULL) for nullable text/blob columns in SHOW CREATE TABLE.
+        // TYPO3's SQL parser only understands DEFAULT NULL (without parentheses).
+        $statement = preg_replace('/\bDEFAULT\s+\(NULL\)/i', 'DEFAULT NULL', $statement) ?? $statement;
+        // MySQL 8.4 returns charset introducers in string defaults, e.g. DEFAULT (_utf8mb4'').
+        // TYPO3's SQL parser does not understand this syntax; strip the introducer and parens.
+        $statement = preg_replace('/\bDEFAULT\s+\(_[a-zA-Z0-9]+\'((?:[^\']|\'\')*)\'\)/i', "DEFAULT '$1'", $statement) ?? $statement;
         // Strip MySQL table options after the column/index definition block.
         // This avoids parser issues with DB vendor specific tail clauses.
         $lastClosingParenthesisPos = strrpos($statement, ')');

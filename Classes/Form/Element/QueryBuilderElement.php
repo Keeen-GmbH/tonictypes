@@ -16,6 +16,7 @@ namespace K3n\Tonictypes\Form\Element;
 use K3n\Tonictypes\Utility\UrlUtility;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 use TYPO3\CMS\Backend\Form\NodeFactory;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Service\FlexFormService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -53,9 +54,11 @@ class QueryBuilderElement extends AbstractFormElement
         // Render the HTML output
         $result = $this->initializeResultArray();
         $parameterArray = $this->data['parameterArray'] ?? [];
-        if (empty($parameterArray['itemFormElID']) && !empty($parameterArray['itemFormElId'])) {
-            // TYPO3 v13 may provide itemFormElId instead of itemFormElID.
-            $this->data['parameterArray']['itemFormElID'] = (string)$parameterArray['itemFormElId'];
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14) {
+            if (empty($parameterArray['itemFormElID']) && !empty($parameterArray['itemFormElId'])) {
+                // TYPO3 v13 may provide itemFormElId instead of itemFormElID.
+                $this->data['parameterArray']['itemFormElID'] = (string)$parameterArray['itemFormElId'];
+            }
         }
 
         /* @var StandaloneView $view */
@@ -75,42 +78,73 @@ class QueryBuilderElement extends AbstractFormElement
         }
 
         $view->assign('cssFiles', $cssFiles);
+        $view->assign('data', $this->data);
 
         $randVarName = uniqid('qb_');
         $view->assign('id', $randVarName);
 
-        $datatype = 0;
-        $fieldId = $this->resolveItemFormElementId((array)($this->data['parameterArray'] ?? []));
-        if (isset($this->data['parameterArray']) && is_array($this->data['parameterArray'])) {
-            // Keep both keys to support v12/v13 template expectations.
-            $this->data['parameterArray']['itemFormElID'] = $fieldId;
-            $this->data['parameterArray']['itemFormElId'] = $fieldId;
-        }
-        $view->assign('data', $this->data);
-
-        $builderId = "#builder_{$fieldId}_{$this->data['vanillaUid']}_{$this->data['fieldName']}";
-        $pages = $this->normalizePageUids($this->data['databaseRow']['pages'] ?? []);
-        $languageUid = $this->resolvePositiveIntegerValue($this->data['databaseRow']['sys_language_uid'] ?? null) ?? 0;
-
-        if (!empty($this->data['databaseRow']['pi_flexform'])) {
-            $flexForm = $this->data['databaseRow']['pi_flexform'];
-            if (is_string($flexForm)) {
-                $flexForm = GeneralUtility::xml2array($flexForm);
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14)
+        {
+            $datatype = 0;
+            $fieldId = $this->resolveItemFormElementId((array)($this->data['parameterArray'] ?? []));
+            if (isset($this->data['parameterArray']) && is_array($this->data['parameterArray'])) {
+                // Keep both keys to support v12/v13 template expectations.
+                $this->data['parameterArray']['itemFormElID'] = $fieldId;
+                $this->data['parameterArray']['itemFormElId'] = $fieldId;
             }
-            if (is_array($flexForm)) {
-                $flexForm = $this->flexFormService->walkFlexFormNode($flexForm);
-                $flexForm = $this->flexFormService->walkFlexFormNode($flexForm, 'lDEF');
-                $datatype = $this->resolvePositiveIntegerValue($flexForm['data']['general_settings']['settings']['datatype_selection'] ?? null) ?? 0;
-            }
-        }
+            $view->assign('data', $this->data);
 
-        $view->assignMultiple([
-            'fieldId' => $fieldId,
-            'builderId' => $builderId,
-            'pages' => $pages,
-            'languageUid' => $languageUid,
-            'datatype' => $datatype,
-        ]);
+            $builderId = "#builder_{$fieldId}_{$this->data['vanillaUid']}_{$this->data['fieldName']}";
+            $pages = $this->normalizePageUids($this->data['databaseRow']['pages'] ?? []);
+            $languageUid = $this->resolvePositiveIntegerValue($this->data['databaseRow']['sys_language_uid'] ?? null) ?? 0;
+
+            if (!empty($this->data['databaseRow']['pi_flexform'])) {
+                $flexForm = $this->data['databaseRow']['pi_flexform'];
+                if (is_string($flexForm)) {
+                    $flexForm = GeneralUtility::xml2array($flexForm);
+                }
+                if (is_array($flexForm)) {
+                    $flexForm = $this->flexFormService->walkFlexFormNode($flexForm);
+                    $flexForm = $this->flexFormService->walkFlexFormNode($flexForm, 'lDEF');
+                    $datatype = $this->resolvePositiveIntegerValue($flexForm['data']['general_settings']['settings']['datatype_selection'] ?? null) ?? 0;
+                }
+            }
+
+            $view->assignMultiple([
+                'fieldId' => $fieldId,
+                'builderId' => $builderId,
+                'pages' => $pages,
+                'languageUid' => $languageUid,
+                'datatype' => $datatype,
+            ]);
+        } else {
+            if(!empty($this->data)) {
+                $flexForm = $this->data['databaseRow']['pi_flexform'];
+                if (is_array($flexForm)) {
+                    // Keep parsed data as-is.
+                } elseif (is_string($flexForm)) {
+                    $flexForm = $this->flexFormService->convertFlexFormContentToArray($flexForm);
+                } else {
+                    $flexForm = [];
+                }
+    
+                $datatype = (int)reset($flexForm['data']['general_settings']['settings']['datatype_selection']);
+    
+                // Render javascript code
+                $fieldId = $this->resolveItemFormElementId($this->data['parameterArray'] ?? []);
+                $builderId = "#builder_{$fieldId}_{$this->data['vanillaUid']}_{$this->data['fieldName']}";
+                $pages = array_column($this->data['databaseRow']['pages'], 'uid');
+                $languageUid = is_array($this->data['databaseRow']['sys_language_uid'])?reset($this->data['databaseRow']['sys_language_uid']):$this->data['databaseRow']['sys_language_uid'];
+    
+                $view->assignMultiple([
+                   'fieldId' => $fieldId,
+                   'builderId' => $builderId,
+                   'pages' => $pages,
+                   'languageUid' => $languageUid,
+                   'datatype' => $datatype,
+                ]);
+            }
+        }  
 
         $result['html'] = $view->render();
         $result['javaScriptModules'][] = JavaScriptModuleInstruction::create('jquery-extendext');

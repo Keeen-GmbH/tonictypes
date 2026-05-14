@@ -105,7 +105,7 @@ abstract class AbstractRepository extends Repository
      * @param null|int $languageUid
      * @return QueryResultInterface
      */
-    public function findAllOnPids(array $storagePids = [], $onlyEnabled = true, int $languageUid = null): QueryResultInterface
+    public function findAllOnPids(array $storagePids = [], $onlyEnabled = true, ?int $languageUid = null): QueryResultInterface
     {
         $query = $this->createQueryWithSettings(true, !$onlyEnabled, false, $storagePids, $languageUid);
         $querySettings 	= $query->getQuerySettings();

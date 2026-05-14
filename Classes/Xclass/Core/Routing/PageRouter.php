@@ -26,7 +26,7 @@ class PageRouter extends \TYPO3\CMS\Core\Routing\PageRouter
      * @param SiteLanguage $language
      * @return EnhancerInterface[]
      */
-    protected function getEnhancersForPage(int $pageId, SiteLanguage $language): array
+    protected function getEnhancersForPage(int $pageId, SiteLanguage $language, array $page = []): array
     {
         //return parent::getEnhancersForPage($pageId, $language);
         $enhancers = [];

@@ -1,10 +1,19 @@
 # Backend Preview Fix @see https://stackoverflow.com/questions/55691663/typo3-how-to-configure-plugin-preview-in-backend
 mod.web_layout.tt_content.preview.list = EXT:
 
-# Backend Preview
-mod.web_layout.tt_content.preview.list {
+# Backend Preview: TYPO3 14+ uses Preview/v14/ (adjust templates there for v14-specific markup/API).
+[compatVersion("14.0")]
+mod.web_layout.tt_content.preview {
+  tonictypes_list = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/v14/tonictypes_list.html
+  tonictypes_detail = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/v14/tonictypes_detail.html
+  tonictypes_dynamic = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/v14/tonictypes_dynamic.html
+  tonictypes_plain = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/v14/tonictypes_plain.html
+}
+[ELSE]
+mod.web_layout.tt_content.preview {
   tonictypes_list = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/tonictypes_list.html
   tonictypes_detail = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/tonictypes_detail.html
   tonictypes_dynamic = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/tonictypes_dynamic.html
   tonictypes_plain = EXT:tonictypes/Resources/Private/Templates/Backend/Preview/tonictypes_plain.html
 }
+[END]

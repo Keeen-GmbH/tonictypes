@@ -350,7 +350,7 @@ class Field extends AbstractModel
      *
      * @return string $id
      */
-    public function getId(): sting
+    public function getId(): string
     {
         return $this->id;
     }
@@ -1148,7 +1148,8 @@ class Field extends AbstractModel
     {
         $type = $this->getType();
         $fieldSettingsService = GeneralUtility::makeInstance(FieldSettingsService::class);
-        $config = $fieldSettingsService->getFieldTypeConfiguration($type);
+        $pid = $this->getPid() ?? 0;
+        $config = $fieldSettingsService->getFieldTypeConfiguration($type, $pid);
         $class = ($config['class']) ?? '';
         if ($class != '' && class_exists($class)) {
             $tcaField = GeneralUtility::makeInstance($class);

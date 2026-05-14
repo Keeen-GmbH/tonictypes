@@ -14,11 +14,16 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Service\Settings;
 
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 abstract class AbstractSettingsService implements SingletonInterface
 {
@@ -33,6 +38,11 @@ abstract class AbstractSettingsService implements SingletonInterface
   protected $backendConfigurationManager;
 
   /**
+   * @var ConfigurationManager
+   */
+  protected $configurationManager;
+
+  /**
    * @param BackendConfigurationManager $backendConfigurationManager
    * @return void
    */
@@ -44,10 +54,10 @@ abstract class AbstractSettingsService implements SingletonInterface
   /**
    * @param ConfigurationManager $configurationManager
    */
-  //public function injectConfigurationManager(ConfigurationManager $configurationManager)
-  //{
-  //  $this->configurationManager = $configurationManager;
-  //}
+  public function injectConfigurationManager(ConfigurationManager $configurationManager)
+  {
+   $this->configurationManager = $configurationManager;
+  }
 
   /**
    * Returns all settings.
@@ -55,18 +65,46 @@ abstract class AbstractSettingsService implements SingletonInterface
    * @param string $path Configuration Path
    * @return array
    */
-  public function getConfiguration(string $path)
+  public function getConfiguration(string $path, int $pid = 0)
   {
+    $config = [];
     $request = $GLOBALS['TYPO3_REQUEST'] ?? GeneralUtility::makeInstance(ServerRequest::class);
     if (!$request instanceof ServerRequestInterface) {
       $request = GeneralUtility::makeInstance(ServerRequest::class);
     }
-
-    $config = $this->backendConfigurationManager->getTypoScriptSetup($request);
+    if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() >= 14) {
+      $isFrontend = false;
+      try {
+        $isFrontend = ApplicationType::fromRequest($request)->isFrontend();
+      } catch (\Throwable $e) {
+        // Some backend flows provide a request without applicationType attribute.
+        $isFrontend = !isset($GLOBALS['BE_USER']);
+      }
+      if ($isFrontend) {
+        if ($this->configurationManager instanceof ConfigurationManagerInterface) {
+          try {
+            $config = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
+          } catch (\Throwable $e) {
+            $config = [];
+          }
+        }
+      } elseif ($pid > 0) {
+        $site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pid);
+        $request = (new ServerRequest())->withQueryParams(['id' => $pid])->withAttribute('site', $site);
+        $config = $this->backendConfigurationManager->getTypoScriptSetup($request);
+      } elseif ($this->configurationManager instanceof ConfigurationManagerInterface) {
+          try {
+            $config = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
+          } catch (\Throwable $e) {
+            $config = [];
+          }
+      }
+    } else {
+      $config = $this->backendConfigurationManager->getTypoScriptSetup($request);
+    }
     if (!is_array($config)) {
       return [];
     }
-
     try {
       $config = GeneralUtility::removeDotsFromTS($config);
       $value = ArrayUtility::getValueByPath($config, $path, '.');
@@ -82,12 +120,12 @@ abstract class AbstractSettingsService implements SingletonInterface
    *
    * @return string
    */
-  public function getPartialPaths(): array
+  public function getPartialPaths(int $pid = 0): array
   {
     $path = 'plugin.tx_tonictypes.view.partialRootPaths';
-    $config = $this->getConfiguration($path);
+    $config = $this->getConfiguration($path, $pid);
 
-    if (!is_array($config)) {
+    if (!is_array($config) || $config === []) {
       $config = [100 => 'EXT:tonictypes/Resources/Private/Partials/'];
     }
 
@@ -99,12 +137,12 @@ abstract class AbstractSettingsService implements SingletonInterface
    *
    * @return string
    */
-  public function getTemplatePaths(): array
+  public function getTemplatePaths(int $pid = 0): array
   {
     $path = 'plugin.tx_tonictypes.view.templateRootPaths';
-    $config = $this->getConfiguration($path);
+    $config = $this->getConfiguration($path, $pid);
 
-    if (!is_array($config)) {
+    if (!is_array($config) || $config === []) {
       $config = [100 => 'EXT:tonictypes/Resources/Private/Templates/'];
     }
 
@@ -116,12 +154,12 @@ abstract class AbstractSettingsService implements SingletonInterface
    *
    * @return array|string
    */
-  public function getLayoutPaths(): array
+  public function getLayoutPaths(int $pid = 0): array
   {
     $path = 'plugin.tx_tonictypes.view.layoutRootPaths';
-    $config = $this->getConfiguration($path);
+    $config = $this->getConfiguration($path, $pid);
 
-    if (!is_array($config)) {
+    if (!is_array($config) || $config === []) {
       $config = [100 => 'EXT:tonictypes/Resources/Private/Layouts/'];
     }
 

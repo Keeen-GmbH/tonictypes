@@ -58,10 +58,17 @@
                                     <div class="support text-right">
                                         <div class="pull-right">
                                             <div class="dv-logo">
-                                                <picture>
-                                                    <source srcset="{logoBrightUrl}" media="(prefers-color-scheme: dark)">
-                                                    <img src="{logoUrl}" width="180" class="tonictypes-logo" title="Tonictypes v{version}"/>
-                                                </picture>
+                                                <f:if condition="{typo3IsV12}">
+                                                    <f:then>
+                                                        <img src="{logoUrl}" width="180" class="tonictypes-logo" title="Tonictypes v{version}"/>
+                                                    </f:then>
+                                                    <f:else>
+                                                        <picture>
+                                                            <source srcset="{logoBrightUrl}" media="(prefers-color-scheme: dark)">
+                                                            <img src="{logoUrl}" width="180" class="tonictypes-logo" title="Tonictypes v{version}"/>
+                                                        </picture>
+                                                    </f:else>
+                                                </f:if>
                                             </div>
                                             <strong class="">v{version}</strong> <br/>
                                             <a class="" href="mailto:{supportEmail}">{supportEmail}</a> <br/>

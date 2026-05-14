@@ -1,5 +1,8 @@
 <?php
 declare(strict_types=1);
+
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -19,16 +22,11 @@ return [
                 'typo3/cms-backend/site-resolver',
             ],
         ],
-        'k3n/tonictypes/backend-initialization' => [
-            'target' => \K3n\Tonictypes\Middleware\BackendInitializationMiddleware::class,
+        'k3n/tonictypes/fieldtype-configuration-generator' => [
+            'target' => GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14 ? \K3n\Tonictypes\Middleware\FieldtypeConfigurationMiddleware::class : \K3n\Tonictypes\Middleware\FieldtypeConfigurationMiddlewareV14::class,
             'after' => [
                 'k3n/tonictypes/tca-generator',
-            ],
-        ],
-        'k3n/tonictypes/fieldtype-configuration-generator' => [
-            'target' =>  \K3n\Tonictypes\Middleware\FieldtypeConfigurationMiddleware::class,
-            'after' => [
-                'k3n/tonictypes/backend-initialization',
+                'typo3/cms-backend/page-context',
             ],
         ],
     ],
@@ -43,7 +41,7 @@ return [
             ],
         ],
         'k3n/tonictypes/fieldtype-configuration-generator' => [
-            'target' => \K3n\Tonictypes\Middleware\FieldtypeConfigurationMiddleware::class,
+            'target' => GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14 ? \K3n\Tonictypes\Middleware\FieldtypeConfigurationMiddleware::class : \K3n\Tonictypes\Middleware\FieldtypeConfigurationMiddlewareV14::class,
             'after' => [
                 'k3n/tonictypes/tca-generator',
             ],

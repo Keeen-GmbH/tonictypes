@@ -31,9 +31,9 @@ class FieldSettingsService extends AbstractSettingsService implements SingletonI
 	 * the plugin settings in typoscript
 	 * @return array
 	 */
-	public function getFieldConfiguration(): array
+	public function getFieldConfiguration(int $pid = 0): array
 	{
-	    $fieldConfiguration = $this->getConfiguration('plugin.tx_tonictypes.fieldtypes');
+	    $fieldConfiguration = $this->getConfiguration('plugin.tx_tonictypes.fieldtypes', $pid);
         return GeneralUtility::removeDotsFromTS($fieldConfiguration);
 	}
 
@@ -44,9 +44,9 @@ class FieldSettingsService extends AbstractSettingsService implements SingletonI
 	 * @param string $type
 	 * @return array
 	 */
-	public function getFieldTypeConfiguration(string $type): array
+	public function getFieldTypeConfiguration(string $type, int $pid = 0): array
 	{
-	    $fieldConfig =  $this->getFieldConfiguration();
+	    $fieldConfig = $this->getFieldConfiguration($pid);
 	    if (array_key_exists($type, $fieldConfig)) {
 	        return $fieldConfig[$type];
         }
@@ -57,11 +57,10 @@ class FieldSettingsService extends AbstractSettingsService implements SingletonI
      * Gets the tca flexform configuration
      * @return array
      */
-	public function getTcaFlexFormConfiguration(): array
+	public function getTcaFlexFormConfiguration(int $pid = 0): array
     {
         $dsConfig = [];
-
-        $typesConfiguration = $this->getFieldConfiguration();
+        $typesConfiguration = $this->getFieldConfiguration($pid);
         foreach ($typesConfiguration as $_id=>$_config) {
             if (isset($_config['flexform'])) {
                 $dsConfig[$_id] = 'FILE:'.$_config['flexform'];
@@ -75,9 +74,9 @@ class FieldSettingsService extends AbstractSettingsService implements SingletonI
      * @param Field $field
      * @return string|null
      */
-    public function getValueGeneratorClass(Field $field): ?string
+    public function getValueGeneratorClass(Field $field, int $pid = 0): ?string
     {
-        $fieldConfiguration = $this->getFieldConfiguration();
+        $fieldConfiguration = $this->getFieldConfiguration($pid);
         if(isset($fieldConfiguration[$field->getType()]['value']) && $fieldConfiguration[$field->getType()]['value'] != '') {
             return $fieldConfiguration[$field->getType()]['value'];
         }
@@ -89,10 +88,10 @@ class FieldSettingsService extends AbstractSettingsService implements SingletonI
      * are configured with a value generator class
      * @return array
      */
-    public function getFieldTypesWithValueGenerator(): array
+    public function getFieldTypesWithValueGenerator(int $pid = 0): array
     {
         $fieldTypes = [];
-        $fieldConfiguration = $this->getFieldConfiguration();
+        $fieldConfiguration = $this->getFieldConfiguration($pid);
 
         foreach($fieldConfiguration as $fT=>$_fc) {
             if(isset($_fc['value'])) {

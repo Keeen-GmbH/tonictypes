@@ -1,9 +1,9 @@
 {
   "name": "k3n/tonictypes",
   "type": "typo3-cms-extension",
-  "description": "Maximize development speed with tonictypes, the evolution of the proven typotonic extension (over 1,000 downloads). Build on a foundation of success and create custom TCA records like news, jobs, or events on the fly directly in the TYPO3 backend—no PHP extension coding required. This successor features powerful new list and detail plugins alongside adjustable backend filters for total control. Only Fluid templating is needed to match any design. Stop managing overhead and start building faster.",
+  "description": "tonictypes: Rapid TCA & Advanced Plugins - Maximize development speed with tonictypes, the evolution of the proven typotonic extension (over 1,000 downloads). Build on a foundation of success and create custom TCA records like news, jobs, or events on the fly directly in the TYPO3 backend—no PHP extension coding required. This successor features powerful new list and detail plugins alongside adjustable backend filters for total control. Only Fluid templating is needed to match any design. Stop managing overhead and start building faster.",
   "homepage": "https://www.tonictypes.com",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "license": [
     "GPL-2.0-or-later"
   ],
@@ -22,7 +22,7 @@
   },
   "require": {
     "php": ">=8.1.0 <=8.3.99",
-    "typo3/cms-core": ">=12.4.0 <=13.4.99"
+    "typo3/cms-core": ">=12.4.0 <=14.3.99"
   },
   "autoload": {
     "psr-4": {

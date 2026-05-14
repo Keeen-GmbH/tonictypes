@@ -21,7 +21,7 @@ use TYPO3\CMS\Fluid\ViewHelpers\Be\AbstractBackendViewHelper;
 /**
  * ViewHelper to create a link to edit a note
  */
-class AbstractLinkViewHelper extends AbstractBackendViewHelper
+abstract class AbstractLinkViewHelper extends AbstractBackendViewHelper
 {
     /**
      * Returns the URL to a given module
