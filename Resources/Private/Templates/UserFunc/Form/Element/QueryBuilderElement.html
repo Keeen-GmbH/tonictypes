@@ -15,11 +15,13 @@
     <link rel="stylesheet" href="{css}" id="css_{i.index}">
 </f:for>
 
-<label for="{data.parameterArray.itemFormElName}"><f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.filter_condition"/></label>
+<label for="{fieldId}"><f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.filter_condition"/></label>
 <input type="hidden"
        name="{data.parameterArray.itemFormElName}"
-       id="{data.parameterArray.itemFormElID}"
-       value="{data.parameterArray.itemFormElValue}" class="form-control"
+       id="{fieldId}"
+       value="{valueFieldValue}"
+       class="form-control t3js-querybuilder-value"
+       data-formengine-input-name="{data.parameterArray.itemFormElName}"
 />
 
 <div id="{id}" style="padding:15px 0;">

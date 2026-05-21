@@ -20,7 +20,8 @@ use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Service\FlexFormService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
+use TYPO3\CMS\Core\Utility\StringUtility;
+use K3n\Tonictypes\Fluid\View\StandaloneView;
 
 class QueryBuilderElement extends AbstractFormElement
 {
@@ -80,71 +81,47 @@ class QueryBuilderElement extends AbstractFormElement
         $view->assign('cssFiles', $cssFiles);
         $view->assign('data', $this->data);
 
-        $randVarName = uniqid('qb_');
+        $randVarName = StringUtility::getUniqueId('qb_');
         $view->assign('id', $randVarName);
 
-        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14)
-        {
-            $datatype = 0;
-            $fieldId = $this->resolveItemFormElementId((array)($this->data['parameterArray'] ?? []));
-            if (isset($this->data['parameterArray']) && is_array($this->data['parameterArray'])) {
-                // Keep both keys to support v12/v13 template expectations.
-                $this->data['parameterArray']['itemFormElID'] = $fieldId;
-                $this->data['parameterArray']['itemFormElId'] = $fieldId;
-            }
-            $view->assign('data', $this->data);
+        $datatype = 0;
+        $parameterArray = (array)($this->data['parameterArray'] ?? []);
+        $fieldId = $this->resolveItemFormElementId($parameterArray);
+        $valueFieldValue = $this->resolveItemFormElementValue($parameterArray);
+        $pages = [];
+        $languageUid = 0;
 
-            $builderId = "#builder_{$fieldId}_{$this->data['vanillaUid']}_{$this->data['fieldName']}";
-            $pages = $this->normalizePageUids($this->data['databaseRow']['pages'] ?? []);
-            $languageUid = $this->resolvePositiveIntegerValue($this->data['databaseRow']['sys_language_uid'] ?? null) ?? 0;
+        if (isset($this->data['parameterArray']) && is_array($this->data['parameterArray'])) {
+            // itemFormElID was removed in TYPO3 v13; keep both keys for v12 templates / legacy code.
+            $this->data['parameterArray']['itemFormElID'] = $fieldId;
+            $this->data['parameterArray']['itemFormElId'] = $fieldId;
+        }
 
-            if (!empty($this->data['databaseRow']['pi_flexform'])) {
-                $flexForm = $this->data['databaseRow']['pi_flexform'];
-                if (is_string($flexForm)) {
-                    $flexForm = GeneralUtility::xml2array($flexForm);
-                }
-                if (is_array($flexForm)) {
-                    $flexForm = $this->flexFormService->walkFlexFormNode($flexForm);
-                    $flexForm = $this->flexFormService->walkFlexFormNode($flexForm, 'lDEF');
-                    $datatype = $this->resolvePositiveIntegerValue($flexForm['data']['general_settings']['settings']['datatype_selection'] ?? null) ?? 0;
-                }
-            }
+        $view->assignMultiple([
+            'fieldId' => $fieldId,
+            'valueFieldValue' => $valueFieldValue,
+        ]);
 
-            $view->assignMultiple([
-                'fieldId' => $fieldId,
-                'builderId' => $builderId,
-                'pages' => $pages,
-                'languageUid' => $languageUid,
-                'datatype' => $datatype,
-            ]);
-        } else {
-            if(!empty($this->data)) {
-                $flexForm = $this->data['databaseRow']['pi_flexform'];
-                if (is_array($flexForm)) {
-                    // Keep parsed data as-is.
-                } elseif (is_string($flexForm)) {
-                    $flexForm = $this->flexFormService->convertFlexFormContentToArray($flexForm);
-                } else {
-                    $flexForm = [];
-                }
-    
-                $datatype = (int)reset($flexForm['data']['general_settings']['settings']['datatype_selection']);
-    
-                // Render javascript code
-                $fieldId = $this->resolveItemFormElementId($this->data['parameterArray'] ?? []);
-                $builderId = "#builder_{$fieldId}_{$this->data['vanillaUid']}_{$this->data['fieldName']}";
-                $pages = array_column($this->data['databaseRow']['pages'], 'uid');
-                $languageUid = is_array($this->data['databaseRow']['sys_language_uid'])?reset($this->data['databaseRow']['sys_language_uid']):$this->data['databaseRow']['sys_language_uid'];
-    
-                $view->assignMultiple([
-                   'fieldId' => $fieldId,
-                   'builderId' => $builderId,
-                   'pages' => $pages,
-                   'languageUid' => $languageUid,
-                   'datatype' => $datatype,
-                ]);
+        $databaseRow = $this->data['databaseRow'] ?? null;
+        if (is_array($databaseRow)) {
+            $pages = $this->normalizePageUids($databaseRow['pages'] ?? []);
+            $languageUid = $this->resolveLanguageUidFromDatabaseRow($databaseRow);
+
+            if (!empty($databaseRow['pi_flexform'])) {
+                $flexForm = $this->parsePiFlexForm($databaseRow['pi_flexform']);
+                $datatype = $this->resolveFlexFormDatatypeSelection($flexForm);
             }
-        }  
+        }
+
+        $builderId = "#builder_{$fieldId}_{$this->data['vanillaUid']}_{$this->data['fieldName']}";
+        $view->assign('data', $this->data);
+        $view->assignMultiple([
+            'fieldId' => $fieldId,
+            'builderId' => $builderId,
+            'pages' => $pages,
+            'languageUid' => $languageUid,
+            'datatype' => $datatype,
+        ]);
 
         $result['html'] = $view->render();
         $result['javaScriptModules'][] = JavaScriptModuleInstruction::create('jquery-extendext');
@@ -166,9 +143,25 @@ class QueryBuilderElement extends AbstractFormElement
     {
         $itemFormElId = (string)($parameterArray['itemFormElID'] ?? $parameterArray['itemFormElId'] ?? '');
         if ($itemFormElId !== '') {
-            return $itemFormElId;
+            return $this->sanitizeItemFormElementId($itemFormElId);
         }
         return $this->sanitizeItemFormElementId((string)($parameterArray['itemFormElName'] ?? ''));
+    }
+
+    protected function resolveItemFormElementValue(array $parameterArray): string
+    {
+        $value = $parameterArray['itemFormElValue'] ?? '';
+        if (is_array($value)) {
+            if ($value === []) {
+                return '';
+            }
+            $value = reset($value);
+        }
+        if (!is_scalar($value)) {
+            return '';
+        }
+
+        return (string)$value;
     }
 
     protected function sanitizeItemFormElementId(string $itemFormElementName): string
@@ -183,9 +176,120 @@ class QueryBuilderElement extends AbstractFormElement
         return (string)preg_replace('/^[^a-zA-Z]/', 'x', $fieldId);
     }
 
+    protected function parsePiFlexForm(mixed $piFlexform): array
+    {
+        if ($piFlexform === null || $piFlexform === '' || $piFlexform === []) {
+            return [];
+        }
+
+        if (is_string($piFlexform)) {
+            return $this->flexFormService->convertFlexFormContentToArray($piFlexform);
+        }
+
+        if (!is_array($piFlexform)) {
+            return [];
+        }
+
+        if ($this->flexFormNeedsNormalization($piFlexform)) {
+            $flexForm = $this->walkFlexFormNode($piFlexform);
+            return is_array($flexForm) ? $this->walkFlexFormNode($flexForm, 'lDEF') : [];
+        }
+
+        return $piFlexform;
+    }
+
+    protected function flexFormNeedsNormalization(array $flexForm): bool
+    {
+        if (isset($flexForm['data']) && is_array($flexForm['data'])) {
+            $datatypeSelection = $flexForm['data']['general_settings']['settings']['datatype_selection'] ?? null;
+            if (is_array($datatypeSelection) && (array_key_exists('vDEF', $datatypeSelection) || array_key_exists('lDEF', $datatypeSelection))) {
+                return true;
+            }
+            return false;
+        }
+
+        return isset($flexForm['sheets']) || isset($flexForm['el']) || array_key_exists('vDEF', $flexForm) || array_key_exists('lDEF', $flexForm);
+    }
+
+    /**
+     * Normalize raw flexform XML arrays (v12/v13 backend) to flat value arrays.
+     *
+     * @param mixed $nodeArray
+     * @param string $valuePointer
+     * @return mixed
+     */
+    protected function walkFlexFormNode($nodeArray, string $valuePointer = 'vDEF')
+    {
+        if (is_array($nodeArray)) {
+            $return = [];
+            foreach ($nodeArray as $nodeKey => $nodeValue) {
+                if ($nodeKey === $valuePointer) {
+                    return $nodeValue;
+                }
+                if (in_array($nodeKey, ['el', '_arrayContainer'], true)) {
+                    return $this->walkFlexFormNode($nodeValue, $valuePointer);
+                }
+                if (($nodeKey[0] ?? '') === '_') {
+                    continue;
+                }
+                if (strpos((string)$nodeKey, '.') !== false) {
+                    $nodeKeyParts = explode('.', (string)$nodeKey);
+                    $currentNode = &$return;
+                    $nodeKeyPartsCount = count($nodeKeyParts);
+                    for ($i = 0; $i < $nodeKeyPartsCount - 1; $i++) {
+                        $currentNode = &$currentNode[$nodeKeyParts[$i]];
+                    }
+                    $newNode = [next($nodeKeyParts) => $nodeValue];
+                    $subVal = $this->walkFlexFormNode($newNode, $valuePointer);
+                    $currentNode[key($subVal)] = current($subVal);
+                } elseif (is_array($nodeValue)) {
+                    if (array_key_exists($valuePointer, $nodeValue)) {
+                        $return[$nodeKey] = $nodeValue[$valuePointer];
+                    } else {
+                        $return[$nodeKey] = $this->walkFlexFormNode($nodeValue, $valuePointer);
+                    }
+                } else {
+                    $return[$nodeKey] = $nodeValue;
+                }
+            }
+            return $return;
+        }
+        return $nodeArray;
+    }
+
+    protected function resolveFlexFormDatatypeSelection(array $flexForm): int
+    {
+        $value = $flexForm['data']['general_settings']['settings']['datatype_selection'] ?? null;
+
+        return $this->resolvePositiveIntegerValue($value) ?? 0;
+    }
+
+    protected function resolveLanguageUidFromDatabaseRow(array $databaseRow): int
+    {
+        return $this->resolveIntegerValue($databaseRow['sys_language_uid'] ?? 0);
+    }
+
+    protected function resolveIntegerValue($value): int
+    {
+        if (is_array($value)) {
+            if ($value === []) {
+                return 0;
+            }
+            $value = reset($value);
+        }
+        if (!is_scalar($value) || !is_numeric((string)$value)) {
+            return 0;
+        }
+
+        return (int)$value;
+    }
+
     protected function resolvePositiveIntegerValue($value): ?int
     {
         if (is_array($value)) {
+            if ($value === []) {
+                return null;
+            }
             $value = reset($value);
         }
         if (!is_scalar($value) || !is_numeric((string)$value)) {
