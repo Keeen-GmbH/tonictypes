@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Service\Settings;
 
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Information\Typo3Version;
@@ -89,9 +90,13 @@ abstract class AbstractSettingsService implements SingletonInterface
           }
         }
       } elseif ($pid > 0) {
-        $site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pid);
-        $request = (new ServerRequest())->withQueryParams(['id' => $pid])->withAttribute('site', $site);
-        $config = $this->backendConfigurationManager->getTypoScriptSetup($request);
+        try {
+          $site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pid);
+          $request = (new ServerRequest())->withQueryParams(['id' => $pid])->withAttribute('site', $site);
+          $config = $this->backendConfigurationManager->getTypoScriptSetup($request);
+        } catch (SiteNotFoundException) {
+          $config = [];
+        }
       } elseif ($this->configurationManager instanceof ConfigurationManagerInterface) {
           try {
             $config = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);

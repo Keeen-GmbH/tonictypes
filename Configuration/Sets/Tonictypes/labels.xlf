@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+	<file source-language="en" datatype="plaintext" original="EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf" product-name="tonictypes">
+		<header/>
+		<body>
+			<trans-unit id="label">
+				<source>EXT:tonictypes</source>
+			</trans-unit>
+			<trans-unit id="categories.tonictypes.developer">
+				<source>Developer</source>
+			</trans-unit>
+			<trans-unit id="categories.tonictypes.view">
+				<source>Templates</source>
+			</trans-unit>
+			<trans-unit id="settings.plugin.tx_tonictypes.developer.cache_lifetime">
+				<source>Cache lifetime (seconds)</source>
+			</trans-unit>
+			<trans-unit id="settings.description.plugin.tx_tonictypes.developer.cache_lifetime">
+				<source>Sets the general cache lifetime in seconds for rendered templates.</source>
+			</trans-unit>
+			<trans-unit id="settings.plugin.tx_tonictypes.developer.recordsVariableName">
+				<source>Records variable name</source>
+			</trans-unit>
+			<trans-unit id="settings.description.plugin.tx_tonictypes.developer.recordsVariableName">
+				<source>Global Fluid variable name for injected record lists.</source>
+			</trans-unit>
+			<trans-unit id="settings.plugin.tx_tonictypes.developer.singleRecordVariableName">
+				<source>Single record variable name</source>
+			</trans-unit>
+			<trans-unit id="settings.description.plugin.tx_tonictypes.developer.singleRecordVariableName">
+				<source>Global Fluid variable name for a single injected record.</source>
+			</trans-unit>
+			<trans-unit id="settings.plugin.tx_tonictypes.view.templateRootPath">
+				<source>Template root path</source>
+			</trans-unit>
+			<trans-unit id="settings.description.plugin.tx_tonictypes.view.templateRootPath">
+				<source>Path to Fluid templates for frontend plugins.</source>
+			</trans-unit>
+			<trans-unit id="settings.plugin.tx_tonictypes.view.partialRootPath">
+				<source>Partial root path</source>
+			</trans-unit>
+			<trans-unit id="settings.description.plugin.tx_tonictypes.view.partialRootPath">
+				<source>Path to Fluid partials for frontend plugins.</source>
+			</trans-unit>
+			<trans-unit id="settings.plugin.tx_tonictypes.view.layoutRootPath">
+				<source>Layout root path</source>
+			</trans-unit>
+			<trans-unit id="settings.description.plugin.tx_tonictypes.view.layoutRootPath">
+				<source>Path to Fluid layouts for frontend plugins.</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

@@ -91,6 +91,7 @@ class RenderViewHelper extends AbstractViewHelper
         $this->registerArgument('cache', 'bool', 'Enables or disables cache', false, false);
         $this->registerArgument('lifetime', 'int', 'Cache Lifetime', false);
         $this->registerArgument('cacheIdentifier', 'string', 'Cache Identifier', false);
+        $this->registerArgument('pid', 'int', 'Page ID', false);
         parent::initializeArguments();
     }
 
@@ -123,6 +124,7 @@ class RenderViewHelper extends AbstractViewHelper
     public function render(): ?string
     {
         $template   = $this->arguments['template'];
+        $pid = $this->arguments['pid'] ?? 0;
         $predefined = $this->pluginSettingsService->getPredefinedTemplateById($template);
 
         if (is_string($predefined) && trim($predefined) !== '') {
@@ -171,7 +173,7 @@ class RenderViewHelper extends AbstractViewHelper
 
             $output = $view->render();
 
-            $lifetime = (int)$this->pluginSettingsService->getConfiguration('plugin.tx_tonictypes.developer.cache_lifetime');
+            $lifetime = (int)$this->pluginSettingsService->getConfiguration('plugin.tx_tonictypes.developer.cache_lifetime', $pid);
             if ($this->hasArgument('lifetime')) {
                 $lifetime = (int)$this->arguments['lifetime'];
             }
