@@ -10,7 +10,7 @@
  *
  */
 $EM_CONF[$_EXTKEY] = [
-	'title' => 'tonictypes - Rapid TCA & Advanced Plugins',
+	'title' => 'Tonictypes - Rapid TCA & Advanced Plugins',
 	'description' => 'Maximize development speed with tonictypes, the evolution of the proven typotonic extension (over 1,000 downloads). Build on a foundation of success and create custom TCA records like news, jobs, or events on the fly directly in the TYPO3 backend—no PHP extension coding required. This successor features powerful new list and detail plugins alongside adjustable backend filters for total control. Only Fluid templating is needed to match any design. Stop managing overhead and start building faster.',
 	'category' => 'plugin',
 	'shy' => 0,
