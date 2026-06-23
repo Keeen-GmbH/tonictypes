@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,88 +12,66 @@
  * Contact: support@tonictypes.com
  *
  */
+
 defined('TYPO3') or die();
 
-call_user_func(
-    function () {
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
-        // Add 'tonictypes' group to CType dropdown
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType','tonictypes', 'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:tx_tonictypes.plugins');
+(static function (): void {
+    // Add 'tonictypes' group to CType dropdown
+    ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType','tonictypes', 'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:tx_tonictypes.plugins');
 
-        /***********************************
-         * Plugin - List
-         ***********************************/
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
+    $typo3Major = (new \TYPO3\CMS\Core\Information\Typo3Version())->getMajorVersion();
+    $plugins = [
+        'List',
+        'Detail',
+        'Dynamic',
+        'Plain',
+    ];
+
+
+    foreach ($plugins as $plugin) {
+        $pluginLower = strtolower($plugin);
+        $cType = 'tonictypes_' . $pluginLower;
+        if ($typo3Major >= 14) {
+            ExtensionUtility::registerPlugin(
+                'Tonictypes',
+                $plugin,
+                'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.' . $pluginLower,
+                'tonictypes-icon-tonictypes-' . $pluginLower,
+                'tonictypes',
+                '',
+                'FILE:EXT:tonictypes/Configuration/FlexForms/Plugins/' . $plugin . '.xml'
+            );
+        }
+
+        $signature = ExtensionUtility::registerPlugin(
             'Tonictypes',
-            'List',
-            'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.list',
-            'tonictypes-icon-tonictypes-list',
-            'tonictypes'
+            $plugin,
+            'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.' . $pluginLower,
+            'tonictypes-icon-tonictypes-' . $pluginLower,
+            'tonictypes',
+            '',
         );
+        $GLOBALS['TCA']['tt_content']['types'][$signature]['subtypes_excludelist'] = 'layout,select_key,recursive';
+        $GLOBALS['TCA']['tt_content']['types'][$signature]['subtypes_addlist']     = 'pi_flexform';
 
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['tonictypes_list'] = 'layout,select_key,recursive';
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['tonictypes_list']     = 'pi_flexform';
+        $flexFormFile = 'FILE:EXT:tonictypes/Configuration/FlexForms/Plugins/' . $plugin . '.xml';
+        ExtensionManagementUtility::addPiFlexFormValue($signature, $flexFormFile, $cType);
+        ExtensionManagementUtility::addPiFlexFormValue('*', $flexFormFile, $cType);
 
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue(
-            'tonictypes_list',
-            'FILE:EXT:tonictypes/Configuration/FlexForms/Plugins/List.xml'
+        ExtensionManagementUtility::addToAllTCAtypes(
+            'tt_content',
+            '--div--;LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes, pi_flexform',
+            $signature,
+            'after:palette:headers'
         );
-
-        /***********************************
-         * Plugin - Detail
-         ***********************************/
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
-            'Tonictypes',
-            'Detail',
-            'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.detail',
-            'tonictypes-icon-tonictypes-detail',
-            'tonictypes'
-        );
-
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['tonictypes_detail'] = 'layout,select_key,recursive';
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['tonictypes_detail']     = 'pi_flexform';
-
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue(
-            'tonictypes_detail',
-            'FILE:EXT:tonictypes/Configuration/FlexForms/Plugins/Detail.xml'
-        );
-
-        /***********************************
-         * Plugin - Dynamic
-         ***********************************/
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
-            'Tonictypes',
-            'Dynamic',
-            'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.dynamic',
-            'tonictypes-icon-tonictypes-dynamic',
-            'tonictypes'
-        );
-
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['tonictypes_dynamic'] = 'layout,select_key,recursive';
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['tonictypes_dynamic']     = 'pi_flexform';
-
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue(
-            'tonictypes_dynamic',
-            'FILE:EXT:tonictypes/Configuration/FlexForms/Plugins/Dynamic.xml'
-        );
-
-        /***********************************
-         * Plugin - Plain
-         ***********************************/
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
-            'Tonictypes',
-            'Plain',
-            'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.plain',
-            'tonictypes-icon-tonictypes-plain',
-            'tonictypes'
-        );
-
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['tonictypes_plain'] = 'layout,select_key,recursive';
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist']['tonictypes_plain']     = 'pi_flexform';
-
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPiFlexFormValue(
-            'tonictypes_plain',
-            'FILE:EXT:tonictypes/Configuration/FlexForms/Plugins/Plain.xml'
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes(
+            'tt_content',
+            'pages',
+            $cType,
+            'after:pi_flexform'
         );
     }
-);
+})();

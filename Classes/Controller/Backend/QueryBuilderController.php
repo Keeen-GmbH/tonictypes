@@ -24,8 +24,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Information\Typo3Version;
 
 class QueryBuilderController extends AbstractBackendController
 {
@@ -311,9 +313,9 @@ class QueryBuilderController extends AbstractBackendController
             }
 
             if ($_item->getHidden() === true) {
-                $icon = $this->iconFactory->getIcon('extensions-tonictypes-' . $datatype->getIcon(), Icon::SIZE_SMALL, 'overlay-hidden');
+                $icon = $this->iconFactory->getIcon('extensions-tonictypes-' . $datatype->getIcon(), GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13 ? Icon::SIZE_SMALL : IconSize::SMALL, 'overlay-hidden');
             } else {
-                $icon = $this->iconFactory->getIcon('extensions-tonictypes-' . $datatype->getIcon(), Icon::SIZE_SMALL);
+                $icon = $this->iconFactory->getIcon('extensions-tonictypes-' . $datatype->getIcon(), GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13 ? Icon::SIZE_SMALL : IconSize::SMALL);
             }
             $values[$_item->getUid()] = $icon . ' ' . '['.$_item->getUid().']'.' '.$_item->getTitle();
         }

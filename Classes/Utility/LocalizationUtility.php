@@ -22,7 +22,7 @@ class LocalizationUtility
 	 * @param array $arguments
 	 * @return string
 	 */
-	public static function translate(string $key, array $arguments = null): string
+	public static function translate(string $key, ?array $arguments = null): string
 	{
 		if (!is_array($arguments)) {
 			$arguments = [$arguments];

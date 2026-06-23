@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Utility;
 
-use TYPO3\CMS\Core\Charset\CharsetConverter;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -48,12 +47,9 @@ class UrlUtility
      */
     public static function generatePathSegment(string $inputStr, string $spaceCharacter = '-', bool $strToLower = true): string
     {
-        /* @var CharsetConverter $csConverter */
-        $csConverter = GeneralUtility::makeInstance(CharsetConverter::class);
-
         $processed = strip_tags($inputStr);
-        $processed = preg_replace('/[ \t\x{00A0}\-+_]+/u', $spaceCharacter, $inputStr);
-        $processed = $csConverter->specCharsToASCII('utf-8', $processed);
+        $processed = preg_replace('/[ \t\x{00A0}\-+_]+/u', $spaceCharacter, $processed) ?? $processed;
+        $processed = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $processed) ?: $processed;
         $processed = preg_replace('/[^\p{L}0-9' . preg_quote($spaceCharacter) . ']/u', '', $processed);
         $processed = preg_replace('/' . preg_quote($spaceCharacter) . '{2,}/', $spaceCharacter, $processed);
         $processed = trim($processed, $spaceCharacter);

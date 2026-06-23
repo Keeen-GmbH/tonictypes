@@ -1,0 +1,52 @@
+categories:
+  tonictypes:
+    label: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:label'
+  tonictypes.developer:
+    label: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:categories.tonictypes.developer'
+    parent: tonictypes
+  tonictypes.view:
+    label: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:categories.tonictypes.view'
+    parent: tonictypes
+
+settings:
+  plugin.tx_tonictypes.developer.cache_lifetime:
+    label: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.plugin.tx_tonictypes.developer.cache_lifetime'
+    description: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.description.plugin.tx_tonictypes.developer.cache_lifetime'
+    type: int
+    default: 86400
+    category: tonictypes.developer
+
+  plugin.tx_tonictypes.developer.recordsVariableName:
+    label: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.plugin.tx_tonictypes.developer.recordsVariableName'
+    description: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.description.plugin.tx_tonictypes.developer.recordsVariableName'
+    type: string
+    default: records
+    category: tonictypes.developer
+
+  plugin.tx_tonictypes.developer.singleRecordVariableName:
+    label: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.plugin.tx_tonictypes.developer.singleRecordVariableName'
+    description: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.description.plugin.tx_tonictypes.developer.singleRecordVariableName'
+    type: string
+    default: record
+    category: tonictypes.developer
+
+  plugin.tx_tonictypes.view.templateRootPath:
+    label: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.plugin.tx_tonictypes.view.templateRootPath'
+    description: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.description.plugin.tx_tonictypes.view.templateRootPath'
+    type: string
+    default: 'EXT:tonictypes/Resources/Private/Templates/'
+    category: tonictypes.view
+
+  plugin.tx_tonictypes.view.partialRootPath:
+    label: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.plugin.tx_tonictypes.view.partialRootPath'
+    description: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.description.plugin.tx_tonictypes.view.partialRootPath'
+    type: string
+    default: 'EXT:tonictypes/Resources/Private/Partials/'
+    category: tonictypes.view
+
+  plugin.tx_tonictypes.view.layoutRootPath:
+    label: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.plugin.tx_tonictypes.view.layoutRootPath'
+    description: 'LLL:EXT:tonictypes/Configuration/Sets/Tonictypes/labels.xlf:settings.description.plugin.tx_tonictypes.view.layoutRootPath'
+    type: string
+    default: 'EXT:tonictypes/Resources/Private/Layouts/'
+    category: tonictypes.view

@@ -29,7 +29,7 @@
     You can also use the paginator variables for your own pagination. Use the following list, to see which variables are injected to your template.
   </p>
 
-  <dv:template.render template="EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/AvailableMarkers.html" arguments="{
+  <dv:template.render template="EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/AvailableMarkers.html" pid="{config.row.pid}" arguments="{
     markers: {
       0: {name:'p_paginator',type:'\TYPO3\CMS\Extbase\Pagination\QueryResultPaginator',description:'Paginator Instance for Result Query (Records)'},
       1: {name:'p_paging',type:'\TYPO3\CMS\Core\Pagination\SlidingWindowPagination',description:'Pagination Instance according to the Paginator'},

@@ -24,6 +24,7 @@ class QueryBuilderElement {
                     $(this.id).html('');
                     this.configuration = config;
                     this.initQueryBuilder();
+                    this.initFormSaveHandler();
                 } else {
                     this.showError('Error loading filters. No filters returned. Please check configuration.');
                 }
@@ -35,11 +36,45 @@ class QueryBuilderElement {
     }
 
     saveRules(rules) {
-        if (rules.rules && rules.rules.length > 0) {
-            $(this.valueFieldId).val(JSON.stringify(rules, null, 2));
-        } else {
-            $(this.valueFieldId).val('');
+        const $valueField = $(this.valueFieldId);
+        if ($valueField.length === 0) {
+            return;
         }
+        if (rules.rules && rules.rules.length > 0) {
+            $valueField.val(JSON.stringify(rules, null, 2));
+        } else {
+            $valueField.val('');
+        }
+        $valueField.trigger('change');
+    }
+
+    syncValueToHiddenField() {
+        const $builder = $(this.id);
+        if ($builder.length === 0) {
+            return;
+        }
+        try {
+            const rules = $builder.queryBuilder('getRules');
+            if (rules !== null) {
+                this.saveRules(rules);
+            }
+        } catch (e) {
+            console.log('QueryBuilder sync error: ' + e.message);
+        }
+    }
+
+    initFormSaveHandler() {
+        const $valueField = $(this.valueFieldId);
+        if ($valueField.length === 0) {
+            return;
+        }
+        const $form = $valueField.closest('form');
+        if ($form.length === 0) {
+            return;
+        }
+        $form.off('submit.tonictypesQueryBuilder').on('submit.tonictypesQueryBuilder', () => {
+            this.syncValueToHiddenField();
+        });
     }
 
     initQueryBuilder() {

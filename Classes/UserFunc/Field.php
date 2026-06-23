@@ -415,12 +415,12 @@ class Field
      *
      * @param array $config Configuration Array
      * @param array $parentObject Parent Object
-     * @return array
      * @throws \Exception
      */
     public function populateFieldtypes(array &$config, &$parentObject)
     {
-        $fieldConfiguration = $this->fieldSettingsService->getFieldConfiguration();
+        $pid = $config['effectivePid'] ?? 0;
+        $fieldConfiguration = $this->fieldSettingsService->getFieldConfiguration($pid);
 
         $options = [];
         foreach ($fieldConfiguration as $_id=>$_config) {
@@ -456,7 +456,7 @@ class Field
         $flexFormRowData = $parentObject->getData('flexFormRowData');
         $fieldUid = (int)$flexFormRowData['field']['vDEF'][0];
         /** @var \K3n\Tonictypes\Domain\Model\Field $field */
-        $field = $this->fieldRepository->findOneByUid($fieldUid);
+        $field = $this->fieldRepository->findOneBy(['uid' => (int)$fieldUid]);
 
         if($field instanceof \K3n\Tonictypes\Domain\Model\Field) {
 
@@ -466,15 +466,19 @@ class Field
                 // Selected field is a domain/model or object storage field
                 // We get the related information
                 if($datatypeUid = $field->getConfig('datatype')) {
-                    $datatype = $this->datatypeRepository->findOneByUid($datatypeUid);
+                    $datatype = $this->datatypeRepository->findOneBy(['uid' => (int)$datatypeUid]);
                     if($datatype instanceof \K3n\Tonictypes\Domain\Model\Datatype) {
                         $tableName = $datatype->getTablename();
                     }
                 } else {
-                    /** @var DataMapFactory $dataMapFactory */
-                    $dataMapFactory = GeneralUtility::makeInstance(DataMapFactory::class);
-                    $dataMap = $dataMapFactory->buildDataMap($frontendType);
-                    $tableName = $dataMap->getTableName();
+                    try {
+                        /** @var DataMapFactory $dataMapFactory */
+                        $dataMapFactory = GeneralUtility::makeInstance(DataMapFactory::class);
+                        $dataMap = $dataMapFactory->buildDataMap($frontendType);
+                        $tableName = $dataMap->getTableName();
+                    } catch (\Throwable $exception) {
+                        $tableName = '';
+                    }
                 }
 
                 if($tableName != '') {
@@ -497,13 +501,14 @@ class Field
 
                             $label = LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sub_field');
                             $description = LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sub_field.description');
+                            $fieldId = $this->resolveItemFormElementId($config);
                             $html .= "
                                 <label class=\"t3js-formengine-label\">{$label}</label>
                                 <br />
                                 <div class=\"alert alert-info\">{$description}</div>
                                 <div class=\"formengine-field-item t3js-formengine-field-item\">
                                     <div class=\"form-control-wrap\">
-                                        <select id=\"{$config['itemFormElID']}\" name=\"{$config['itemFormElName']}\" class=\"form-control form-control-adapt\">".$options."</select>
+                                        <select id=\"{$fieldId}\" name=\"{$config['itemFormElName']}\" class=\"form-control form-control-adapt\">".$options."</select>
                                     </div>
                                 </div>
                             ";
@@ -514,6 +519,25 @@ class Field
         }
 
         return $html;
+    }
+
+    protected function resolveItemFormElementId(array $config): string
+    {
+        $itemFormElId = (string)($config['itemFormElID'] ?? $config['itemFormElId'] ?? '');
+        if ($itemFormElId !== '') {
+            return $itemFormElId;
+        }
+
+        $itemFormElName = (string)($config['itemFormElName'] ?? $config['itemFormElname'] ?? '');
+        $fieldId = str_replace(['][', '[', ']'], ['_', '_', ''], $itemFormElName);
+        $fieldId = (string)preg_replace('/[^a-zA-Z0-9_:-]/', '_', $fieldId);
+        $fieldId = (string)preg_replace('/_+/', '_', $fieldId);
+        $fieldId = trim($fieldId, '_');
+        if ($fieldId === '') {
+            return 'x_tonictypes_field';
+        }
+
+        return (string)preg_replace('/^[^a-zA-Z]/', 'x', $fieldId);
     }
 
 	/**

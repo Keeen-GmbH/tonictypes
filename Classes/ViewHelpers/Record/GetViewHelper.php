@@ -27,8 +27,8 @@ class GetViewHelper extends AbstractViewHelper
      */
     public function initializeArguments(): void
     {
-        $this->registerArgument('uid', 'int', 'Record Uid', true, '');
-        $this->registerArgument('datatype', '\\K3n\\Tonictypes\\Domain\\Model\\Datatype', 'Datatype of the according record', true, '');
+        $this->registerArgument('uid', 'int', 'Record Uid', true);
+        $this->registerArgument('datatype', '\\K3n\\Tonictypes\\Domain\\Model\\Datatype', 'Datatype of the according record', true);
         $this->registerArgument('onlyEnabled', 'bool', 'Only enabled', false, true);
         parent::initializeArguments();
     }

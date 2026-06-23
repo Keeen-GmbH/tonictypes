@@ -89,3 +89,15 @@ services:
             - name: event.listener
               identifier: 'tonictypes/dynamic-table-schema-listener'
               event: TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent
+
+    K3n\Tonictypes\EventListener\ModifyLoadedPageTsConfigEventListener:
+        tags:
+            - name: event.listener
+              identifier: 'tonictypes/modify-loaded-page-tsconfig'
+              event: TYPO3\CMS\Core\TypoScript\IncludeTree\Event\ModifyLoadedPageTsConfigEvent
+
+    K3n\Tonictypes\EventListener\RegisterDatatypeIconsOnBootCompleted:
+      tags:
+        - name: event.listener
+          identifier: 'tonictypes/register-datatype-icons-on-boot-completed'
+          event: TYPO3\CMS\Core\Core\Event\BootCompletedEvent

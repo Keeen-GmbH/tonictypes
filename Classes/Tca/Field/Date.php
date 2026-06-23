@@ -44,8 +44,10 @@ class Date extends Input
     public function getTca(): array
     {
         $tca = parent::getTca();
-        $eval = ($this->getField()->getConfig("eval") != '')?','.$this->getField()->getConfig("eval"):'';
-        $tca['config']['eval'] = "int".$eval;
+        $eval = $this->getField()->getConfig('eval');
+        if ($eval !== '') {
+            $tca['config']['eval'] = $eval;
+        }
         $tca['config']['type'] = 'datetime';
         $tca['config']['format'] = 'date';
         return $this->mergeConfigurationToTca($tca);

@@ -27,7 +27,7 @@ class CodeFromStringViewHelper extends AbstractViewHelper
      */
     public function initializeArguments(): void
     {
-        $this->registerArgument('string', 'string', 'String to create code from', true, '');
+        $this->registerArgument('string', 'string', 'String to create code from', true);
         parent::initializeArguments();
     }
 

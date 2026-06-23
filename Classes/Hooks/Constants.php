@@ -16,6 +16,7 @@ namespace K3n\Tonictypes\Hooks;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Icon\TonictypesIconRegistry;
 use K3n\Tonictypes\Service\Backend\BackendAccessService;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class Constants
@@ -112,6 +113,10 @@ class Constants
         $this->standaloneView->assign('icons', $icons);
         $this->standaloneView->assign('logoUrl', $this->backendAccessService->getLogoUrl());
         $this->standaloneView->assign('logoBrightUrl', $this->backendAccessService->getBrightLogoUrl());
+        $this->standaloneView->assign(
+            'typo3IsV12',
+            GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() === 12
+        );
         $this->standaloneView->assign('supportMessage', $this->backendAccessService->disableSupportMessage());
 
         return $this->standaloneView->render();

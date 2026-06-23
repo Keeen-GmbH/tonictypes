@@ -301,7 +301,6 @@ class TableFactory implements SingletonInterface
         $templateFile = "EXT:tonictypes/Resources/Private/Init/CREATE_STATEMENT.sql";
         $templateFile = GeneralUtility::getFileAbsFileName($templateFile);
         $standaloneView->setTemplatePathAndFilename($templateFile);
-        $standaloneView->setFormat("sql");
         $standaloneView->assign("datatype", $datatype);
         $standaloneView->assign("tableName", $tableName);
         return $standaloneView->render();

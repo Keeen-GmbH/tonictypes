@@ -30,9 +30,7 @@ $boot = static function (): void {
     /***********************************
      * Backend CSS File Include
      ***********************************/
-    $cssFile = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('tonictypes') . 'Resources/Public/Css/tonictypes-backend.css';
-    $css = @file_get_contents($cssFile);
-    $GLOBALS['TYPO3_CONF_VARS']['BE']['stylesheets'][] = $css;
+    $GLOBALS['TYPO3_CONF_VARS']['BE']['stylesheets'][] = 'EXT:tonictypes/Resources/Public/Css/tonictypes-backend.css';
 
 
     /***********************************
@@ -61,6 +59,7 @@ $boot = static function (): void {
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['tonictypes'] = \K3n\Tonictypes\Hooks\DataHandling::class;
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['tonictypes'] 	= \K3n\Tonictypes\Hooks\DataHandling::class;
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tce']['formevals'][\K3n\Tonictypes\Evaluation\DatatypeNameEvaluation::class] = '';
+
     // We need to add our DataHandler on top of the processing array, to leave version management behind
     array_unshift($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'],\K3n\Tonictypes\Hooks\DataHandling::class);
     array_unshift($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass'],\K3n\Tonictypes\Hooks\DataHandling::class);
@@ -112,7 +111,7 @@ $boot = static function (): void {
         [
             \K3n\Tonictypes\Controller\RecordController::class => 'list',
         ],
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_PLUGIN
+        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
     );
 
     // #2 - Detail view for a record
@@ -125,7 +124,7 @@ $boot = static function (): void {
         [
             \K3n\Tonictypes\Controller\RecordController::class => 'detail',
         ], // UnCached
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_PLUGIN
+        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
     );
 
     // #3 - Dynamic Detail view listener for a record
@@ -138,7 +137,7 @@ $boot = static function (): void {
         [
             \K3n\Tonictypes\Controller\RecordController::class => 'dynamicDetail',
         ], // UnCached
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_PLUGIN
+        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
     );
 
     // #4 - Plain fluid view
@@ -151,7 +150,7 @@ $boot = static function (): void {
         [
             \K3n\Tonictypes\Controller\RecordController::class => 'plain',
         ], // UnCached
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_PLUGIN
+        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
     );
 
 

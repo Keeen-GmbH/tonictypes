@@ -34,9 +34,6 @@
             <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.detail_page_id</title>
             <section>1</section>
             <type>array</type>
-            <config>
-              <type>array</type>
-            </config>
             <el>
               <pageids>
                 <type>array</type>
@@ -106,9 +103,6 @@
             <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.selection_by_field_value_filter</title>
             <section>1</section>
             <type>array</type>
-            <config>
-              <type>array</type>
-            </config>
             <el>
               <filters>
                 <type>array</type>
@@ -200,9 +194,6 @@
             <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sorting</title>
             <section>1</section>
             <type>array</type>
-            <config>
-              <type>array</type>
-            </config>
             <el>
               <ordering>
                 <type>array</type>
@@ -447,7 +438,7 @@
                 <foreign_table_field>tablenames</foreign_table_field>
                 <foreign_match_fields>
                   <!-- this will be stored in sys_file_reference.fieldname -->
-                  <fieldname>settings.template_override</fieldname>
+                  <fieldname>template_override</fieldname>
                 </foreign_match_fields>
                 <foreign_label>uid_local</foreign_label>
                 <foreign_selector>uid_local</foreign_selector>
@@ -455,11 +446,6 @@
                   <columns>
                     <uid_local>
                       <config>
-                        <type>group</type>
-                        <internal_type>db</internal_type>
-                        <allowed>sys_file</allowed>
-                        <size>1</size>
-                        <maxitems>1</maxitems>
                         <appearance>
                           <elementBrowserType>file</elementBrowserType>
                           <elementBrowserAllowed>html</elementBrowserAllowed>
@@ -499,9 +485,6 @@
             <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.template_switch</title>
             <section>1</section>
             <type>array</type>
-            <config>
-              <type>array</type>
-            </config>
             <el>
               <switches>
                 <type>array</type>
@@ -709,9 +692,6 @@
             <title>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.custom_headers</title>
             <section>1</section>
             <type>array</type>
-            <config>
-              <type>array</type>
-            </config>
             <el>
               <headers>
                 <type>array</type>

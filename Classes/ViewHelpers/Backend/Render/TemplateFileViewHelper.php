@@ -38,7 +38,7 @@ class TemplateFileViewHelper extends AbstractRenderViewHelper
      * Arguments initialization
      * @throws Exception
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         parent::initializeArguments();
         $this->registerArgument('id', 'string', 'Template File Identifier', true);

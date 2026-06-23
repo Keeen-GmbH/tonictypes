@@ -88,7 +88,8 @@ class Template
 	 */
 	public function populateTemplates(array &$config, &$parentObject): void
 	{
-		$configuration = $this->pluginSettingsService->getPredefinedTemplates();
+        $pid = $config['effectivePid'] ?? 0;
+		$configuration = $this->pluginSettingsService->getPredefinedTemplates($pid);
 		$options = [];
         $grouped = [];
 
@@ -180,8 +181,8 @@ class Template
         $variableIds = [];
         $variables = [];
         if(isset($row['pi_flexform'])) {
-            $flex = $this->flexFormService->walkFlexFormNode($row['pi_flexform'], 'vDEF');
-            $flex = $this->flexFormService->walkFlexFormNode($flex, 'lDEF');
+            $flex = $this->walkFlexFormNode($row['pi_flexform'], 'vDEF');
+            $flex = $this->walkFlexFormNode($flex, 'lDEF');
 
              if(is_array($flex['data']['template_settings']['settings']['variables'])) {
                  $variableIds = array_column($flex['data']['template_settings']['settings']['variables'],'uid');
@@ -193,9 +194,9 @@ class Template
 
 
         $pluginType = '';
-        if(array_key_exists('list_type', $row)) {
+        if(array_key_exists('CType', $row)) {
             // Get the current plugin type or action
-            $pluginType = reset($row['list_type']);
+            $pluginType = reset($row['CType']);
         }
 
         if (!is_array($pages)) {
@@ -316,7 +317,7 @@ class Template
         $row = $config['row'];
         $flexform = $row['pi_flexform'];
 
-        $flex = $this->flexformService->walkFlexFormNode($flexform);
+        $flex = $this->walkFlexFormNode($flexform);
         $path = 'data/field_value_filter_setting/lDEF/settings/field_value_filter';
         $filters = \K3n\Tonictypes\Utility\ArrayUtility::getArrayValueByPath($flex, $path);
 
@@ -400,6 +401,44 @@ class Template
         $view->assignMultiple($parameters);
         $view->assign('config', $config);
         return (string)$view->render();
+    }
+    public function walkFlexFormNode($nodeArray, $valuePointer = 'vDEF')
+    {
+        if (is_array($nodeArray)) {
+            $return = [];
+            foreach ($nodeArray as $nodeKey => $nodeValue) {
+                if ($nodeKey === $valuePointer) {
+                    return $nodeValue;
+                }
+                if (in_array($nodeKey, ['el', '_arrayContainer'])) {
+                    return $this->walkFlexFormNode($nodeValue, $valuePointer);
+                }
+                if (($nodeKey[0] ?? '') === '_') {
+                    continue;
+                }
+                if (strpos($nodeKey, '.')) {
+                    $nodeKeyParts = explode('.', $nodeKey);
+                    $currentNode = &$return;
+                    $nodeKeyPartsCount = count($nodeKeyParts);
+                    for ($i = 0; $i < $nodeKeyPartsCount - 1; $i++) {
+                        $currentNode = &$currentNode[$nodeKeyParts[$i]];
+                    }
+                    $newNode = [next($nodeKeyParts) => $nodeValue];
+                    $subVal = $this->walkFlexFormNode($newNode, $valuePointer);
+                    $currentNode[key($subVal)] = current($subVal);
+                } elseif (is_array($nodeValue)) {
+                    if (array_key_exists($valuePointer, $nodeValue)) {
+                        $return[$nodeKey] = $nodeValue[$valuePointer];
+                    } else {
+                        $return[$nodeKey] = $this->walkFlexFormNode($nodeValue, $valuePointer);
+                    }
+                } else {
+                    $return[$nodeKey] = $nodeValue;
+                }
+            }
+            return $return;
+        }
+        return $nodeArray;
     }
 
 }

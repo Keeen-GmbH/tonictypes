@@ -9,8 +9,7 @@ mod.wizards {
             title = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.list
             description = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.list.description
             tt_content_defValues {
-              CType = list
-              list_type = tonictypes_list
+              CType = tonictypes_list
             }
           }
           tx_tonictypes_detail {
@@ -18,8 +17,7 @@ mod.wizards {
             title = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.detail
             description = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.detail.description
             tt_content_defValues {
-              CType = list
-              list_type = tonictypes_detail
+              CType = tonictypes_detail
             }
           }
           tx_tonictypes_dynamic {
@@ -27,8 +25,7 @@ mod.wizards {
             title = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.dynamic
             description = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.dynamic.description
             tt_content_defValues {
-              CType = list
-              list_type = tonictypes_dynamic
+              CType = tonictypes_dynamic
             }
           }
           tx_tonictypes_plain {
@@ -36,8 +33,7 @@ mod.wizards {
             title = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.plain
             description = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:plugin.plain.description
             tt_content_defValues {
-              CType = list
-              list_type = tonictypes_plain
+              CType = tonictypes_plain
             }
           }
         }

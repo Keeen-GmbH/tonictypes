@@ -561,7 +561,7 @@
                 <source>This field has no configuration.</source>
             </trans-unit>
             <trans-unit id="message.no_fieldtypes_found_please_check_ts">
-                <source>No fieldtypes found. Please add the Tonictypes Static to your site-template or add at least one fieldtype (plugin.tx_tonictypes.fieldtypes)</source>
+                <source>No fieldtypes found. Please include Tonictypes via TypoScript (static template) or Site Set (k3n/tonictypes), or define at least one fieldtype (plugin.tx_tonictypes.fieldtypes)</source>
             </trans-unit>
             <trans-unit id="message.no_record_storage_page_configured">
                 <source>No Storage Page is configured. Please select all Storage Pages of Records and Variables you want to use.</source>
@@ -586,7 +586,7 @@
                 <source>Sorry, deleting records is not allowed by this plugin!</source>
             </trans-unit>
             <trans-unit id="message.caches_cleared">
-                <source>The Tonictypes Extension had to clear the cache to reload all fieldtypes. If there are no fieldtypes available, please try to clear the caches manually.</source>
+                <source>The Tonictypes extension had to clear the cache to reload all fieldtypes. If fieldtypes are still not available, clear the caches manually and verify that Tonictypes is included via TypoScript or Site Set (k3n/tonictypes).</source>
             </trans-unit>
             <trans-unit id="message.no_markers_found_on_storage_pids">
                 <source>No markers were found on the configured storage page(s).</source>
@@ -1293,7 +1293,7 @@
                 <source>Extension Configuration</source>
             </trans-unit>
             <trans-unit id="variable_type.18">
-                <source>Extension Settings from TypoScript</source>
+                <source>Extension Settings from TypoScript or Site Set</source>
             </trans-unit>
 
         <!-- Variable Type Cast -->

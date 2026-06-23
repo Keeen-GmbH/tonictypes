@@ -29,8 +29,8 @@ class RecordsByPropertyViewHelper extends AbstractViewHelper
      */
     public function initializeArguments(): void
     {
-        $this->registerArgument('records', '\\Iterator', 'Records to filter', true, '');
-        $this->registerArgument('property', 'string','Field Name', true, null);
+        $this->registerArgument('records', '\\Iterator', 'Records to filter', true);
+        $this->registerArgument('property', 'string','Field Name', true);
         $this->registerArgument('returnOnlyGroups', 'bool', 'Return only groups', false, false);
         $this->registerArgument('multiple', 'bool', 'Groups have multiple values', false, false);
         parent::initializeArguments();

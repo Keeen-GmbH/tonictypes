@@ -30,7 +30,7 @@ class WebListViewHelper extends AbstractLinkViewHelper
      *
      * @throws Exception
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         parent::initializeArguments();
         $this->registerArgument('id', 'int', 'Id of the link', true);

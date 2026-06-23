@@ -40,7 +40,7 @@ class GetViewHelper extends AbstractViewHelper
      */
     public function initializeArguments(): void
     {
-        $this->registerArgument('uid', 'int', 'Datatype Uid', true, '');
+        $this->registerArgument('uid', 'int', 'Datatype Uid', true);
         $this->registerArgument('onlyEnabled', 'bool', 'Only enabled', false, true);
         parent::initializeArguments();
     }

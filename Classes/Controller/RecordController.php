@@ -34,6 +34,8 @@ use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
 use TYPO3\CMS\Extbase\Persistence\Generic\Query;
 use TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser;
 use TYPO3\CMS\Core\Http\PropagateResponseException;
+use TYPO3\CMS\Fluid\View\FluidViewAdapter;
+
 class RecordController extends AbstractController
 {
     /**
@@ -83,7 +85,7 @@ class RecordController extends AbstractController
      *
      * @param string|null $html
      */
-    protected function htmlResponse(string $html = null): ResponseInterface
+    protected function htmlResponse(?string $html = null): ResponseInterface
     {
         $response = parent::htmlResponse($html);
         $this->processPreparedHeaders($response);
@@ -103,28 +105,45 @@ class RecordController extends AbstractController
         $this->prepareConfiguredHeaders();
         parent::initializeAction();
 
-        // Ensure generated record models always have datatype object bound.
         $variables = $this->_getEnvironmentalVariables(true);
-        if (is_array($variables) && !empty($variables)) {
+        if (!array_key_exists(1, $this->variables)) {
+            $this->variables[1] = is_array($variables) ? $variables : [];
+        }
+        if (!empty($variables)) {
             $this->bindDatatypeToRecordVariables($variables);
-            $this->variables[1] = $variables;
+        }
+
+        if (isset($this->view)) {
+            $this->configureView($this->view, $variables ?? []);
         }
     }
 
     /**
      * initializeView
-     * Initializes the view
-     *
-     * Adds some variables to view that could always
-     * be useful
+     * Kept for backward compatibility with TYPO3 v12/v13.
+     * In TYPO3 v14+ this method is no longer invoked by the framework.
      *
      * @param mixed $view
      * @return void
-     * @throws \Exception
      */
-    protected function initializeView($view)
+    protected function initializeView($view): void
     {
         $variables = $this->_getEnvironmentalVariables(true);
+        $this->configureView($view, $variables);
+    }
+
+    /**
+     * Configures the view: resolves the correct template path/source and
+     * assigns all environment variables. Called from both initializeAction()
+     * (TYPO3 v14+) and initializeView() (TYPO3 v12/v13 backward compat).
+     *
+     * @param mixed $view
+     * @param array $variables
+     * @return void
+     * @throws \Exception
+     */
+    protected function configureView(mixed $view, array $variables): void
+    {
         $templateSwitch = $this->_getTemplateSwitch($variables);
 
         $source = '';
@@ -134,11 +153,11 @@ class RecordController extends AbstractController
             $type = key($templateSwitch);
             $source = reset($templateSwitch);
         } else {
-            // DEFAULT TEMPLATE BEHAVIOUR FROM PLUGIN SETTINGS
-            $templateSelection = (string)($this->settings['template_selection'] ?? '');
             $fluidCode = (string)($this->settings['fluid_code'] ?? '');
             $templateOverride = (string)($this->settings['template_override'] ?? '0');
+            $templateSelection = (string)($this->settings['template_selection'] ?? '');
 
+            // DEFAULT TEMPLATE BEHAVIOUR FROM PLUGIN SETTINGS
             if ($templateSelection == PluginSettingsService::TEMPLATE_SELECTION_FLUID) {
                 $type = PluginSettingsService::TEMPLATE_SELECTION_FLUID;
                 $source = $fluidCode;
@@ -175,13 +194,12 @@ class RecordController extends AbstractController
                 } else {
                     $source = $this->pluginSettingsService->getPredefinedTemplateById($templateSelection);
                 }
-
             }
         }
 
         switch ($type) {
             case PluginSettingsService::TEMPLATE_SELECTION_FLUID:
-                if(is_null($view->getRenderingContext())) {
+                if (is_null($view->getRenderingContext())) {
                     $view = GeneralUtility::makeInstance(StandaloneView::class);
                 }
                 $view->getRenderingContext()->getTemplatePaths()->setTemplateSource($source);
@@ -191,7 +209,13 @@ class RecordController extends AbstractController
             case PluginSettingsService::TEMPLATE_SELECTION_CUSTOM:
             default:
                 // A template id was selected, so we need to get the template path
-                $view->setTemplatePathAndFilename($source);
+                if ($view instanceof FluidViewAdapter) {
+                    $view->getRenderingContext()->getTemplatePaths()->setTemplatePathAndFilename($source);
+                } else if (method_exists($view, 'setTemplatePathAndFilename')) {
+                    $view->setTemplatePathAndFilename($source);
+                } else if (!is_null($view->getRenderingContext())) {
+                    $view->getRenderingContext()->getTemplatePaths()->setTemplatePathAndFilename($source);
+                }
                 break;
         }
 
@@ -241,7 +265,7 @@ class RecordController extends AbstractController
         if(!empty($this->variables[(int)$returnOnlyValues])) {
             return $this->variables[(int)$returnOnlyValues];
         }
-        
+
 
         // Obtain used variables
         $variableIds = GeneralUtility::intExplode(',', $this->settings['variables'],true);
@@ -319,9 +343,9 @@ class RecordController extends AbstractController
                                 if ($itemsPerPageVariableName === '') {
                                     $itemsPerPageVariableName = 'itemsPerPage';
                                 }
-                                $itemsPerPageRaw = ($requestArguments[$itemsPerPageVariableName] ?? null)
-                                    ?? ($queryParams[$itemsPerPageVariableName] ?? null)
-                                    ?? ($vars[$itemsPerPageVariableName] ?? null)
+                                $itemsPerPageRaw = $requestArguments[$itemsPerPageVariableName]
+                                    ?? $queryParams[$itemsPerPageVariableName]
+                                    ?? $vars[$itemsPerPageVariableName]
                                     ?? self::PAGINATION_DEFAULT_ITEMS_PER_PAGE;
                                 $itemsPerPage = (int)$itemsPerPageRaw;
                                 $settingsDefaultPage = (int)($this->settings['default_page'] ?? 1);
@@ -692,15 +716,9 @@ class RecordController extends AbstractController
         $headers = [];
 
         foreach ($headerConfig as $_header) {
-            $conditionStr = (string)($_header['headers']['condition'] ?? '');
-            $headerName = trim((string)($_header['headers']['name'] ?? ''));
-
-            // Ignore empty / invalid names to avoid "Invalid header name" runtime exceptions.
-            if ($headerName === '' || !$this->isValidHeaderName($headerName)) {
-                continue;
-            }
-
-            $headerValue = $this->fluidRenderService->renderFluid((string)($_header['headers']['value'] ?? ''), $variables);
+            $conditionStr = $_header['headers']['condition'];
+            $headerName = $_header['headers']['name'];
+            $headerValue = $this->fluidRenderService->renderFluid($_header['headers']['value'], $variables);
 
             // Since we yet do not know how to render the nodes separately, we
             // just render a simple full fluid condition here

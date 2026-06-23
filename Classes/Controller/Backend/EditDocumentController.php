@@ -21,9 +21,10 @@ use K3n\Tonictypes\Service\Backend\BackendAccessService;
 use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\RedirectResponse;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
@@ -95,29 +96,34 @@ class EditDocumentController extends \TYPO3\CMS\Backend\Controller\EditDocumentC
         $this->tableFactory = $tableFactory;
     }
 
-    /**
-     * Main dispatcher entry method registered as 'record_edit' end point
-     *
-     * @param ServerRequestInterface $request the current request
-     * @return ResponseInterface the response with the content
-     * @throws \TYPO3\CMS\Core\Package\Exception
-     */
     public function mainAction(ServerRequestInterface $request): ResponseInterface
     {
-        $view = $this->moduleTemplateFactory->create($request);
-        $view->setUiBlock(true);
-        $view->setTitle($this->getShortcutTitle($request));
-
-        // Unlock all locked records
-        BackendUtility::lockRecords();
-        if ($response = $this->preInit($request)) {
-            return $response;
+        // TYPO3 v14+ uses the refactored controller flow from core.
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() > 12) {
+            if (method_exists($this, 'resolveDefaultReturnUrl')) {
+                return parent::mainAction($request);
+            }
         }
 
-        // Process incoming data via DataHandler?
+        // TYPO3 v12 compatibility flow.
+        $view = $this->moduleTemplateFactory->create($request);
+        $view->setUiBlock(true);
+        if (method_exists($this, 'getShortcutTitle')) {
+            $view->setTitle($this->{'getShortcutTitle'}($request));
+        }
+
+        BackendUtility::lockRecords();
+        if (method_exists($this, 'preInit')) {
+            $preInitResponse = $this->{'preInit'}($request);
+            if ($preInitResponse instanceof ResponseInterface) {
+                return $preInitResponse;
+            }
+        }
+
         $parsedBody = $request->getParsedBody();
+        $doSave = property_exists($this, 'doSave') ? (bool)$this->{'doSave'} : false;
         if ((
-                $this->doSave
+                $doSave
                 || isset($parsedBody['_savedok'])
                 || isset($parsedBody['_saveandclosedok'])
                 || isset($parsedBody['_savedokview'])
@@ -125,66 +131,110 @@ class EditDocumentController extends \TYPO3\CMS\Backend\Controller\EditDocumentC
                 || isset($parsedBody['_duplicatedoc'])
             )
             && $request->getMethod() === 'POST'
-            && $response = $this->processData($view, $request)
         ) {
-            return $response;
+            $processDataResponse = (new \ReflectionMethod($this, 'processData'))->invoke($this, $view, $request);
+            if ($processDataResponse instanceof ResponseInterface) {
+                return $processDataResponse;
+            }
         }
 
-        $this->init($request);
+        if (method_exists($this, 'init')) {
+            $this->{'init'}($request);
+        }
 
+        $queryParams = $request->getQueryParams();
+        $tableName = (string)key($queryParams['edit'] ?? []);
+        if ($tableName !== '') {
+            $recordId = key($queryParams['edit'][$tableName] ?? []);
+            $recordId = (($queryParams['edit'][$tableName][$recordId] ?? '') !== 'new') ? (int)$recordId : null;
+            $this->applyTonictypesContext($view, $tableName, $recordId);
+        } else {
+            $view->assign('tonictypesContext', false);
+        }
+
+        if ($request->getMethod() === 'POST') {
+            if (isset($parsedBody['_savedokview'])) {
+                $legacyRedirectUri = property_exists($this, 'R_URI') ? (string)$this->{'R_URI'} : '';
+                $legacyRedirectUri = rtrim($legacyRedirectUri, '&') .
+                    HttpUtility::buildQueryString([
+                        'showPreview' => true,
+                        'popViewId' => $parsedBody['popViewId']
+                            ?? (method_exists($this, 'getPreviewPageId') ? $this->{'getPreviewPageId'}() : 0),
+                    ], (empty($this->R_URL_getvars) ? '?' : '&'));
+                if (property_exists($this, 'R_URI')) {
+                    $this->{'R_URI'} = $legacyRedirectUri;
+                }
+            } else {
+                $legacyRedirectUri = property_exists($this, 'R_URI') ? (string)$this->{'R_URI'} : '';
+            }
+            return new RedirectResponse($legacyRedirectUri, 302);
+        }
+
+        if (!method_exists($this, 'main')) {
+            return parent::mainAction($request);
+        }
+        $view->assign('bodyHtml', $this->{'main'}($view, $request));
+        return $view->renderResponse('Form/EditDocument');
+    }
+
+    protected function setModuleContext(ModuleTemplate $view): void
+    {
+        parent::setModuleContext($view);
+
+        $tableName = (string)key($this->editconf);
+        if ($tableName === '') {
+            $view->assign('tonictypesContext', false);
+            return;
+        }
+
+        $tableEditConfiguration = $this->editconf[$tableName] ?? [];
+        $recordId = key($tableEditConfiguration);
+        $isNewRecord = $recordId !== null && ($tableEditConfiguration[$recordId] ?? '') === 'new';
+        $recordId = $isNewRecord ? null : (int)$recordId;
+
+        $this->applyTonictypesContext($view, $tableName, $recordId);
+    }
+
+    protected function applyTonictypesContext(ModuleTemplate $view, string $tableName, ?int $recordId): void
+    {
         /************************************************************************************************************
          * TONICTYPES CUSTOM BACKEND LAYOUT
          ***********************************************************************************************************/
-        // Obtain necessary record information
-        $queryParams = $request->getQueryParams();
-        $tableName = key($queryParams['edit']);
-        $recordId = key($queryParams['edit'][$tableName]);
-        $recordId = ($queryParams['edit'][$tableName][$recordId] !== 'new') ? $recordId : null;
-
         $view->assign('tonictypesContext', false);
-
-        $datatype = $this->datatypeRepository->findOneByTablename($tableName);
-        if ($datatype instanceof Datatype) {
-
-            // Obtaining general view variables
-            $record = BackendUtility::getRecord($tableName, $recordId);
-            $sysLanguage = null;
-            if($record !== null) {
-                $sysLanguage = BackendUtility::getRecord('sys_language', $record['sys_language_uid']);
-            }
-            $variables = [
-                'datatype' => $datatype,
-                'record' => $record,
-                'logoUrl' => $this->backendAccessService->getLogoUrl(),
-                'logoBrightUrl' => $this->backendAccessService->getBrightLogoUrl(),
-                'supportEmail' => $this->backendAccessService->getSupportEmail(),
-                'supportMessage' => $this->backendAccessService->disableSupportMessage(),
-                'version' => ExtensionManagementUtility::getExtensionVersion('tonictypes'),
-                'language' => $sysLanguage,
-                'tonictypesContext' => true,
-            ];
-
-            $view->setModuleId('tonictypes-edit');
-            $view->setModuleName('tonictypes-edit-document');
-
-            $view->assignMultiple($variables);
+        $datatypeUid = 0;
+        $datatypeByTable = $this->datatypeRepository->findOneBy(['tablename' => $tableName]);
+        if ($datatypeByTable instanceof Datatype) {
+            $datatypeUid = (int)$datatypeByTable->getUid();
         }
+
+        $datatype = $datatypeUid > 0
+            ? $this->datatypeRepository->findOneBy(['uid' => (int)$datatypeUid])
+            : null;
+        if (!$datatype instanceof Datatype) {
+            return;
+        }
+
+        // Obtain general view variables for custom backend template rendering.
+        $record = $recordId !== null ? BackendUtility::getRecord($tableName, (int)$recordId) : null;
+        $sysLanguage = null;
+        if ($record !== null && isset($record['sys_language_uid'])) {
+            $sysLanguage = BackendUtility::getRecord('sys_language', (int)$record['sys_language_uid']);
+        }
+
+        $view->setModuleId('tonictypes-edit');
+        $view->setModuleName('tonictypes-edit-document');
+        $view->assignMultiple([
+            'datatype' => $datatype,
+            'record' => $record,
+            'logoUrl' => $this->backendAccessService->getLogoUrl(),
+            'logoBrightUrl' => $this->backendAccessService->getBrightLogoUrl(),
+            'supportEmail' => $this->backendAccessService->getSupportEmail(),
+            'supportMessage' => $this->backendAccessService->disableSupportMessage(),
+            'version' => ExtensionManagementUtility::getExtensionVersion('tonictypes'),
+            'language' => $sysLanguage,
+            'typo3IsV12' => GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() === 12,
+            'tonictypesContext' => true,
+        ]);
         /************************************************************************************************************/
-
-        if ($request->getMethod() === 'POST') {
-            // In case save&view is requested, we have to add this information to the redirect
-            // URL, since the ImmediateAction will be added to the module body afterwards.
-            if (isset($parsedBody['_savedokview'])) {
-                $this->R_URI = rtrim($this->R_URI, '&') .
-                    HttpUtility::buildQueryString([
-                        'showPreview' => true,
-                        'popViewId' => $parsedBody['popViewId'] ?? $this->getPreviewPageId(),
-                    ], (empty($this->R_URL_getvars) ? '?' : '&'));
-            }
-            return new RedirectResponse($this->R_URI, 302);
-        }
-
-        $view->assign('bodyHtml', $this->main($view, $request));
-        return $view->renderResponse('Form/EditDocument');
     }
 }

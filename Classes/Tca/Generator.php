@@ -241,15 +241,33 @@ class Generator implements MiddlewareInterface
                     if (empty($datatypeTca)) {
                         continue;
                     }
-
                     // Fields TCA Generation is out of the cache currently to achieve more dynamic behaviour
                     // We will perhaps modify this in the future
+                    $completeTcaCacheIdentifier = "Tca_Complete_{$_datatype->getUid()}";
+                    if (
+                        $cacheTcaForDatatype
+                        && $this->tcaCacheService->has($datatypeCacheIdentifier)
+                        && $this->tcaCacheService->has($completeTcaCacheIdentifier)
+                    ) {
+                        $GLOBALS['TCA'][$tableName] = $this->tcaCacheService->get($completeTcaCacheIdentifier);
+                        continue;
+                    }
+
                     $fields = $_datatype->getFields();
                     foreach ($fields as $_field) {
                         /* @var \K3n\Tonictypes\Domain\Model\Field $_field */
                         if ($_field instanceof Field) {
-                            $cacheTcaForField = ($cacheTcaForDatatype)?true:$_field->getCacheTca();
-                            $fieldCacheIdentifier = "Tca_Field_{$_field->getUid()}";
+                            $cacheTcaForField = ($cacheTcaForDatatype) ? true : $_field->getCacheTca();
+                            $fieldCacheFingerprint = md5(
+                                implode('|', [
+                                    (string)$_field->getType(),
+                                    (string)$_field->getFieldConf(),
+                                    (string)$_field->getVariableName(),
+                                    $_field->getL10nExclude() ? '1' : '0',
+                                    $_field->getExclude() ? '1' : '0',
+                                ])
+                            );
+                            $fieldCacheIdentifier = "Tca_Field_{$_field->getUid()}_{$fieldCacheFingerprint}";
 
                             $fieldTca = [];
                             if ($cacheTcaForField && $this->tcaCacheService->has($fieldCacheIdentifier)) {
@@ -278,6 +296,12 @@ class Generator implements MiddlewareInterface
                         $GLOBALS['TCA'][$tableName] = [];
                     }
 
+                    // Cache the fully assembled TCA (base frame + all field columns) so that
+                    // subsequent requests can use the fast path above and skip getFields() entirely.
+                    if ($cacheTcaForDatatype) {
+                        $this->tcaCacheService->set($completeTcaCacheIdentifier, $datatypeTca);
+                    }
+
                     $GLOBALS['TCA'][$tableName] = $datatypeTca;
                 }
             }
@@ -297,6 +321,10 @@ class Generator implements MiddlewareInterface
     {
         try {
             $this->processTca();
+            $tcaSchemaFactoryClass = 'TYPO3\CMS\Core\Schema\TcaSchemaFactory';
+            if (class_exists($tcaSchemaFactoryClass)) {
+                GeneralUtility::makeInstance($tcaSchemaFactoryClass)->rebuild($GLOBALS['TCA']);
+            }
         } catch (TcaGeneratorException $e) {
             $message = 'Message: ' . $e->getMessage() . "\r\n" . "in File " . $e->getFile() . ":" . $e->getLine();
             $title = 'Latest Tonictypes Tca Generator Error';

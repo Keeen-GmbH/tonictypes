@@ -67,7 +67,7 @@ class TonictypesIconRegistry
                 'value' => '--div--',
             ];
 
-            $icons = $this->getIcons(['EXT:tonictypes/Resources/Public/Icons/Datatype']);
+            $icons = $this->getIcons(['EXT:tonictypes/Resources/Public/Icons/Datatype'], 'extensions-tonictypes-', true, false);
             $bitmapProviderClassName = BitmapIconProvider::class;
 
             // We need to add the selected datatype icon to the registry
@@ -115,8 +115,8 @@ class TonictypesIconRegistry
      */
     public function registerTonictypesIcons(): void
     {
-        $iconsDatatypes = $this->getIcons(['EXT:tonictypes/Resources/Public/Icons/Datatype']);
-        $iconsFields = $this->getIcons(['EXT:tonictypes/Resources/Public/Icons/Field'],'extensions-tonictypes-field-');
+        $iconsDatatypes = $this->getIcons(['EXT:tonictypes/Resources/Public/Icons/Datatype'], 'extensions-tonictypes-', true, false);
+        $iconsFields = $this->getIcons(['EXT:tonictypes/Resources/Public/Icons/Field'], 'extensions-tonictypes-field-', true, false);
         $bitmapProviderClassName = BitmapIconProvider::class;
 
         $icons = array_merge($iconsDatatypes,$iconsFields);
@@ -264,7 +264,7 @@ class TonictypesIconRegistry
         }
 
         foreach ($additionalIcons as $_identifier => $_path) {
-            $icons[$_identifier] = GeneralUtility::getFileAbsFileName($_path);
+            $icons[$_identifier] = $convertPaths ? GeneralUtility::getFileAbsFileName($_path) : $_path;
         }
 
         return $icons;

@@ -18,7 +18,6 @@ use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Model\Field;
 use K3n\Tonictypes\Domain\Repository\AbstractRepository;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
-use K3n\Tonictypes\Evaluation\DatatypeNameEvaluation;
 use K3n\Tonictypes\Factory\ClassFactory;
 use K3n\Tonictypes\Factory\TableFactory;
 use K3n\Tonictypes\Form\Value\AbstractValue;
@@ -39,6 +38,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use K3n\Tonictypes\Evaluation\DatatypeNameEvaluation;
 
 class DataHandling
 {
@@ -86,6 +86,12 @@ class DataHandling
      * @var FlashMessageService
      */
     protected $backendFlashMessageService;
+
+    /**
+     * Pending record ids that could not be resolved yet in processDatamap_afterDatabaseOperations().
+     * @var array<int, array{table:string,id:mixed}>
+     */
+    protected $pendingValueGenerationRecords = [];
 
     /**
      * @param PersistenceManager $persistenceManager
@@ -252,7 +258,14 @@ class DataHandling
                 // Generate values when a record was saved and the id is int
                 // This regenerates values for post-processing purposes,
                 // configured in tonictypess field configuration 'value'
-                $this->generateValues($id, $table);
+                $this->generateValues((int)$id, $table);
+            } else {
+                // On first create, uid substitution may not be available yet.
+                // Defer value generation to processDatamap_afterAllOperations().
+                $this->pendingValueGenerationRecords[] = [
+                    'table' => $table,
+                    'id' => $id,
+                ];
             }
         }
 
@@ -281,7 +294,7 @@ class DataHandling
         $datatypeUid = MathUtility::canBeInterpretedAsInteger((string)$datatypeUid) ? (int)$datatypeUid : 0;
 
         if ($datatypeUid <= 0) {
-            $datatypeByTable = $this->datatypeRepository->findOneByTablename($table);
+            $datatypeByTable = $this->datatypeRepository->findOneBy(['tablename' => $table]);
             if ($datatypeByTable instanceof Datatype) {
                 $datatypeUid = $datatypeByTable->getUid();
                 $recordRow['datatype'] = $datatypeUid;
@@ -298,7 +311,29 @@ class DataHandling
                     $recordsWSOL = $repository->findbyUids([$id],[],[HiddenRestriction::class,StartTimeRestriction::class,EndTimeRestriction::class]);
                     $record = reset($recordsWSOL);
                     if($record instanceof AbstractRecordModel) {
-                        $valueGeneratorFields = $this->fieldSettingsService->getFieldTypesWithValueGenerator();
+                        $recordPid = MathUtility::canBeInterpretedAsInteger((string)($recordRow['pid'] ?? null))
+                            ? (int)$recordRow['pid']
+                            : 0;
+
+                        foreach ($datatype->getFields() as $_fieldForSync) {
+                            /* @var Field $_fieldForSync */
+                            $fieldVariableName = $_fieldForSync->getVariableName();
+                            if (!array_key_exists($fieldVariableName, $recordRow)) {
+                                continue;
+                            }
+
+                            $fieldCurrentValue = $recordRow[$fieldVariableName];
+                            if (is_array($fieldCurrentValue)) {
+                                $fieldCurrentValue = reset($fieldCurrentValue);
+                            }
+                            if (!is_scalar($fieldCurrentValue) && $fieldCurrentValue !== null) {
+                                continue;
+                            }
+
+                            $record->_setProperty($fieldVariableName, $fieldCurrentValue);
+                        }
+
+                        $valueGeneratorFields = $this->fieldSettingsService->getFieldTypesWithValueGenerator($recordPid);
                         $update = [];
                         $pathSegments = [];
                         foreach($datatype->getFields() as $_field) {
@@ -306,7 +341,7 @@ class DataHandling
                             // Check if vield is a value generator field
                             if(in_array($_field->getType(), $valueGeneratorFields)) {
                                 // The value for this field needs to be re-generated
-                                $valueClass = $this->fieldSettingsService->getValueGeneratorClass($_field);
+                                $valueClass = $this->fieldSettingsService->getValueGeneratorClass($_field, $recordPid);
                                 if(class_exists($valueClass)) {
                                     /* @var AbstractValue $value */
                                     $value = GeneralUtility::makeInstance($valueClass);
@@ -328,8 +363,7 @@ class DataHandling
 
                                 }
                             } else {
-                                $fieldVariable = $_field->getVariableName();
-                                $resultVal = (string)($recordRow[$fieldVariable] ?? '');
+                                $resultVal = (string)$recordRow[$_field->getVariableName()];
                             }
 
                             // Check if value is for path_segment
@@ -402,6 +436,27 @@ class DataHandling
      */
     public function processDatamap_afterAllOperations(&$parentObj)
     {
+        foreach ($this->pendingValueGenerationRecords as $pendingRecord) {
+            $table = (string)($pendingRecord['table'] ?? '');
+            if ($table === '' || !$this->tableFactory->isRecordTable($table)) {
+                continue;
+            }
+
+            $id = $pendingRecord['id'] ?? null;
+            if (!MathUtility::canBeInterpretedAsInteger((string)$id) && is_scalar($id)) {
+                $idAsString = (string)$id;
+                if (isset($parentObj->substNEWwithIDs[$idAsString])) {
+                    $id = $parentObj->substNEWwithIDs[$idAsString];
+                }
+            }
+
+            if (MathUtility::canBeInterpretedAsInteger((string)$id)) {
+                $this->generateValues((int)$id, $table);
+            }
+        }
+
+        $this->pendingValueGenerationRecords = [];
+        $this->persistenceManager->persistAll();
     }
 
     /**
@@ -423,7 +478,7 @@ class DataHandling
                 && MathUtility::canBeInterpretedAsInteger((string)$incomingDatatype)
                 && (int)$incomingDatatype > 0;
             if (!$hasDatatype) {
-                $datatype = $this->datatypeRepository->findOneByTablename($table);
+                $datatype = $this->datatypeRepository->findOneBy(['tablename' => $table]);
                 if ($datatype instanceof Datatype) {
                     $incomingFieldArray['datatype'] = $datatype->getUid();
                 }
@@ -462,6 +517,7 @@ class DataHandling
                 }
                 break;
             case 'tx_tonictypes_domain_model_datatype':
+
                 if (array_key_exists('name', $incomingFieldArray)) {
                     $incomingName = (string)$incomingFieldArray['name'];
                     $nameEvaluator = GeneralUtility::makeInstance(DatatypeNameEvaluation::class);
@@ -477,7 +533,6 @@ class DataHandling
                         return;
                     }
                 }
-
                 // We need to check if the tablename is set
                 // If no tablename is defined, we need to create one out of the datatype name
                 $tableName = ($incomingFieldArray['tablename'])??'';

@@ -27,7 +27,7 @@ We recommend installing the extension using [Composer](https://getcomposer.org):
 
 ## Compatibility
 
-+ TYPO3 CMS 12.4.X
++ TYPO3 CMS 14.3.X
 
 ## Professional
 
@@ -67,7 +67,52 @@ Please refer to this url:
 
 ## Configuration
 
-Tonictypes has some additional backend TypoScript Configuration possibilities:
+Tonictypes can be activated in two ways. Use either one or combine them (see mixed setup below).
+
+### Site sets (recommended for TYPO3 v13+)
+
+Add the site set to your site configuration (`config/sites/<identifier>/config.yaml`)
+or via **Sites > Setup** in the backend:
+
+```yaml
+dependencies:
+  - k3n/tonictypes
+```
+
+With Tonictypes Professional installed, add:
+
+```yaml
+dependencies:
+  - k3n/tonictypes
+  - k3n/tonictypes_pro
+```
+
+The professional set depends on `k3n/tonictypes` and loads its TypoScript, Page TSconfig,
+and site settings automatically.
+
+Plugin options are available under **Sites > Settings** (cache lifetime, Fluid paths, variable names).
+Settings use the same keys as TypoScript constants (`plugin.tx_tonictypes.*`), so both approaches stay in sync.
+
+List available sets:
+
+```bash
+vendor/bin/typo3 site:sets:list
+```
+
+### TypoScript static template (classic)
+
+Include **"[Tonictypes] General Configuration"** in your root TypoScript template
+(**Web > Template > Includes**). For Professional, also include
+**"[Tonictypes] Tonictypes Professional"**.
+
+### Mixed setup (site set + TypoScript template)
+
+If you use a root `sys_template` record **and** site sets, disable **Clear constants**
+and **Clear setup** on the root template. Otherwise site-set TypoScript is cleared and will not apply.
+
+### Custom TypoScript
+
+Tonictypes has some additional backend TypoScript configuration possibilities:
 
 ### Adding new templates
 

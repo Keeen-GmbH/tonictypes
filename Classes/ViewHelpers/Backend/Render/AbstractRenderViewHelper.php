@@ -45,7 +45,7 @@ abstract class AbstractRenderViewHelper extends AbstractViewHelper
      * Arguments initialization
      * @throws Exception
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         parent::initializeArguments();
     }

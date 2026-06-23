@@ -25,7 +25,7 @@ class DebugUtility
      * @param string|null $title
      * @return string
      */
-    public static function debugVariable($variable, string $title = null): string
+    public static function debugVariable($variable, ?string $title = null): string
     {
         return DebuggerUtility::var_dump($variable, $title,12,false,true,true);
     }
@@ -40,7 +40,7 @@ class DebugUtility
      * @param bool $clear Clear the file before write
      * @return void
      */
-	public static function log($content, string $customIdentfier = null, bool $clear = false): void
+	public static function log($content, ?string $customIdentfier = null, bool $clear = false): void
 	{
 		if (is_null($customIdentfier)) {
 			$customIdentfier = date("Y-m-d")."_tonictypes";

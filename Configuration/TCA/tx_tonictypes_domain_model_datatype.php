@@ -317,7 +317,7 @@ return [
                 'renderType' => 'selectMultipleSideBySide',
                 'enableMultiSelectFilterTextfield' => true,
                 'foreign_table' => 'tx_tonictypes_domain_model_field',
-                'foreign_table_where' => 'AND tx_tonictypes_domain_model_field.pid=###CURRENT_PID### AND tx_tonictypes_domain_model_field.sys_language_uid IN (-1, 0)',
+				'foreign_table_where' => 'AND tx_tonictypes_domain_model_field.pid=###CURRENT_PID### AND tx_tonictypes_domain_model_field.sys_language_uid IN (-1, 0) AND tx_tonictypes_domain_model_field.frontend_label IS NOT NULL AND tx_tonictypes_domain_model_field.frontend_label != \'\' AND tx_tonictypes_domain_model_field.variable_name IS NOT NULL AND tx_tonictypes_domain_model_field.variable_name != \'\' AND EXISTS (SELECT 1 FROM tx_tonictypes_domain_model_fieldvalue WHERE tx_tonictypes_domain_model_fieldvalue.field=tx_tonictypes_domain_model_field.uid AND tx_tonictypes_domain_model_fieldvalue.pid=###CURRENT_PID### AND tx_tonictypes_domain_model_fieldvalue.deleted=0 AND tx_tonictypes_domain_model_fieldvalue.sys_language_uid IN (-1, 0))',
                 'MM' => 'tx_tonictypes_datatype_field_mm',
                 'size' => 10,
                 'autoSizeMax' => 30,
