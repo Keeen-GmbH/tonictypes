@@ -67,11 +67,11 @@
   </div>
 
   <f:section name="datatype">
-    <f:if condition="{flexform.general_settings.datatype_selection} > 0">
+    <f:if condition="{pi_flexform_transformed.settings.datatype_selection} > 0">
       <f:then>
-        <a href="{dv:backend.editLink(id:flexform.general_settings.datatype_selection,table:'tx_tonictypes_domain_model_datatype')}" target="_self"
-           data-table="tx_tonictypes_domain_model_datatype" data-uid="{flexform.general_settings.datatype_selection}" class="t3js-contextmenutrigger">
-          <dv:backend.render.record uid="{flexform.general_settings.datatype_selection}" table="tx_tonictypes_domain_model_datatype"/>
+        <a href="{dv:backend.editLink(id:pi_flexform_transformed.settings.datatype_selection,table:'tx_tonictypes_domain_model_datatype')}" target="_self"
+           data-table="tx_tonictypes_domain_model_datatype" data-uid="{pi_flexform_transformed.settings.datatype_selection}" class="t3js-contextmenutrigger">
+          <dv:backend.render.record uid="{pi_flexform_transformed.settings.datatype_selection}" table="tx_tonictypes_domain_model_datatype"/>
         </a>
       </f:then>
       <f:else>

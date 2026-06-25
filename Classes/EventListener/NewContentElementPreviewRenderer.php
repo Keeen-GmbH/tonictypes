@@ -6,48 +6,58 @@ namespace K3n\Tonictypes\EventListener;
 use Doctrine\DBAL\ParameterType;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use TYPO3\CMS\Backend\View\Event\PageContentPreviewRenderingEvent;
+use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Domain\FlexFormFieldValues;
 use TYPO3\CMS\Core\Domain\RecordInterface;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class NewContentElementPreviewRenderer
 {
     public function __invoke(PageContentPreviewRenderingEvent $event): void
     {
-        $record = $event->getRecord();
-        $row = $this->resolveRecordData($record);
-        $cType = (string)($row['CType'] ?? '');
+        if ((new Typo3Version())->getMajorVersion() < 13) {
+            return;
+        }
+
+        $cType = $event->getRecordType();
+        if ($cType === '') {
+            return;
+        }
 
         $templatePathAndFilename = $this->resolveTemplatePathFromCType($cType);
         if ($templatePathAndFilename === null) {
             return;
         }
+
+        $record = $event->getRecord();
+        $uid = $this->resolveRecordUid($record);
+        $rawFlexForm = $this->fetchRawFlexFormByUid($uid);
+        $flexFormTools = GeneralUtility::makeInstance(FlexFormTools::class);
+
         $view = GeneralUtility::makeInstance(StandaloneView::class);
         $view->setTemplatePathAndFilename($templatePathAndFilename);
         $view->assignMultiple([
-            'record' => $row,
-            'flexform' => $this->resolveFlexFormArray($this->fetchRawFlexFormByUid((int)($row['uid'] ?? 0))),
+            'record' => $record,
+            'flexform' => $flexFormTools->convertFlexFormContentToSheetsArray($rawFlexForm),
+            'pi_flexform_transformed' => $flexFormTools->convertFlexFormContentToArray($rawFlexForm),
         ]);
         $event->setPreviewContent((string)$view->render());
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function resolveRecordData(mixed $record): array
+    private function resolveRecordUid(mixed $record): int
     {
-        if (is_array($record)) {
-            return $record;
-        }
         if ($record instanceof RecordInterface) {
-            return $record->toArray();
+            return $record->getUid();
         }
-        if (is_object($record) && method_exists($record, 'toArray')) {
-            return (array)$record->toArray();
+        if (is_array($record)) {
+            return (int)($record['uid'] ?? 0);
+        }
+        if (is_object($record) && method_exists($record, 'getUid')) {
+            return (int)$record->getUid();
         }
 
-        return [];
+        return 0;
     }
 
     private function resolveTemplatePathFromCType(string $cType): ?string
@@ -62,9 +72,12 @@ final class NewContentElementPreviewRenderer
             return null;
         }
 
-        return GeneralUtility::getFileAbsFileName(
-            'EXT:tonictypes/Resources/Private/Templates/Backend/Preview/' . $cType . '.html'
-        );
+        $templateDirectory = 'EXT:tonictypes/Resources/Private/Templates/Backend/Preview/';
+        if ((new Typo3Version())->getMajorVersion() >= 14) {
+            $templateDirectory .= 'v14/';
+        }
+
+        return GeneralUtility::getFileAbsFileName($templateDirectory . $cType . '.html');
     }
 
     private function fetchRawFlexFormByUid(int $uid): string
@@ -85,64 +98,5 @@ final class NewContentElementPreviewRenderer
             ->fetchOne();
 
         return is_string($rawFlexForm) ? $rawFlexForm : '';
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function resolveFlexFormArray(mixed $flexFormValue): array
-    {
-        if ($flexFormValue instanceof FlexFormFieldValues) {
-            return $flexFormValue->toArray();
-        }
-        if (is_array($flexFormValue)) {
-            return $flexFormValue;
-        }
-        if (!is_string($flexFormValue) || trim($flexFormValue) === '') {
-            return [];
-        }
-
-        // @extensionScannerIgnoreLine
-        $flexFormAsArray = GeneralUtility::xml2array($flexFormValue);
-        if (!is_array($flexFormAsArray['data'] ?? null)) {
-            return [];
-        }
-
-        $options = [];
-        foreach ($flexFormAsArray['data'] as $sheetKey => $sheetData) {
-            if (!is_array($sheetData['lDEF'] ?? null)) {
-                continue;
-            }
-            $sheetOptions = [];
-            foreach ($sheetData['lDEF'] as $optionKey => $optionValue) {
-                $optionParts = explode('.', (string)$optionKey);
-                $normalizedOptionKey = (string)array_pop($optionParts);
-                if ($normalizedOptionKey === '') {
-                    continue;
-                }
-
-                if (is_array($optionValue['el'] ?? null)) {
-                    foreach ($optionValue['el'] as $subPreKey => $subArrayItem) {
-                        if (!is_array($subArrayItem)) {
-                            continue;
-                        }
-                        foreach ($subArrayItem as $subSubArrayItem) {
-                            if (!is_array($subSubArrayItem['el'] ?? null)) {
-                                continue;
-                            }
-                            foreach ($subSubArrayItem['el'] as $subKey => $value) {
-                                $sheetOptions[$normalizedOptionKey][$subPreKey][$subKey] = $value['vDEF'] ?? null;
-                            }
-                        }
-                    }
-                } else {
-                    $rawValue = $optionValue['vDEF'] ?? null;
-                    $sheetOptions[$normalizedOptionKey] = $rawValue === '1' ? true : $rawValue;
-                }
-            }
-            $options[(string)$sheetKey] = $sheetOptions;
-        }
-
-        return $options;
     }
 }

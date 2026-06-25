@@ -364,7 +364,7 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
     public function parseOffset(array $settings, array $variables): ?int
     {
         // Can be numeric, or ''
-        $offset = $settings['offset'];
+        $offset = $settings['offset'] ?? 0;
 
         $offsetVariableKey = (string)($settings['offset_variable'] ?? '');
         if($offsetVariableKey !== '' && array_key_exists($offsetVariableKey, $variables) && $variables[$offsetVariableKey] != '' && !is_null($variables[$offsetVariableKey])) {

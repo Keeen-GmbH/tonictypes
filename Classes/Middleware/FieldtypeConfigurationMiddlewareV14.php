@@ -22,10 +22,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Backend\Context\PageContext;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Schema\TcaSchemaFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\MathUtility;
 
 /**
  * Injects field-type flexform TCA once TypoScript is available (per request).
@@ -62,47 +62,68 @@ class FieldtypeConfigurationMiddlewareV14 implements MiddlewareInterface
             return $pageContext->pageId;
         }
 
-        foreach ([$request->getQueryParams()['id'] ?? null, $request->getParsedBody()['id'] ?? null] as $candidate) {
-            $pid = $this->extractPositiveInt($candidate);
-            if ($pid > 0) {
+        foreach ([$request->getQueryParams()['id'] ?? null, $request->getParsedBody()['id'] ?? null] as $id) {
+            if (($pid = $this->toPositiveInt($id)) > 0) {
                 return $pid;
             }
         }
 
         $routing = $request->getAttribute('routing');
-        if ($routing instanceof PageArguments) {
-            $pid = $routing->getPageId();
-            if ($pid > 0) {
-                return $pid;
-            }
+        if ($routing instanceof PageArguments && ($pid = $routing->getPageId()) > 0) {
+            return $pid;
         }
 
-        $beUser = $GLOBALS['BE_USER'] ?? null;
-        if ($beUser !== null) {
-            $moduleData = $beUser->uc['moduleData']['web_layout'] ?? null;
-            $pid = $this->extractPositiveInt($moduleData);
-            if ($pid > 0) {
-                return $pid;
+        if (($pid = $this->resolvePidFromEdit($request)) > 0) {
+            return $pid;
+        }
+
+        return $this->toPositiveInt($GLOBALS['BE_USER']?->uc['moduleData']['web_layout'] ?? null);
+    }
+
+    protected function resolvePidFromEdit(ServerRequestInterface $request): int
+    {
+        $edit = $request->getQueryParams()['edit'] ?? $request->getParsedBody()['edit'] ?? null;
+        if (!is_array($edit)) {
+            return 0;
+        }
+
+        foreach ($edit as $table => $commands) {
+            if (!is_array($commands)) {
+                continue;
+            }
+            foreach ($commands as $key => $command) {
+                $uid = (int)$key;
+                if ($command === 'new') {
+                    if ($uid > 0) {
+                        return $uid;
+                    }
+                    if ($uid < 0) {
+                        return $this->toPositiveInt(BackendUtility::getRecord($table, abs($uid), 'pid')['pid'] ?? null);
+                    }
+                    continue;
+                }
+                if ($uid <= 0) {
+                    continue;
+                }
+                if ($table === 'pages') {
+                    return $uid;
+                }
+                if (($pid = $this->toPositiveInt(BackendUtility::getRecord($table, $uid, 'pid')['pid'] ?? null)) > 0) {
+                    return $pid;
+                }
             }
         }
 
         return 0;
     }
 
-    protected function extractPositiveInt(mixed $value): int
+    protected function toPositiveInt(mixed $value): int
     {
         if (is_array($value)) {
             $value = reset($value);
         }
-        if (!is_scalar($value)) {
-            return 0;
-        }
-        $stringValue = (string)$value;
-        if (!MathUtility::canBeInterpretedAsInteger($stringValue)) {
-            return 0;
-        }
-        $intValue = (int)$stringValue;
+        $int = is_scalar($value) ? (int)$value : 0;
 
-        return $intValue > 0 ? $intValue : 0;
+        return $int > 0 ? $int : 0;
     }
 }

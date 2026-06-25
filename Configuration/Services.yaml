@@ -96,6 +96,13 @@ services:
               identifier: 'tonictypes/modify-loaded-page-tsconfig'
               event: TYPO3\CMS\Core\TypoScript\IncludeTree\Event\ModifyLoadedPageTsConfigEvent
 
+    K3n\Tonictypes\EventListener\NewContentElementPreviewRenderer:
+        tags:
+            - name: event.listener
+              identifier: 'tonictypes/preview-renderer'
+              event: TYPO3\CMS\Backend\View\Event\PageContentPreviewRenderingEvent
+              priority: 100
+
     K3n\Tonictypes\EventListener\RegisterDatatypeIconsOnBootCompleted:
       tags:
         - name: event.listener
