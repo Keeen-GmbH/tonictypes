@@ -31,6 +31,7 @@ return [
                 'EXT:tonictypes/Resources/Public/JavaScript/Contrib/',
             ],
         ],
+        '@k3n/tonictypes/predefined-datatype-import-widget.js' => 'EXT:tonictypes/Resources/Public/JavaScript/predefined-datatype-import-widget.js',
         'jquery-extendext' => 'EXT:tonictypes/Resources/Public/JavaScript/Contrib/jquery-extendext.js',
         'query-builder' => 'EXT:tonictypes/Resources/Public/JavaScript/Contrib/query-builder.js',
         'query-builder-templates' => 'EXT:tonictypes/Resources/Public/JavaScript/QueryBuilderTemplates.js',

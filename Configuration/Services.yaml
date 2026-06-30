@@ -28,8 +28,22 @@ services:
     K3n\Tonictypes\Controller\Backend\QueryBuilderController:
         public: true
 
+    K3n\Tonictypes\Controller\Backend\PredefinedDatatypeImportController:
+        public: true
+
     K3n\Tonictypes\Controller\RecordController:
         public: true
+
+    K3n\Tonictypes\Widgets\PredefinedDatatypeImportWidget:
+        tags:
+            - name: dashboard.widget
+              identifier: 'tonictypes-predefined-datatype-import'
+              groupNames: 'tonictypes'
+              title: 'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:dashboard.predefined_datatype_import.title'
+              description: 'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:dashboard.predefined_datatype_import.description'
+              iconIdentifier: 'extensions-tonictypes-dashboard'
+              height: 'medium'
+              width: 'medium'
 
     K3n\Tonictypes\Form\Element\QueryBuilderElement:
         public: true

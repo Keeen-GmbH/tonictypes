@@ -1,0 +1,69 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      xmlns:dv="http://typo3.org/ns/K3n/Tonictypes/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+<f:layout name="Widget/Widget"/>
+<f:section name="main">
+<div class="tonictypes-import-widget" data-tonictypes-predefined-import-widget>
+    <div class="tonictypes-import-widget__header">
+        <p class="tonictypes-import-widget__intro">
+            <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:dashboard.predefined_datatype_import.widget_description"/>
+        </p>
+        <f:if condition="{dv:typo3.isVersion(major:12)}">
+            <f:then>    
+                <img class="tonictypes-import-widget__logo" src="{f:uri.resource(path: 'Images/tonictypesv12.svg', extensionName: 'tonictypes')}" alt="Tonictypes" height="65"/>
+            </f:then>
+            <f:else>
+                <img class="tonictypes-import-widget__logo" src="{f:uri.resource(path: 'Images/tonictypes.svg', extensionName: 'tonictypes')}" alt="Tonictypes" height="65"/>
+            </f:else>
+        </f:if>
+    </div>
+
+    <f:if condition="{importAvailable}">
+        <f:then>
+            <f:if condition="{alreadyImported}">
+                <f:then>
+                    <div class="alert alert-info tonictypes-import-widget__alert">
+                        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:dashboard.predefined_datatype_import.already_present"/>
+                    </div>
+                </f:then>
+                <f:else>
+                    <f:if condition="{storagePages}">
+                        <f:then>
+                            <div class="tonictypes-import-widget__body">
+                            <label class="form-label" for="tonictypes-predefined-import-storage-pid">
+                                <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:dashboard.predefined_datatype_import.storage_pid"/>
+                            </label>
+                            <select class="form-select" id="tonictypes-predefined-import-storage-pid" data-storage-pid>
+                                <option value="">
+                                    <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:dashboard.predefined_datatype_import.select_storage"/>
+                                </option>
+                                <f:for each="{storagePages}" as="storagePage">
+                                    <option value="{storagePage.uid}">{storagePage.title} [PID {storagePage.uid}]</option>
+                                </f:for>
+                            </select>
+                            <button type="button" class="btn btn-primary tonictypes-import-widget__button" data-import-button>
+                                <core:icon identifier="actions-database-import" size="small"/>
+                                <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:dashboard.predefined_datatype_import.button"/>
+                            </button>
+                            <div class="tonictypes-import-widget__result d-none" data-import-result role="status" aria-live="polite"></div>
+                            </div>
+                        </f:then>
+                        <f:else>
+                            <div class="alert alert-info tonictypes-import-widget__alert">
+                                <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:dashboard.predefined_datatype_import.no_storage_pages"/>
+                            </div>
+                        </f:else>
+                    </f:if>
+                </f:else>
+            </f:if>
+        </f:then>
+        <f:else>
+            <div class="alert alert-warning tonictypes-import-widget__alert">
+                <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:dashboard.predefined_datatype_import.pro_required"/>
+            </div>
+        </f:else>
+    </f:if>
+</div>
+</f:section>
+</html>

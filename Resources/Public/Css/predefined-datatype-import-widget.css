@@ -1,0 +1,46 @@
+.tonictypes-import-widget {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    height: 100%;
+}
+
+.tonictypes-import-widget__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.tonictypes-import-widget__intro {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+.tonictypes-import-widget__logo {
+    flex-shrink: 0;
+}
+
+.tonictypes-import-widget__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tonictypes-import-widget__body .form-label {
+    margin: 0;
+}
+
+.tonictypes-import-widget__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    align-self: flex-start;
+}
+
+.tonictypes-import-widget__result,
+.tonictypes-import-widget__alert {
+    margin: 0;
+}

@@ -47,4 +47,8 @@ return [
         'path' => '/tonictypes/querybuilder/configuration/get',
         'target' => \K3n\Tonictypes\Controller\Backend\QueryBuilderController::class . '::getConfigurationAction'
     ],
+    'tonictypes_predefined_datatype_import' => [
+        'path' => '/tonictypes/predefined-datatype/import',
+        'target' => \K3n\Tonictypes\Controller\Backend\PredefinedDatatypeImportController::class . '::importAction'
+    ],
 ];

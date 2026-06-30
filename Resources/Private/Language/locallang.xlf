@@ -1852,6 +1852,38 @@
                 <source>Tonictypes Components</source>
             </trans-unit>
 
+        <!-- Dashboard -->
+            <trans-unit id="dashboard.widget_group.tonictypes">
+                <source>Tonictypes</source>
+            </trans-unit>
+            <trans-unit id="dashboard.predefined_datatype_import.title">
+                <source>Predefined Datatype Import</source>
+            </trans-unit>
+            <trans-unit id="dashboard.predefined_datatype_import.description">
+                <source>Import the bundled predefined Tonictypes datatype package into a selected storage PID.</source>
+            </trans-unit>
+            <trans-unit id="dashboard.predefined_datatype_import.widget_description">
+                <source>Import the predefined Tonictypes datatype package into the selected storage PID.</source>
+            </trans-unit>
+            <trans-unit id="dashboard.predefined_datatype_import.storage_pid">
+                <source>Storage PID</source>
+            </trans-unit>
+            <trans-unit id="dashboard.predefined_datatype_import.select_storage">
+                <source>Select storage page</source>
+            </trans-unit>
+            <trans-unit id="dashboard.predefined_datatype_import.button">
+                <source>Import predefined datatype</source>
+            </trans-unit>
+            <trans-unit id="dashboard.predefined_datatype_import.no_storage_pages">
+                <source>No storage pages are available for import.</source>
+            </trans-unit>
+            <trans-unit id="dashboard.predefined_datatype_import.pro_required">
+                <source>Predefined datatype import requires the extension tonictypes_pro.</source>
+            </trans-unit>
+            <trans-unit id="dashboard.predefined_datatype_import.already_present">
+                <source>The predefined datatype is already present.</source>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>
