@@ -15,7 +15,6 @@ namespace K3n\Tonictypes\Controller;
 
 use K3n\Tonictypes\Domain\Model\AbstractRecordModel;
 use K3n\Tonictypes\Domain\Model\Datatype;
-use K3n\Tonictypes\Domain\Model\Variable;
 use K3n\Tonictypes\Domain\Repository\AbstractRepository;
 use K3n\Tonictypes\Event\BeforeDynamicDetailViewRenderEvent;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
@@ -25,15 +24,12 @@ use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\LanguageAspect;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Pagination\SlidingWindowPagination;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Http\ForwardResponse;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
-use TYPO3\CMS\Extbase\Persistence\Generic\Query;
 use TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser;
-use TYPO3\CMS\Core\Http\PropagateResponseException;
 use TYPO3\CMS\Fluid\View\FluidViewAdapter;
 
 class RecordController extends AbstractController

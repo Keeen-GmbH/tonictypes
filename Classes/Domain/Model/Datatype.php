@@ -17,6 +17,7 @@ use K3n\Tonictypes\Domain\Repository\AbstractRepository;
 use K3n\Tonictypes\Service\FlexForm\FlexFormService;
 use K3n\Tonictypes\Utility\LocalizationUtility;
 use K3n\Tonictypes\Utility\StringUtility;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
@@ -170,6 +171,11 @@ class Datatype extends AbstractModel
             try {
                 $repository = GeneralUtility::makeInstance($repositoryClassName);
             } catch (\Exception $e) {
+                GeneralUtility::makeInstance(LogManager::class)
+                    ->getLogger(__CLASS__)
+                    ->warning($e->getMessage(), ['exception' => $e]);
+
+                return null;
             }
             if($repository instanceof AbstractRepository) {
                 return $repository;

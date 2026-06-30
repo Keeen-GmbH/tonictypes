@@ -19,14 +19,17 @@ use K3n\Tonictypes\Factory\TableFactory;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
 use K3n\Tonictypes\Utility\LocalizationUtility;
-use Throwable;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
-class TableController extends AbstractBackendController
+class TableController extends AbstractBackendController implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     protected function writeTcaPhpFile(string $tableName, array $tca): string
     {
         if (!str_starts_with($tableName, 'tx_tonictypes_domain_model_record_')) {
@@ -262,7 +265,9 @@ class TableController extends AbstractBackendController
         if($tableExists) {
             try {
                 $this->tableFactory->dropTable($tableName);
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+                $this->logger->warning($e->getMessage(), ['exception' => $e]);
+            }
         }
 
         if (str_starts_with($tableName, 'tx_tonictypes_domain_model_record_')) {
@@ -375,7 +380,7 @@ class TableController extends AbstractBackendController
             } else {
                 $tcaFileStatus = 'failed';
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $tcaFileStatus = 'failed';
         }
 

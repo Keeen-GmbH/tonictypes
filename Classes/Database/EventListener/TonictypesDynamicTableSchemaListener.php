@@ -13,12 +13,16 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Database\EventListener;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-final class TonictypesDynamicTableSchemaListener
+final class TonictypesDynamicTableSchemaListener implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     public function __invoke(AlterTableDefinitionStatementsEvent $event): void
     {
         try {
@@ -27,7 +31,7 @@ final class TonictypesDynamicTableSchemaListener
             $schemaManager = $connection->createSchemaManager();
             $tableNames = $schemaManager->listTableNames();
         } catch (\Throwable $exception) {
-            // Database may not be ready during early install.
+            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
             return;
         }
 
@@ -43,7 +47,7 @@ final class TonictypesDynamicTableSchemaListener
                     $event->addSqlData($this->normalizeCreateStatement($createStatement));
                 }
             } catch (\Throwable $exception) {
-                // Skip tables we cannot inspect and continue.
+                $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
             }
         }
     }

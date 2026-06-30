@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Controller\Backend;
 
-use K3n\Tonictypes\Domain\Model\AbstractRecordModel;
 use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Model\Field;
 use K3n\Tonictypes\Domain\Repository\AbstractRepository;
@@ -302,8 +301,6 @@ class QueryBuilderController extends AbstractBackendController
 
         $values = [];
         foreach($items as $_item) {
-            /* @var AbstractRecordModel $_item */
-
             // Pain check for removing workspace records
             // TODO: integrate workspace id here to get correct records
             // This removes workspace compatibility for this filer

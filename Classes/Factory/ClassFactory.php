@@ -15,14 +15,18 @@ namespace K3n\Tonictypes\Factory;
 
 use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Core\ClassLoadingInformation;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Reflection\ReflectionService;
 
 
-class ClassFactory implements SingletonInterface
+class ClassFactory implements SingletonInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * Domain Mode/Repository Template File Paths
      *
@@ -114,6 +118,8 @@ class ClassFactory implements SingletonInterface
 
             $result = GeneralUtility::writeFile($filename, $contents);
         } catch (\Exception $e) {
+            $this->logger->warning($e->getMessage(), ['exception' => $e]);
+
             return false;
         }
 
@@ -158,6 +164,8 @@ class ClassFactory implements SingletonInterface
             require_once($domainModelFilePath);
             require_once($domainRepositoryFilePath);
         } catch (\Exception $e) {
+            $this->logger->warning($e->getMessage(), ['exception' => $e]);
+
             return false;
         }
 
@@ -189,6 +197,8 @@ class ClassFactory implements SingletonInterface
             }
 
         } catch (\Exception $e) {
+            $this->logger->warning($e->getMessage(), ['exception' => $e]);
+
             return false;
         }
 
@@ -202,6 +212,8 @@ class ClassFactory implements SingletonInterface
             }
 
         } catch (\Exception $e) {
+            $this->logger->warning($e->getMessage(), ['exception' => $e]);
+
             return false;
         }
 
