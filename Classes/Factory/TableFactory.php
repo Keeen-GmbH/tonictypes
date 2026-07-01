@@ -34,40 +34,14 @@ use K3n\Tonictypes\Configuration\ExtensionConfiguration;
 class TableFactory implements SingletonInterface
 {
     /**
-     * SQL Reader
-     *
-     * @var SqlReader
-     */
-    protected $sqlReader;
-
-    /**
-     * Schema Migrator
-     *
-     * @var SchemaMigrator
-     */
-    protected $schemaMigrator;
-
-    /**
      * Connection
-     *
-     * @var Connection
      */
-    protected $connection;
+    private ?Connection $connection = null;
 
-    /**
-     * @param SqlReader $sqlReader
-     */
-    public function injectSqlReader(SqlReader $sqlReader): void
-    {
-        $this->sqlReader = $sqlReader;
-    }
-
-    /**
-     * @param SchemaMigrator $schemaMigrator
-     */
-    public function injectSchemaMigrator(SchemaMigrator $schemaMigrator): void
-    {
-        $this->schemaMigrator = $schemaMigrator;
+    public function __construct(
+        private readonly SqlReader $sqlReader,
+        private readonly SchemaMigrator $schemaMigrator,
+    ) {
     }
 
     /**

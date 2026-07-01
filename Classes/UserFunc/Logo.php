@@ -22,17 +22,9 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 
 class Logo
 {
-    /**
-     * @var BackendAccessService
-     */
-    protected $backendAccessService;
-
-    /**
-     * @param BackendAccessService $backendAccessService
-     */
-    public function injectBackendAccessService(BackendAccessService $backendAccessService)
-    {
-        $this->backendAccessService = $backendAccessService;
+    public function __construct(
+        private readonly BackendAccessService $backendAccessService,
+    ) {
     }
 
 	/**

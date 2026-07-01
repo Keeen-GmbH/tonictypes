@@ -15,39 +15,24 @@ namespace K3n\Tonictypes\Controller\Backend;
 
 use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
+use K3n\Tonictypes\Factory\ClassFactory;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
-use TYPO3\CMS\Core\Http\Response;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Install\Service\ClearCacheService;
 
 class ClassController extends AbstractBackendController
 {
-    /**
-     * @var DatatypeRepository
-     */
-    protected $datatypeRepository;
-
-    /**
-     * @var PluginSettingsService
-     */
-    protected $pluginSettingsService;
-
-    /**
-     * @param DatatypeRepository $datatypeRepository
-     */
-    public function injectDatatypeRepository(DatatypeRepository $datatypeRepository)
-    {
-        $this->datatypeRepository = $datatypeRepository;
-    }
-
-    /**
-     * @param PluginSettingsService $pluginSettingsService
-     */
-    public function injectPluginSettingsService(PluginSettingsService $pluginSettingsService)
-    {
-        $this->pluginSettingsService = $pluginSettingsService;
+    public function __construct(
+        ClassFactory $classFactory,
+        ClearCacheService $clearCacheService,
+        protected readonly DatatypeRepository $datatypeRepository,
+        protected readonly PluginSettingsService $pluginSettingsService,
+    ) {
+        parent::__construct($classFactory, $clearCacheService);
     }
 
     /**

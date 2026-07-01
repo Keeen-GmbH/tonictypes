@@ -38,46 +38,6 @@ use TYPO3\CMS\Extbase\Mvc\Exception\InvalidArgumentNameException;
 class VariableFactory implements SingletonInterface
 {
     /**
-     * @var FieldRepository
-     */
-    protected $fieldRepository;
-
-    /**
-     * @var VariableRepository
-     */
-    protected $variableRepository;
-
-    /**
-     * @var TypoScriptUtility
-     */
-    protected $typoScriptUtility;
-
-    /**
-     * @var SessionServiceContainer
-     */
-    protected $sessionServiceContainer;
-
-    /**
-     * @var AuthenticationService
-     */
-    protected $authenticationService;
-
-    /**
-     * @var BackendAccessService
-     */
-    protected $backendAccessService;
-
-    /**
-     * @var ConditionService
-     */
-    protected $conditionService;
-
-    /**
-     * @var FluidRenderService
-     */
-    protected $fluidRenderService;
-
-    /**
      * Denied variable names
      * @var array
      */
@@ -89,68 +49,16 @@ class VariableFactory implements SingletonInterface
         'settings',
     ];
 
-    /**
-     * @param FieldRepository $fieldRepository
-     */
-    public function injectFieldRepository(FieldRepository $fieldRepository)
-    {
-        $this->fieldRepository = $fieldRepository;
-    }
-
-    /**
-     * @param VariableRepository $variableRepository
-     */
-    public function injectVariableRepository(VariableRepository $variableRepository)
-    {
-        $this->variableRepository = $variableRepository;
-    }
-
-    /**
-     * @param TypoScriptUtility $typoScriptUtility
-     */
-    public function injectTypoScriptUtility(TypoScriptUtility $typoScriptUtility): void
-    {
-        $this->typoScriptUtility = $typoScriptUtility;
-    }
-
-    /**
-     * @param SessionServiceContainer $sessionServiceContainer
-     */
-    public function injectSessionServiceContainer(SessionServiceContainer $sessionServiceContainer)
-    {
-        $this->sessionServiceContainer = $sessionServiceContainer;
-    }
-
-    /**
-     * @param AuthenticationService $authenticationService
-     */
-    public function injectAuthenticationService(AuthenticationService $authenticationService)
-    {
-        $this->authenticationService = $authenticationService;
-    }
-
-    /**
-     * @param BackendAccessService $backendAccessService
-     */
-    public function injectBackendAccessService(BackendAccessService $backendAccessService)
-    {
-        $this->backendAccessService = $backendAccessService;
-    }
-
-    /**
-     * @param ConditionService $conditionService
-     */
-    public function injectConditionService(ConditionService $conditionService)
-    {
-        $this->conditionService = $conditionService;
-    }
-
-    /**
-     * @param FluidRenderService $fluidRenderService
-     */
-    public function injectFluidRenderService(FluidRenderService $fluidRenderService)
-    {
-        $this->fluidRenderService = $fluidRenderService;
+    public function __construct(
+        private readonly FieldRepository $fieldRepository,
+        private readonly VariableRepository $variableRepository,
+        private readonly TypoScriptUtility $typoScriptUtility,
+        private readonly SessionServiceContainer $sessionServiceContainer,
+        private readonly AuthenticationService $authenticationService,
+        private readonly BackendAccessService $backendAccessService,
+        private readonly ConditionService $conditionService,
+        private readonly FluidRenderService $fluidRenderService,
+    ) {
     }
 
     /**

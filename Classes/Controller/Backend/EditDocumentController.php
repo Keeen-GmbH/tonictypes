@@ -15,85 +15,76 @@ namespace K3n\Tonictypes\Controller\Backend;
 
 use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
-use K3n\Tonictypes\Factory\TableFactory;
-use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Service\Backend\BackendAccessService;
-use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Breadcrumb\BreadcrumbFactory;
+use TYPO3\CMS\Backend\Domain\Repository\Localization\LocalizationRepository;
+use TYPO3\CMS\Backend\Form\FormDataCompiler;
+use TYPO3\CMS\Backend\Form\FormResultFactory;
+use TYPO3\CMS\Backend\Form\FormResultHandler;
+use TYPO3\CMS\Backend\Form\NodeFactory;
+use TYPO3\CMS\Backend\Module\ModuleProvider;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\Components\ComponentFactory;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Domain\RecordFactory;
 use TYPO3\CMS\Core\Http\RedirectResponse;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Routing\BackendEntryPointResolver;
+use TYPO3\CMS\Core\Schema\SchemaLabelResolver;
+use TYPO3\CMS\Core\Schema\TcaSchemaFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
 
 class EditDocumentController extends \TYPO3\CMS\Backend\Controller\EditDocumentController
 {
-    /**
-     * @var StandaloneView
-     */
-    protected $standaloneView;
-
-    /**
-     * @var DatatypeRepository
-     */
-    protected $datatypeRepository;
-
-    /**
-     * @var PluginSettingsService
-     */
-    protected $pluginSettingsService;
-
-    /**
-     * @var BackendAccessService
-     */
-    protected $backendAccessService;
-
-    /**
-     * @var TableFactory
-     */
-    protected $tableFactory;
-
-    /**
-     * @param StandaloneView $standaloneView
-     */
-    public function injectStandaloneView(StandaloneView $standaloneView)
-    {
-        $this->standaloneView = $standaloneView;
-    }
-
-    /**
-     * @param DatatypeRepository $datatypeRepository
-     */
-    public function injectDatatypeRepository(DatatypeRepository $datatypeRepository)
-    {
-        $this->datatypeRepository = $datatypeRepository;
-    }
-
-    /**
-     * @param PluginSettingsService $pluginSettingsService
-     */
-    public function injectPluginSettingsService(PluginSettingsService $pluginSettingsService)
-    {
-        $this->pluginSettingsService = $pluginSettingsService;
-    }
-
-    /**
-     * @param BackendAccessService $backendAccessService
-     */
-    public function injectBackendAccessService(BackendAccessService $backendAccessService)
-    {
-        $this->backendAccessService = $backendAccessService;
-    }
-
-    /**
-     * @param TableFactory $tableFactory
-     */
-    public function injectTableFactory(TableFactory $tableFactory)
-    {
-        $this->tableFactory = $tableFactory;
+    public function __construct(
+        ComponentFactory $componentFactory,
+        EventDispatcherInterface $eventDispatcher,
+        IconFactory $iconFactory,
+        RecordFactory $recordFactory,
+        BreadcrumbFactory $breadcrumbFactory,
+        PageRenderer $pageRenderer,
+        UriBuilder $uriBuilder,
+        ModuleTemplateFactory $moduleTemplateFactory,
+        BackendEntryPointResolver $backendEntryPointResolver,
+        ModuleProvider $moduleProvider,
+        FormDataCompiler $formDataCompiler,
+        NodeFactory $nodeFactory,
+        FormResultFactory $formResultFactory,
+        FormResultHandler $formResultHandler,
+        TcaSchemaFactory $tcaSchemaFactory,
+        LocalizationRepository $localizationRepository,
+        SchemaLabelResolver $schemaLabelResolver,
+        private readonly DatatypeRepository $datatypeRepository,
+        private readonly BackendAccessService $backendAccessService,
+    ) {
+        parent::__construct(
+            $componentFactory,
+            $eventDispatcher,
+            $iconFactory,
+            $recordFactory,
+            $breadcrumbFactory,
+            $pageRenderer,
+            $uriBuilder,
+            $moduleTemplateFactory,
+            $backendEntryPointResolver,
+            $moduleProvider,
+            $formDataCompiler,
+            $nodeFactory,
+            $formResultFactory,
+            $formResultHandler,
+            $tcaSchemaFactory,
+            $localizationRepository,
+            $schemaLabelResolver,
+        );
     }
 
     public function mainAction(ServerRequestInterface $request): ResponseInterface

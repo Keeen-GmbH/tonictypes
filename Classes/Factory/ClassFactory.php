@@ -20,9 +20,6 @@ use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\Core\ClassLoadingInformation;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Reflection\ReflectionService;
-
-
 class ClassFactory implements SingletonInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
@@ -34,20 +31,6 @@ class ClassFactory implements SingletonInterface, LoggerAwareInterface
      */
     const DOMAIN_MODEL_TEMPLATE_FILE = "EXT:tonictypes/Resources/Private/Init/Record.php.phtml";
     const DOMAIN_REPOSITORY_TEMPLATE_FILE = "EXT:tonictypes/Resources/Private/Init/RecordRepository.php.phtml";
-
-    /**
-     * Reflection Service
-     * @var ReflectionService
-     */
-    protected $reflectionService;
-
-    /**
-     * @param ReflectionService $reflectionService
-     */
-    public function injectReflectionService(ReflectionService $reflectionService)
-    {
-        $this->reflectionService = $reflectionService;
-    }
 
     /**
      * Creates a class file by a given datatype

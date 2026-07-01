@@ -27,149 +27,20 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 abstract class AbstractController extends ActionController
 {
-    /**
-     * @var string
-     */
-    protected $cacheIdentifier;
+    protected ?string $cacheIdentifier = null;
 
-    /**
-     * @var \TYPO3\CMS\Core\Cache\CacheManager
-     */
-    protected $cacheManager;
-
-    /**
-     * @var DatatypeRepository
-     */
-    protected $datatypeRepository;
-
-    /**
-     * @var FileRepository
-     */
-    protected $fileRepository;
-
-    /**
-     * @var VariableRepository
-     */
-    protected $variableRepository;
-
-    /**
-     * @var BackendAccessService
-     */
-    protected $backendAccessService;
-
-    /**
-     * @var FluidRenderService
-     */
-    protected $fluidRenderService;
-
-    /**
-     * @var QueryFilterService
-     */
-    protected $queryFilterService;
-
-    /**
-     * @var ExtbaseQueryService
-     */
-    protected $extbaseQueryService;
-
-    /**
-     * @var ConditionService
-     */
-    protected $conditionService;
-
-    /**
-     * @var PluginSettingsService
-     */
-    protected $pluginSettingsService;
-
-    /**
-     * @param CacheManager $cacheManager
-     * @return void
-     */
-    public function injectCacheManager(CacheManager $cacheManager): void
-    {
-        $this->cacheManager = $cacheManager;
-    }
-
-    /**
-     * @param DatatypeRepository $datatypeRepository
-     * @return void
-     */
-    public function injectDatatypeRepository(DatatypeRepository $datatypeRepository): void
-    {
-        $this->datatypeRepository = $datatypeRepository;
-    }
-
-    /**
-     * @param FileRepository $fileRepository
-     * @return void
-     */
-    public function injectFileRepository(FileRepository $fileRepository): void
-    {
-        $this->fileRepository = $fileRepository;
-    }
-
-    /**
-     * @param VariableRepository $variableRepository
-     * @return void
-     */
-    public function injectVariableRepository(VariableRepository $variableRepository): void
-    {
-        $this->variableRepository = $variableRepository;
-    }
-
-    /**
-     * @param FluidRenderService $fluidRenderService
-     * @return void
-     */
-    public function injectFluidRenderService(FluidRenderService $fluidRenderService): void
-    {
-        $this->fluidRenderService = $fluidRenderService;
-    }
-
-    /**
-     * @param BackendAccessService $backendAccessService
-     * @return void
-     */
-    public function injectBackendAccessService(BackendAccessService $backendAccessService): void
-    {
-        $this->backendAccessService = $backendAccessService;
-    }
-
-    /**
-     * @param QueryFilterService $queryFilterService
-     * @return void
-     */
-    public function injectQueryFilterService(QueryFilterService $queryFilterService): void
-    {
-        $this->queryFilterService = $queryFilterService;
-    }
-
-    /**
-     * @param ExtbaseQueryService $extbaseQueryService
-     * @return void
-     */
-    public function injectExtbaseQueryService(ExtbaseQueryService $extbaseQueryService): void
-    {
-        $this->extbaseQueryService = $extbaseQueryService;
-    }
-
-    /**
-     * @param ConditionService $conditionService
-     * @return void
-     */
-    public function injectConditionService(ConditionService $conditionService): void
-    {
-        $this->conditionService = $conditionService;
-    }
-
-    /**
-     * @param PluginSettingsService $pluginSettingsService\
-     * @return void
-     */
-    public function injectPluginSettingsService(PluginSettingsService $pluginSettingsService): void
-    {
-        $this->pluginSettingsService = $pluginSettingsService;
+    public function __construct(
+        protected readonly CacheManager $cacheManager,
+        protected readonly DatatypeRepository $datatypeRepository,
+        protected readonly FileRepository $fileRepository,
+        protected readonly VariableRepository $variableRepository,
+        protected readonly BackendAccessService $backendAccessService,
+        protected readonly FluidRenderService $fluidRenderService,
+        protected readonly QueryFilterService $queryFilterService,
+        protected readonly ExtbaseQueryService $extbaseQueryService,
+        protected readonly ConditionService $conditionService,
+        protected readonly PluginSettingsService $pluginSettingsService,
+    ) {
     }
 
     /**

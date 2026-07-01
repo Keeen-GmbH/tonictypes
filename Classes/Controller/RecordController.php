@@ -37,7 +37,7 @@ class RecordController extends AbstractController
     /**
      * @var string
      */
-    protected $cacheIdentifier = '';
+    protected ?string $cacheIdentifier = null;
 
     /**
      * View Variables

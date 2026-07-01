@@ -6,10 +6,12 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Service\Import;
 
+use K3n\Tonictypes\Service\Transfer\DatatypeTransferImportService;
+use K3n\Tonictypes\Service\Transfer\DatatypeTransferStatusService;
+use K3n\Tonictypes\Service\Transfer\TonictypesProGuard;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class PredefinedDatatypeImportService
@@ -19,12 +21,14 @@ final class PredefinedDatatypeImportService
 
     public function __construct(
         private readonly ConnectionPool $connectionPool,
+        private readonly DatatypeTransferStatusService $transferStatusService,
+        private readonly DatatypeTransferImportService $transferImportService,
     ) {
     }
 
-    public function isImportAvailable(): bool
+    public function isProAvailable(): bool
     {
-        return ExtensionManagementUtility::isLoaded('tonictypes_pro');
+        return TonictypesProGuard::isAvailable();
     }
 
     public function isPredefinedArchiveAlreadyImported(): bool
@@ -47,38 +51,7 @@ final class PredefinedDatatypeImportService
      */
     public function getStoragePageOptions(): array
     {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
-        $rows = $queryBuilder
-            ->selectLiteral('DISTINCT pages.uid', 'pages.title')
-            ->from('pages')
-            ->leftJoin(
-                'pages',
-                'tx_tonictypes_domain_model_datatype',
-                'datatype',
-                $queryBuilder->expr()->eq('datatype.pid', $queryBuilder->quoteIdentifier('pages.uid'))
-            )
-            ->where(
-                $queryBuilder->expr()->eq('pages.deleted', 0),
-                $queryBuilder->expr()->or(
-                    $queryBuilder->expr()->eq('pages.doktype', 254),
-                    $queryBuilder->expr()->isNotNull('datatype.uid')
-                )
-            )
-            ->orderBy('pages.title')
-            ->executeQuery()
-            ->fetchAllAssociative();
-
-        $options = [];
-        foreach ($rows as $row) {
-            $uid = (int)($row['uid'] ?? 0);
-            if ($uid <= 0) {
-                continue;
-            }
-            $title = trim((string)($row['title'] ?? ''));
-            $options[] = ['uid' => $uid, 'title' => $title !== '' ? $title : 'PID ' . $uid];
-        }
-
-        return $options;
+        return $this->transferStatusService->getStoragePageOptions();
     }
 
     /**
@@ -86,15 +59,14 @@ final class PredefinedDatatypeImportService
      */
     public function importPredefinedArchive(int $storagePid): array
     {
+        TonictypesProGuard::assertAvailable();
+
         $backendUser = $GLOBALS['BE_USER'] ?? null;
         if (!$backendUser instanceof BackendUserAuthentication || !$backendUser->isAdmin()) {
             throw new \RuntimeException('Only TYPO3 administrators can import predefined datatypes.');
         }
         if ($storagePid <= 0) {
             throw new \InvalidArgumentException('Please select a storage PID.');
-        }
-        if (!$this->isImportAvailable()) {
-            throw new \RuntimeException('Predefined datatype import requires the extension tonictypes_pro.');
         }
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
@@ -118,12 +90,9 @@ final class PredefinedDatatypeImportService
             throw new \RuntimeException('The predefined Tonictypes datatype package could not be found.');
         }
 
-        $transferImport = GeneralUtility::makeInstance(
-            \K3n\TonictypesPro\Service\Transfer\DatatypeTransferImportService::class
-        );
-        $bundle = $transferImport->parseArchive($archivePath);
+        $bundle = $this->transferImportService->parseArchive($archivePath);
         $pidMapping = array_fill_keys(array_map('strval', array_keys($bundle['datatypes'])), $storagePid);
-        $result = $transferImport->importBundle($bundle['datatypes'], $pidMapping);
+        $result = $this->transferImportService->importBundle($bundle['datatypes'], $pidMapping);
 
         return [
             'message' => sprintf(

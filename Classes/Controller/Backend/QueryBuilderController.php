@@ -17,6 +17,7 @@ use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Model\Field;
 use K3n\Tonictypes\Domain\Repository\AbstractRepository;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
+use K3n\Tonictypes\Factory\ClassFactory;
 use K3n\Tonictypes\Utility\LocalizationUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -27,33 +28,17 @@ use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Install\Service\ClearCacheService;
 
 class QueryBuilderController extends AbstractBackendController
 {
-    /**
-     * @var DatatypeRepository
-     */
-    protected $datatypeRepository;
-
-    /**
-     * @var IconFactory
-     */
-    protected $iconFactory;
-
-    /**
-     * @param DatatypeRepository $datatypeRepository
-     */
-    public function injectDatatypeRepository(DatatypeRepository $datatypeRepository)
-    {
-        $this->datatypeRepository = $datatypeRepository;
-    }
-
-    /**
-     * @param IconFactory $iconFactory
-     */
-    public function injectIconFactory(IconFactory $iconFactory)
-    {
-        $this->iconFactory = $iconFactory;
+    public function __construct(
+        ClassFactory $classFactory,
+        ClearCacheService $clearCacheService,
+        private readonly DatatypeRepository $datatypeRepository,
+        private readonly IconFactory $iconFactory,
+    ) {
+        parent::__construct($classFactory, $clearCacheService);
     }
 
     /**

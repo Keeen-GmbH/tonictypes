@@ -15,6 +15,7 @@ namespace K3n\Tonictypes\Controller\Backend;
 
 use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
+use K3n\Tonictypes\Factory\ClassFactory;
 use K3n\Tonictypes\Factory\TableFactory;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
@@ -25,10 +26,21 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use TYPO3\CMS\Install\Service\ClearCacheService;
 
 class TableController extends AbstractBackendController implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
+
+    public function __construct(
+        ClassFactory $classFactory,
+        ClearCacheService $clearCacheService,
+        private readonly TableFactory $tableFactory,
+        private readonly DatatypeRepository $datatypeRepository,
+        private readonly PluginSettingsService $pluginSettingsService,
+    ) {
+        parent::__construct($classFactory, $clearCacheService);
+    }
 
     protected function writeTcaPhpFile(string $tableName, array $tca): string
     {
@@ -104,45 +116,6 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
         }
 
         return is_array($tca) ? $tca : [];
-    }
-
-    /**
-     * @var TableFactory
-     */
-    protected $tableFactory;
-
-    /**
-     * @var DatatypeRepository
-     */
-    protected $datatypeRepository;
-
-    /**
-     * @var PluginSettingsService
-     */
-    protected $pluginSettingsService;
-
-    /**
-     * @param TableFactory $tableFactory
-     */
-    public function injectTableFactory(TableFactory $tableFactory)
-    {
-        $this->tableFactory = $tableFactory;
-    }
-
-    /**
-     * @param DatatypeRepository $datatypeRepository
-     */
-    public function injectDatatypeRepository(DatatypeRepository $datatypeRepository)
-    {
-        $this->datatypeRepository = $datatypeRepository;
-    }
-
-    /**
-     * @param PluginSettingsService $pluginSettingsService
-     */
-    public function injectPluginSettingsService(PluginSettingsService $pluginSettingsService)
-    {
-        $this->pluginSettingsService = $pluginSettingsService;
     }
 
     /**

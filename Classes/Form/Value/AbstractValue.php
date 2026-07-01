@@ -23,21 +23,6 @@ use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
 abstract class AbstractValue
 {
     /**
-     * @var VariableRepository
-     */
-    protected $variableRepository;
-
-    /**
-     * @var PluginSettingsService
-     */
-    protected $pluginSettingsService;
-
-    /**
-     * @var FlexFormService
-     */
-    protected $flexFormService;
-
-    /**
      * @var AbstractRecordModel
      */
     protected $record;
@@ -63,28 +48,11 @@ abstract class AbstractValue
      */
     protected $variables = [];
 
-    /**
-     * @param VariableRepository $variableRepository
-     */
-    public function injectVariableRepository(VariableRepository $variableRepository)
-    {
-        $this->variableRepository = $variableRepository;
-    }
-
-    /**
-     * @param PluginSettingsService $pluginSettingsService
-     */
-    public function injectPluginSettingsService(PluginSettingsService $pluginSettingsService)
-    {
-        $this->pluginSettingsService = $pluginSettingsService;
-    }
-
-    /**
-     * @param FlexFormService $flexFormService
-     */
-    public function injectFlexFormService(FlexFormService $flexFormService)
-    {
-        $this->flexFormService = $flexFormService;
+    public function __construct(
+        protected readonly VariableRepository $variableRepository,
+        protected readonly PluginSettingsService $pluginSettingsService,
+        protected readonly FlexFormService $flexFormService,
+    ) {
     }
 
     /**
