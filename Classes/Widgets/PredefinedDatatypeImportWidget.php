@@ -41,8 +41,8 @@ final class PredefinedDatatypeImportWidget implements
         $view = $this->backendViewFactory->create($this->request, ['typo3/cms-dashboard', 'k3n/tonictypes']);
         $view->assignMultiple([
             'configuration' => $this->configuration,
+            'proAvailable' => $this->importService->isProAvailable(),
             'storagePages' => $this->importService->getStoragePageOptions(),
-            'importAvailable' => $this->importService->isImportAvailable(),
             'alreadyImported' => $this->importService->isPredefinedArchiveAlreadyImported(),
         ]);
 
