@@ -23,6 +23,7 @@ use K3n\Tonictypes\Factory\TableFactory;
 use K3n\Tonictypes\Form\Value\AbstractValue;
 use K3n\Tonictypes\Service\Cache\TcaCacheService;
 use K3n\Tonictypes\Service\Settings\FieldSettingsService;
+use K3n\Tonictypes\Service\Tca\DatatypeTcaFileService;
 use K3n\Tonictypes\Utility\UrlUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
@@ -192,6 +193,18 @@ class DataHandling
      */
     public function processCmdmap_deleteAction(string $table, int $id, array $recordToDelete, bool &$recordWasDeleted, &$parentObj)
     {
+        if ($table !== 'tx_tonictypes_domain_model_datatype') {
+            return;
+        }
+
+        $tableName = trim((string)($recordToDelete['tablename'] ?? ''));
+        if ($tableName === '') {
+            $datatype = BackendUtility::getRecord($table, $id, 'tablename');
+            $tableName = trim((string)($datatype['tablename'] ?? ''));
+        }
+
+        GeneralUtility::makeInstance(DatatypeTcaFileService::class)->backupAndDelete($tableName);
+        $this->tcaCacheService->remove('Tca_Datatype_' . $id);
     }
 
     /**

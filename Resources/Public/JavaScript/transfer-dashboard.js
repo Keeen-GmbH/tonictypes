@@ -281,25 +281,23 @@ const initTransferDashboard = () => {
         );
     };
 
+    const isProUpgradeMessage = (message) => /professional|premium field/i.test(String(message || ""));
+
     const showImportMessage = (message, type = "danger") => {
         const result = document.getElementById("tonictypes-transfer-import-result");
         if (!result) {
             return;
         }
-        const alertClass = type === "success"
+        let alertClass = type === "success"
             ? "alert-success"
             : (type === "warning" ? "alert-warning" : "alert-danger");
+        if (isProUpgradeMessage(message)) {
+            alertClass = "tonictypes-alert-pro";
+        }
         result.className = `alert ${alertClass} mb-0`;
         result.innerHTML = linkifyPlainText(message);
         result.classList.remove("d-none");
         result.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    };
-
-    const formatPageLabel = (uid, title) => {
-        if (uid <= 0) {
-            return "—";
-        }
-        return title ? `[${uid}] ${title}` : `[${uid}]`;
     };
 
     const buildPageSelectOptions = (selectedPid) => {
@@ -361,7 +359,6 @@ const initTransferDashboard = () => {
         const body = document.getElementById("tonictypes-transfer-import-preview-body");
         body.innerHTML = items.map((item) => {
             const selectedPid = item.suggestedPid > 0 ? item.suggestedPid : 0;
-            const sourceLabel = formatPageLabel(item.sourcePid, item.sourcePageTitle);
             const statusLabel = item.exists ? "Update" : "Create";
             return `
                 <tr data-export-key="${escapeHtml(item.exportKey)}">
@@ -369,7 +366,6 @@ const initTransferDashboard = () => {
                     <td><code>${escapeHtml(item.tablename)}</code></td>
                     <td>${item.fieldCount ?? 0}</td>
                     <td>${statusLabel}</td>
-                    <td class="text-muted">${escapeHtml(sourceLabel)}</td>
                     <td>
                         <select class="form-select form-select-sm" data-pid-mapping="${escapeHtml(item.exportKey)}">
                             ${buildPageSelectOptions(selectedPid)}

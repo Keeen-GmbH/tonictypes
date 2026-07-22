@@ -18,6 +18,7 @@ use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
 use K3n\Tonictypes\Factory\TableFactory;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
+use K3n\Tonictypes\Service\Tca\DatatypeTcaFileService;
 use K3n\Tonictypes\Utility\LocalizationUtility;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -274,10 +275,7 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
         }
 
         if (str_starts_with($tableName, 'tx_tonictypes_domain_model_record_')) {
-            $tcaFile = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Configuration/TCA/' . $tableName . '.php');
-            if (is_string($tcaFile) && $tcaFile !== '' && file_exists($tcaFile)) {
-                @unlink($tcaFile);
-            }
+            GeneralUtility::makeInstance(DatatypeTcaFileService::class)->backupAndDelete($tableName);
         }
 
         $this->clearAutoloadAndCache();

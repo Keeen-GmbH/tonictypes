@@ -112,11 +112,11 @@ class Text
             $linkLabel = 'Upgrade to Tonictypes Professional';
         }
 
-        return '<div class="alert alert-warning callout callout-warning" role="alert">'
-            . '<p style="margin:0 0 10px 0;">'
+        return '<div class="alert tonictypes-alert-pro tonictypes-pro-upgrade-box" role="alert">'
+            . '<p class="tonictypes-pro-upgrade-box__text">'
             . htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . '</p>'
-            . '<a class="btn btn-warning" style="color:#fff;font-weight:bold;"'
+            . '<a class="btn tonictypes-btn-pro"'
             . ' href="https://t3planet.de/tonictypes" target="_blank" rel="noopener noreferrer">'
             . htmlspecialchars($linkLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . '</a>'

@@ -6,6 +6,8 @@ services:
 
     K3n\Tonictypes\:
         resource: '../Classes/*'
+        exclude:
+            - '../Classes/EventListener/NewContentElementPreviewRenderer.php'
 
     K3n\Tonictypes\Configuration\ConfigurationRegistry:
         public: true

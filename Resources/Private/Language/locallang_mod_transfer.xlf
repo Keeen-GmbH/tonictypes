@@ -66,9 +66,6 @@
             <trans-unit id="import.default_pid">
                 <source>Default storage page</source>
             </trans-unit>
-            <trans-unit id="import.source_page">
-                <source>Source page</source>
-            </trans-unit>
             <trans-unit id="import.storage_page">
                 <source>Storage page</source>
             </trans-unit>

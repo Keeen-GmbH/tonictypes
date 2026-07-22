@@ -6,7 +6,6 @@ namespace K3n\Tonictypes\EventListener;
 use Doctrine\DBAL\ParameterType;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use TYPO3\CMS\Backend\View\Event\PageContentPreviewRenderingEvent;
-use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Domain\RecordInterface;
@@ -14,20 +13,18 @@ use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Renders backend page-module previews for tonictypes plugins.
+ * Renders backend page-module previews for tonictypes plugins (TYPO3 v14+ only).
  *
- * Must run before {@see \TYPO3\CMS\Backend\Preview\FluidBasedContentPreviewRenderer}
- * (page TSconfig mod.web_layout.tt_content.preview.*) so custom Fluid variables are available.
+ * Registered in Configuration/Services.php when major version >= 14.
+ * v12/v13 use page TSconfig mod.web_layout.tt_content.preview.* instead.
+ *
+ * Must run before {@see \TYPO3\CMS\Backend\Preview\FluidBasedContentPreviewRenderer}.
  */
 final class NewContentElementPreviewRenderer
 {
-    #[AsEventListener(
-        identifier: 'tonictypes/preview-renderer',
-        before: 'typo3-backend/fluid-preview/content',
-    )]
     public function __invoke(PageContentPreviewRenderingEvent $event): void
     {
-        if ((new Typo3Version())->getMajorVersion() < 13) {
+        if ((new Typo3Version())->getMajorVersion() < 14) {
             return;
         }
 
@@ -94,12 +91,9 @@ final class NewContentElementPreviewRenderer
             return null;
         }
 
-        $templateDirectory = 'EXT:tonictypes/Resources/Private/Templates/Backend/Preview/';
-        if ((new Typo3Version())->getMajorVersion() >= 14) {
-            $templateDirectory .= 'v14/';
-        }
-
-        return GeneralUtility::getFileAbsFileName($templateDirectory . $cType . '.html') ?: null;
+        return GeneralUtility::getFileAbsFileName(
+            'EXT:tonictypes/Resources/Private/Templates/Backend/Preview/v14/' . $cType . '.html'
+        ) ?: null;
     }
 
     private function fetchRawFlexFormByUid(int $uid): string

@@ -25,15 +25,20 @@ class FlexFormService implements SingletonInterface
     }
 
     /**
-     * Parses flex form XML into a nested array. Delegates to TYPO3 core (FlexFormTools in v14+).
-     *
-     * Optional $languagePointer and $valuePointer are retained for backward compatibility; core TYPO3
-     * uses fixed lDEF/vDEF handling since v14 (see Breaking #107945).
+     * Parses flex form XML into a nested array. Delegates to TYPO3 core
+     * (FlexFormService on v12/v13, FlexFormTools via alias on v14+).
      */
-    public function convertFlexFormContentToArray(
-        string $flexFormContent,
-    ): array {
+    public function convertFlexFormContentToArray(string $flexFormContent): array
+    {
         return $this->typo3FlexFormService->convertFlexFormContentToArray($flexFormContent);
+    }
+
+    /**
+     * Parses flex form XML into a sheet-aware nested array.
+     */
+    public function convertFlexFormContentToSheetsArray(string $flexFormContent): array
+    {
+        return $this->typo3FlexFormService->convertFlexFormContentToSheetsArray($flexFormContent);
     }
 
 	/**

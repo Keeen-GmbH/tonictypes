@@ -25,6 +25,8 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class FieldtypeConfigurationMiddleware implements MiddlewareInterface
 {
+    use ResolvesBackendPageIdFromRequest;
+
     public function __construct(
         private readonly FieldSettingsService $fieldSettingsService,
     ) {
@@ -32,7 +34,8 @@ class FieldtypeConfigurationMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $fieldFlexformConfig = $this->fieldSettingsService->getTcaFlexFormConfiguration();
+        $pid = $this->resolvePidFromRequest($request);
+        $fieldFlexformConfig = $this->fieldSettingsService->getTcaFlexFormConfiguration($pid);
         $fieldTable = ExtensionConfiguration::EXTENSION_FIELD_TABLE;
 
         $existingDs = $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds'] ?? [];
