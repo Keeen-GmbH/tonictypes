@@ -11,6 +11,9 @@
  */
 defined('TYPO3') or die();
 
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 return [
     'ctrl' => [
         'title' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_variable',
@@ -400,11 +403,14 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_variable.allowed_values',
             'displayCond' => 'FIELD:type:IN:3,4,5',
-            'config' => [
+            'config' => GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14 ? [
                 'type' => 'flex',
                 'ds' => [
-                    'default' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Variable/AllowedValues.xml'
+                    'default' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Variable/AllowedValues.xml',
                 ],
+            ] : [
+                'type' => 'flex',
+                'ds' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Variable/AllowedValues.xml',
             ],
         ],
         'regex' => [
@@ -421,11 +427,14 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_variable.value_switch',
             'displayCond' => 'FIELD:type:IN:3,4,5',
-            'config' => [
+            'config' => GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14 ? [
                 'type' => 'flex',
                 'ds' => [
-                    'default' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Variable/ValueSwitch.xml'
+                    'default' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Variable/ValueSwitch.xml',
                 ],
+            ] : [
+                'type' => 'flex',
+                'ds' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Variable/ValueSwitch.xml',
             ],
         ],
         'datatype' => [

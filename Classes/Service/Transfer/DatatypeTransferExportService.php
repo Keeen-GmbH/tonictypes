@@ -41,8 +41,6 @@ class DatatypeTransferExportService
      */
     public function createArchive(array $datatypeUids): string
     {
-        TonictypesProGuard::assertAvailable();
-
         $datatypeUids = array_values(array_unique(array_map('intval', $datatypeUids)));
         if ($datatypeUids === []) {
             throw new \InvalidArgumentException('No datatypes selected for export.');

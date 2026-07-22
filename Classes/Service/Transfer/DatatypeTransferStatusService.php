@@ -26,8 +26,6 @@ class DatatypeTransferStatusService
      */
     public function getDatatypeOverview(): array
     {
-        TonictypesProGuard::assertAvailable();
-
         $overview = [];
         foreach ($this->datatypeRepository->findAll(false, ['name' => 'ASC']) as $datatype) {
             if (!$datatype instanceof Datatype) {

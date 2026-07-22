@@ -75,6 +75,55 @@ class Text
     }
 
     /**
+     * Notice when a stored field type is no longer registered (e.g. Pro-only type without Pro).
+     *
+     * @param array $config
+     * @param mixed $parentObject
+     */
+    public function displayUnsupportedFieldTypeMessage(array &$config, &$parentObject): string
+    {
+        $type = '';
+        $row = $config['row'] ?? [];
+        if (isset($row['type'])) {
+            $type = is_array($row['type']) ? (string)($row['type'][0] ?? '') : (string)$row['type'];
+        }
+        if ($type === '' && isset($config['flexParentDatabaseRow']['type'])) {
+            $parentType = $config['flexParentDatabaseRow']['type'];
+            $type = is_array($parentType) ? (string)($parentType[0] ?? '') : (string)$parentType;
+        }
+        $typeLabel = $type !== '' ? strtoupper($type) : 'TCA';
+
+        $message = LocalizationUtility::translate(
+            'message.unsupported_field_type',
+            [$typeLabel]
+        );
+        if ($message === '') {
+            $message = sprintf(
+                'The "%s" field is not available in the free version. Please upgrade to Tonictypes Professional to use this field type.',
+                $typeLabel
+            );
+        }
+
+        $linkLabel = LocalizationUtility::translate('message.unsupported_field_type.link');
+        if ($linkLabel === '') {
+            $linkLabel = LocalizationUtility::translate('pro.upgrade_to_pro');
+        }
+        if ($linkLabel === '') {
+            $linkLabel = 'Upgrade to Tonictypes Professional';
+        }
+
+        return '<div class="alert alert-warning callout callout-warning" role="alert">'
+            . '<p style="margin:0 0 10px 0;">'
+            . htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . '</p>'
+            . '<a class="btn btn-warning" style="color:#fff;font-weight:bold;"'
+            . ' href="https://t3planet.de/tonictypes" target="_blank" rel="noopener noreferrer">'
+            . htmlspecialchars($linkLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . '</a>'
+            . '</div>';
+    }
+
+    /**
      * Display a simple error text in backend
      *
      * @param array $config Configuration Array

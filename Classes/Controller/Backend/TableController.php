@@ -194,6 +194,7 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
         $createStatement = null;
         $updateStatements = [];
         $missingColumns = [];
+        $orphanColumns = [];
         $tableLayout = null;
         if (is_numeric($datatypeId)) {
             /* @var Datatype $datatype */
@@ -204,6 +205,7 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
                     $sqlStatements = $this->tableFactory->getSqlStatements($createStatement);
                     $updateStatements = $this->tableFactory->getUpdateStatements($sqlStatements, $tableName);
                     $missingColumns = $this->tableFactory->getMissingColumns($tableName, $datatype);
+                    $orphanColumns = $this->tableFactory->getOrphanColumns($tableName, $datatype);
                     $tableLayout = $this->tableFactory->getTableLayout($tableName);
                 } catch (\Exception $e) {
                     $response = GeneralUtility::makeInstance(Response::class);
@@ -231,6 +233,7 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
             'updateStatements' => $updateStatements,
             'tableNeedsUpdate' => $tableNeedsUpdate,
             'missingColumns' => $missingColumns,
+            'orphanColumns' => $orphanColumns,
             'tableLayout' => $tableLayout,
             'tableNameWrong' => !$this->tableFactory->isAllowedTablename($tableName),
         ];
@@ -275,6 +278,42 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
             if (is_string($tcaFile) && $tcaFile !== '' && file_exists($tcaFile)) {
                 @unlink($tcaFile);
             }
+        }
+
+        $this->clearAutoloadAndCache();
+
+        return $this->tableStatusAction($request);
+    }
+
+    /**
+     * Drops DB columns that are no longer mapped to datatype fields.
+     */
+    public function tableDropOrphanColumnsAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $parsedBody = $request->getParsedBody();
+        $tableName = strip_tags((string)($parsedBody['tableName'] ?? ''));
+        $datatypeId = (int)($parsedBody['datatypeId'] ?? 0);
+
+        $datatype = $this->datatypeRepository->findByUid($datatypeId);
+        if (!($datatype instanceof Datatype) || $tableName === '') {
+            $response = GeneralUtility::makeInstance(Response::class);
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'html' => LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.error.unknown'),
+            ]));
+            return $response;
+        }
+
+        try {
+            $orphanColumns = $this->tableFactory->getOrphanColumns($tableName, $datatype);
+            $this->tableFactory->dropColumns($tableName, $orphanColumns);
+        } catch (\Throwable $exception) {
+            $response = GeneralUtility::makeInstance(Response::class);
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'html' => $exception->getMessage(),
+            ]));
+            return $response;
         }
 
         $this->clearAutoloadAndCache();

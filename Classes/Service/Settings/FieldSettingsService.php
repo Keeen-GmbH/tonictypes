@@ -19,6 +19,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class FieldSettingsService extends AbstractSettingsService implements SingletonInterface
 {
+    private const UNSUPPORTED_FIELDTYPE_FLEXFORM = 'FILE:EXT:tonictypes/Configuration/FlexForms/Field/Unsupported.xml';
+
 	/**
 	 * Field Configuration
 	 *
@@ -59,15 +61,68 @@ class FieldSettingsService extends AbstractSettingsService implements SingletonI
      */
 	public function getTcaFlexFormConfiguration(int $pid = 0): array
     {
-        $dsConfig = [];
+        $emptyDs = 'FILE:EXT:tonictypes/Configuration/FlexForms/Field/Empty.xml';
+        $dsConfig = [
+            'default' => $emptyDs,
+        ];
         $typesConfiguration = $this->getFieldConfiguration($pid);
-        foreach ($typesConfiguration as $_id=>$_config) {
-            if (isset($_config['flexform'])) {
-                $dsConfig[$_id] = 'FILE:'.$_config['flexform'];
+        foreach ($typesConfiguration as $_id => $_config) {
+            if (!is_string($_id) || $_id === '') {
+                continue;
             }
+            // Always register a DS key so v12/v13 ds_pointerField never misses.
+            $dsConfig[$_id] = isset($_config['flexform']) && $_config['flexform'] !== ''
+                ? 'FILE:' . $_config['flexform']
+                : $emptyDs;
+        }
+
+        // Keep editing records whose type was removed / requires Pro.
+        foreach ($this->getUsedFieldTypesFromDatabase() as $usedType) {
+            if ($usedType === '' || isset($dsConfig[$usedType])) {
+                continue;
+            }
+            $dsConfig[$usedType] = self::UNSUPPORTED_FIELDTYPE_FLEXFORM;
         }
 
         return $dsConfig;
+    }
+
+    /**
+     * Distinct field.type values currently stored in the database.
+     *
+     * @return list<string>
+     */
+    public function getUsedFieldTypesFromDatabase(): array
+    {
+        try {
+            $queryBuilder = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Database\ConnectionPool::class)
+                ->getQueryBuilderForTable('tx_tonictypes_domain_model_field');
+            $queryBuilder->getRestrictions()->removeAll();
+            $rows = $queryBuilder
+                ->select('type')
+                ->from('tx_tonictypes_domain_model_field')
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'deleted',
+                        $queryBuilder->createNamedParameter(0, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)
+                    )
+                )
+                ->groupBy('type')
+                ->executeQuery()
+                ->fetchAllAssociative();
+        } catch (\Throwable $exception) {
+            return [];
+        }
+
+        $types = [];
+        foreach ($rows as $row) {
+            $type = trim((string)($row['type'] ?? ''));
+            if ($type !== '') {
+                $types[] = $type;
+            }
+        }
+
+        return array_values(array_unique($types));
     }
 
     /**

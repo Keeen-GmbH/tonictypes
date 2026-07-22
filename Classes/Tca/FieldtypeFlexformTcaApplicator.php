@@ -61,16 +61,37 @@ final class FieldtypeFlexformTcaApplicator
         }
 
         $resolvedDs = $fieldFlexformConfig + $existingDs;
-        $defaultDs = (string)($resolvedDs['default'] ?? '');
-        if ($defaultDs !== '') {
-            $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds'] = $defaultDs;
+        if (!isset($resolvedDs['default']) || $resolvedDs['default'] === '') {
+            $resolvedDs['default'] = 'FILE:EXT:tonictypes/Configuration/FlexForms/Field/Empty.xml';
         }
+        $defaultDs = (string)$resolvedDs['default'];
+        $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds'] = $defaultDs;
 
         $types = &$GLOBALS['TCA'][$fieldTable]['types'];
         if (!is_array($types)) {
             $types = [];
         }
         $fallbackTypeConfiguration = is_array($types['1'] ?? null) ? $types['1'] : [];
+
+        // Always keep the static fallback type with a valid string DS (v14 requirement).
+        foreach (['0', '1'] as $staticType) {
+            if (!isset($types[$staticType]) || !is_array($types[$staticType])) {
+                continue;
+            }
+            $types[$staticType] = array_replace_recursive(
+                $types[$staticType],
+                [
+                    'columnsOverrides' => [
+                        'field_conf' => [
+                            'config' => [
+                                'ds' => $defaultDs,
+                            ],
+                        ],
+                    ],
+                ]
+            );
+        }
+
         foreach ($resolvedDs as $fieldType => $ds) {
             if ($fieldType === 'default' || !is_string($fieldType) || $fieldType === '' || !is_string($ds) || $ds === '') {
                 continue;

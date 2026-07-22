@@ -11,6 +11,9 @@
  */
 defined('TYPO3') or die();
 
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /* Retrieve typeicon classes */
 $typeIcons = function () {
     try {
@@ -339,11 +342,14 @@ return [
 		'tab_config' => [
 			'exclude' => true,
 			'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.tab_config',
-			'config' => [
+			'config' => GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14 ? [
 				'type' => 'flex',
 				'ds' => [
-					'default' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Datatype/TabConfig.xml'
+					'default' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Datatype/TabConfig.xml',
 				],
+			] : [
+				'type' => 'flex',
+				'ds' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Datatype/TabConfig.xml',
 			],
 		],
         'disable_general_tab' => [

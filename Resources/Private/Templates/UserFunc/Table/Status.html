@@ -8,6 +8,9 @@
                 <f:render partial="Table/UpToDate" arguments="{_all}" />
             </f:else>
         </f:if>
+        <f:if condition="{orphanColumns->f:count()} > 0">
+            <f:render partial="Table/OrphanColumns" arguments="{_all}" />
+        </f:if>
     </f:then>
     <f:else>
         <f:if condition="{tableNameWrong}">
@@ -20,9 +23,3 @@
         </f:if>
     </f:else>
 </f:if>
-
-
-
-
-
-

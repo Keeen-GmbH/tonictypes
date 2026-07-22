@@ -54,8 +54,6 @@ class DatatypeRecordTableMigrationService
      */
     public function ensureRecordTable(int $datatypeUid, bool $preferFreshSchema = false): array
     {
-        TonictypesProGuard::assertAvailable();
-
         $datatype = $this->loadDatatypeWithFields($datatypeUid);
         if (!$datatype instanceof Datatype) {
             throw new \RuntimeException(sprintf('Datatype uid %d could not be loaded.', $datatypeUid));

@@ -19,6 +19,8 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Site\Entity\NullSite;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -89,20 +91,15 @@ abstract class AbstractSettingsService implements SingletonInterface
             $config = [];
           }
         }
-      } elseif ($pid > 0) {
+      } else {
+        // BackendConfigurationManager can load global/setup TS even without a Site (NullSite).
         try {
-          $site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pid);
-          $request = (new ServerRequest())->withQueryParams(['id' => $pid])->withAttribute('site', $site);
-          $config = $this->backendConfigurationManager->getTypoScriptSetup($request);
-        } catch (SiteNotFoundException) {
+          $config = $this->backendConfigurationManager->getTypoScriptSetup(
+            $this->buildBackendTypoScriptRequest($request, $pid)
+          );
+        } catch (\Throwable $e) {
           $config = [];
         }
-      } elseif ($this->configurationManager instanceof ConfigurationManagerInterface) {
-          try {
-            $config = $this->configurationManager->getConfiguration(ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
-          } catch (\Throwable $e) {
-            $config = [];
-          }
       }
     } else {
       $config = $this->backendConfigurationManager->getTypoScriptSetup($request);
@@ -118,6 +115,43 @@ abstract class AbstractSettingsService implements SingletonInterface
     }
 
     return [];
+  }
+
+  /**
+   * Build a request suitable for BackendConfigurationManager::getTypoScriptSetup().
+   */
+  protected function buildBackendTypoScriptRequest(ServerRequestInterface $request, int $pid): ServerRequestInterface
+  {
+    $pageId = $pid > 0 ? $pid : 0;
+    if ($pageId <= 0) {
+      foreach ([$request->getQueryParams()['id'] ?? null, $request->getParsedBody()['id'] ?? null] as $id) {
+        if (is_array($id)) {
+          $id = reset($id);
+        }
+        $candidate = is_scalar($id) ? (int)$id : 0;
+        if ($candidate > 0) {
+          $pageId = $candidate;
+          break;
+        }
+      }
+    }
+
+    $site = $request->getAttribute('site');
+    if (!$site instanceof Site && $pageId > 0) {
+      try {
+        $site = GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pageId);
+      } catch (SiteNotFoundException) {
+        $site = new NullSite();
+      }
+    }
+    if (!$site instanceof Site) {
+      $site = new NullSite();
+    }
+
+    return (new ServerRequest())
+      ->withQueryParams(['id' => $pageId])
+      ->withAttribute('site', $site)
+      ->withAttribute('applicationType', $request->getAttribute('applicationType'));
   }
 
   /**

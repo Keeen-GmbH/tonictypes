@@ -560,6 +560,21 @@
             <trans-unit id="message.this_field_has_no_configuration">
                 <source>This field has no configuration.</source>
             </trans-unit>
+            <trans-unit id="message.unsupported_field_type.title">
+                <source>Premium field type</source>
+            </trans-unit>
+            <trans-unit id="message.unsupported_field_type">
+                <source>The "%s" field is not available in the free version. Please upgrade to Tonictypes Professional to use this field type.</source>
+            </trans-unit>
+            <trans-unit id="message.unsupported_field_type.link">
+                <source>Upgrade to Tonictypes Professional</source>
+            </trans-unit>
+            <trans-unit id="transfer.import.premium_fields_blocked">
+                <source>You cannot import this datatype because it contains premium field type(s): %s. Please upgrade to Tonictypes Professional to use these fields: %s</source>
+            </trans-unit>
+            <trans-unit id="message.unsupported_field_type.option">
+                <source>%s (Pro)</source>
+            </trans-unit>
             <trans-unit id="message.no_fieldtypes_found_please_check_ts">
                 <source>No fieldtypes found. Please include Tonictypes via TypoScript (static template) or Site Set (k3n/tonictypes), or define at least one fieldtype (plugin.tx_tonictypes.fieldtypes)</source>
             </trans-unit>
@@ -1695,6 +1710,18 @@
             <trans-unit id="table.check.message.missing_columns">
                 <source>Missing Columns</source>
             </trans-unit>
+            <trans-unit id="table.check.message.orphan_columns">
+                <source>Unused columns found</source>
+            </trans-unit>
+            <trans-unit id="table.check.description.orphan_columns">
+                <source>These columns still exist in table '%s' but are no longer assigned to this datatype (for example after removing a field). You can delete them from the database if they are no longer needed.</source>
+            </trans-unit>
+            <trans-unit id="table.check.button.drop_orphan_columns">
+                <source>Delete unused columns</source>
+            </trans-unit>
+            <trans-unit id="table.check.confirm.drop_orphan_columns">
+                <source>Delete the unused columns from the database? This cannot be undone and data in those columns will be lost.</source>
+            </trans-unit>
             <trans-unit id="table.check.button.create_table">
                 <source>Create Table</source>
             </trans-unit>
@@ -1876,9 +1903,6 @@
             </trans-unit>
             <trans-unit id="dashboard.predefined_datatype_import.no_storage_pages">
                 <source>No storage pages are available for import.</source>
-            </trans-unit>
-            <trans-unit id="dashboard.predefined_datatype_import.pro_required">
-                <source>Predefined datatype import requires the extension tonictypes_pro.</source>
             </trans-unit>
             <trans-unit id="dashboard.predefined_datatype_import.already_present">
                 <source>The predefined datatype is already present.</source>

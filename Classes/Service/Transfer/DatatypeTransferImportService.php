@@ -7,11 +7,13 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Service\Transfer;
 
 use K3n\Tonictypes\Configuration\ExtensionConfiguration;
+use K3n\Tonictypes\Utility\LocalizationUtility;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Install\Service\ClearCacheService;
 use ZipArchive;
@@ -21,9 +23,28 @@ class DatatypeTransferImportService
     public const STRATEGY_CREATE = 'create';
     public const STRATEGY_UPDATE = 'update';
     public const STRATEGY_SKIP = 'skip';
+
+    /**
+     * Field types provided only by EXT:tonictypes_pro.
+     *
+     * @var list<string>
+     */
+    public const PREMIUM_FIELD_TYPES = [
+        'user',
+        'content',
+        'fluid',
+        'flex',
+        'inline',
+        'datatype',
+        'dyninput',
+        'passthrough',
+        'tca',
+    ];
+
     private const VARIABLE_TABLE = 'tx_tonictypes_domain_model_variable';
     private const MM_TABLE = 'tx_tonictypes_datatype_field_mm';
     private const SYS_LOG_NEWID_MAX_LENGTH_V12 = 30;
+    private const PREMIUM_UPGRADE_URL = 'https://t3planet.de/tonictypes';
 
     public function __construct(
         private readonly ConnectionPool $connectionPool,
@@ -37,8 +58,6 @@ class DatatypeTransferImportService
      */
     public function parseArchive(string $archivePath): array
     {
-        TonictypesProGuard::assertAvailable();
-
         $zip = new ZipArchive();
         if ($zip->open($archivePath) !== true) {
             throw new \RuntimeException('Could not open import archive.');
@@ -162,13 +181,82 @@ class DatatypeTransferImportService
     }
 
     /**
+     * Blocks import when the archive contains Pro-only field types and Pro is not installed.
+     * Must run before preview mapping / import execution so nothing is written.
+     *
+     * @param array<string, array<string, mixed>> $datatypes
+     */
+    public function assertNoUnavailablePremiumFields(array $datatypes): void
+    {
+        if (ExtensionManagementUtility::isLoaded('tonictypes_pro')) {
+            return;
+        }
+
+        $premiumFields = $this->collectPremiumFieldsFromBundle($datatypes);
+        if ($premiumFields === []) {
+            return;
+        }
+
+        $typeList = implode(', ', array_keys($premiumFields));
+        $message = LocalizationUtility::translate(
+            'transfer.import.premium_fields_blocked',
+            [$typeList, self::PREMIUM_UPGRADE_URL]
+        );
+        if ($message === '') {
+            $message = sprintf(
+                'You cannot import this datatype because it contains premium field type(s): %s. Please upgrade to Tonictypes Professional to use these fields: %s',
+                $typeList,
+                self::PREMIUM_UPGRADE_URL
+            );
+        }
+
+        throw new \RuntimeException($message);
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $datatypes
+     * @return array<string, list<string>> type => field labels
+     */
+    public function collectPremiumFieldsFromBundle(array $datatypes): array
+    {
+        $premiumTypes = array_fill_keys(self::PREMIUM_FIELD_TYPES, true);
+        $found = [];
+
+        foreach ($datatypes as $payload) {
+            if (!is_array($payload)) {
+                continue;
+            }
+            foreach ($payload['fields'] ?? [] as $fieldData) {
+                if (!is_array($fieldData)) {
+                    continue;
+                }
+                $type = trim((string)($fieldData['type'] ?? ''));
+                if ($type === '' || !isset($premiumTypes[$type])) {
+                    continue;
+                }
+                $label = trim((string)(
+                    $fieldData['frontend_label']
+                    ?? $fieldData['frontendLabel']
+                    ?? $fieldData['variable_name']
+                    ?? $fieldData['variableName']
+                    ?? $fieldData['stableId']
+                    ?? $type
+                ));
+                $found[$type][] = $label !== '' ? $label : $type;
+            }
+        }
+
+        ksort($found);
+
+        return $found;
+    }
+
+    /**
      * @param array<string, array<string, mixed>> $datatypes
      * @return list<array<string, mixed>>
      */
     public function buildPreview(array $datatypes): array
     {
-        TonictypesProGuard::assertAvailable();
-
         $preview = [];
         foreach ($datatypes as $exportKey => $payload) {
             $tablename = (string)($payload['datatype']['tablename'] ?? '');
@@ -203,7 +291,7 @@ class DatatypeTransferImportService
      */
     public function importBundle(array $datatypes, array $pidMapping): array
     {
-        TonictypesProGuard::assertAvailable();
+        $this->assertNoUnavailablePremiumFields($datatypes);
 
         if ($pidMapping === []) {
             throw new \InvalidArgumentException('A storage page mapping is required for import.');

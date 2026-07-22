@@ -13,4 +13,8 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:tonictypes/Resources/Public/Icons/Extension.svg',
     ],
+    'extensions-tonictypes-transfer' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:tonictypes/Resources/Public/Icons/Extension.svg',
+    ],
 ];

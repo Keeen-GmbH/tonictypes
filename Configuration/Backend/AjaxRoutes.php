@@ -23,6 +23,10 @@ return [
         'path' => '/tonictypes/table/delete',
         'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableDeleteAction'
     ],
+    'tonictypes_table_drop_orphan_columns' => [
+        'path' => '/tonictypes/table/drop-orphan-columns',
+        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableDropOrphanColumnsAction'
+    ],
     'tonictypes_table_generate_tca' => [
         'path' => '/tonictypes/table/generate-tca',
         'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableGenerateTcaAction'

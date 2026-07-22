@@ -17,6 +17,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
@@ -116,7 +117,7 @@ class TonictypesIconRegistry
     public function registerTonictypesIcons(): void
     {
         $iconsDatatypes = $this->getIcons(['EXT:tonictypes/Resources/Public/Icons/Datatype'], 'extensions-tonictypes-', true, false);
-        $iconsFields = $this->getIcons(['EXT:tonictypes/Resources/Public/Icons/Field'], 'extensions-tonictypes-field-', true, false);
+        $iconsFields = $this->getIcons($this->getFieldIconPaths(), 'extensions-tonictypes-field-', true, false);
         $bitmapProviderClassName = BitmapIconProvider::class;
 
         $icons = array_merge($iconsDatatypes,$iconsFields);
@@ -158,7 +159,7 @@ class TonictypesIconRegistry
      */
     public function getFieldTypeIconClasses(): array
     {
-        $icons = $this->getIcons(['EXT:tonictypes/Resources/Public/Icons/Field'], 'extensions-tonictypes-field-');
+        $icons = $this->getIcons($this->getFieldIconPaths(), 'extensions-tonictypes-field-');
 
         foreach ($icons as $_iconFile) {
             $pathinfo = pathinfo($_iconFile);
@@ -170,6 +171,19 @@ class TonictypesIconRegistry
         $classes['default'] = 'tonictypes-field-icon-svg';
 
         return $classes;
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function getFieldIconPaths(): array
+    {
+        $paths = ['EXT:tonictypes/Resources/Public/Icons/Field'];
+        if (ExtensionManagementUtility::isLoaded('tonictypes_pro')) {
+            $paths[] = 'EXT:tonictypes_pro/Resources/Public/Icons/Field';
+        }
+
+        return $paths;
     }
 
     /**
@@ -255,9 +269,12 @@ class TonictypesIconRegistry
             if (isset($configuration['plugin.']['tx_tonictypes.']['fieldtypes.']) && is_array($configuration['plugin.']['tx_tonictypes.']['fieldtypes.'])) {
                 $fieldtypes = GeneralUtility::removeDotsFromTS($configuration['plugin.']['tx_tonictypes.']['fieldtypes.']);
                 foreach ($fieldtypes as $_t => $_ft) {
-                    $ft = strtolower($_t);
-                    //$ft = str_replace('_','-', $ft);
-                    $ftIcon                            = (isset($_ft['icon'])) ? $_ft['icon'] : 'EXT:tonictypes/Resources/Public/Icons/Domain/Model/Field.gif';
+                    $ft = strtolower((string)$_t);
+                    $ftIcon = (string)($_ft['icon'] ?? 'EXT:tonictypes/Resources/Public/Icons/Domain/Model/Field.gif');
+                    // TypoScript may already provide an IconRegistry identifier.
+                    if ($ftIcon === '' || !str_starts_with($ftIcon, 'EXT:')) {
+                        continue;
+                    }
                     $additionalIcons["{$prefix}{$ft}"] = $ftIcon;
                 }
             }

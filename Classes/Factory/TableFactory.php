@@ -169,6 +169,129 @@ class TableFactory implements SingletonInterface
     }
 
     /**
+     * System / reserved columns that belong to every tonictypes record table.
+     *
+     * @return list<string>
+     */
+    public function getSystemColumnNames(): array
+    {
+        return [
+            'uid',
+            'pid',
+            'title',
+            'datatype',
+            'icon',
+            'parent',
+            'path_segment',
+            'tstamp',
+            'crdate',
+            'cruser_id',
+            'deleted',
+            'hidden',
+            'starttime',
+            'endtime',
+            't3ver_oid',
+            't3ver_id',
+            't3ver_wsid',
+            't3ver_label',
+            't3ver_state',
+            't3ver_stage',
+            't3ver_count',
+            't3ver_tstamp',
+            't3ver_move_id',
+            't3_origuid',
+            'sorting',
+            'sys_language_uid',
+            'l10n_parent',
+            'l10n_source',
+            'l10n_state',
+            'l10n_diffsource',
+        ];
+    }
+
+    /**
+     * Columns that exist in the DB table but are no longer mapped to a field on the datatype.
+     *
+     * @return list<string>
+     */
+    public function getOrphanColumns(string $tableName, Datatype $datatype): array
+    {
+        if (!$this->tableExists($tableName)) {
+            return [];
+        }
+
+        $expected = [];
+        foreach ($this->getSystemColumnNames() as $systemColumn) {
+            $expected[strtolower($systemColumn)] = true;
+        }
+        foreach ($datatype->getFields() as $field) {
+            $code = trim((string)$field->getCode());
+            if ($code !== '') {
+                $expected[strtolower($code)] = true;
+            }
+        }
+
+        $orphans = [];
+        foreach ($this->getTableColumns($tableName) as $columnName) {
+            $name = (string)$columnName;
+            if ($name === '') {
+                continue;
+            }
+            if (isset($expected[strtolower($name)])) {
+                continue;
+            }
+            $orphans[] = $name;
+        }
+
+        sort($orphans);
+
+        return $orphans;
+    }
+
+    /**
+     * Drop unused (orphan) columns from a record table.
+     *
+     * @param list<string> $columnNames
+     * @return array{dropped: list<string>, errors: array<string, string>}
+     */
+    public function dropColumns(string $tableName, array $columnNames): array
+    {
+        $dropped = [];
+        $errors = [];
+        if ($tableName === '' || $columnNames === [] || !$this->tableExists($tableName)) {
+            return ['dropped' => $dropped, 'errors' => $errors];
+        }
+
+        $connection = $this->getConnection();
+        $quotedTable = $connection->quoteIdentifier($tableName);
+        foreach ($columnNames as $columnName) {
+            $columnName = trim((string)$columnName);
+            if ($columnName === '') {
+                continue;
+            }
+            // Never allow dropping reserved system columns.
+            if (in_array(strtolower($columnName), array_map('strtolower', $this->getSystemColumnNames()), true)) {
+                $errors[$columnName] = 'System column cannot be dropped.';
+                continue;
+            }
+            try {
+                $connection->executeStatement(
+                    sprintf(
+                        'ALTER TABLE %s DROP COLUMN %s',
+                        $quotedTable,
+                        $connection->quoteIdentifier($columnName)
+                    )
+                );
+                $dropped[] = $columnName;
+            } catch (\Throwable $exception) {
+                $errors[$columnName] = $exception->getMessage();
+            }
+        }
+
+        return ['dropped' => $dropped, 'errors' => $errors];
+    }
+
+    /**
      * Checks if a table needs an update
      *
      * @param string $tableName

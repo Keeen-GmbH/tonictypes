@@ -421,13 +421,46 @@ class Field
     {
         $pid = $config['effectivePid'] ?? 0;
         $fieldConfiguration = $this->fieldSettingsService->getFieldConfiguration($pid);
+        $languageService = $GLOBALS['LANG'] ?? null;
 
         $options = [];
-        foreach ($fieldConfiguration as $_id=>$_config) {
+        foreach ($fieldConfiguration as $_id => $_config) {
+            $label = (string)($_config['label'] ?? $_id);
+            if (is_object($languageService) && str_starts_with($label, 'LLL:')) {
+                $translated = $languageService->sL($label);
+                if (is_string($translated) && $translated !== '') {
+                    $label = $translated;
+                }
+            }
+
+            $icon = (string)($_config['icon'] ?? '');
+            if ($icon === '' || str_starts_with($icon, 'EXT:')) {
+                $icon = 'extensions-tonictypes-field-' . strtolower((string)$_id);
+            }
+
             $options[] = [
-                'label' => $_config['label'],
+                'label' => $label,
                 'value' => $_id,
-                'icon' => $_config['icon'],
+                'icon' => $icon,
+            ];
+        }
+
+        $currentType = '';
+        $rowType = $config['row']['type'] ?? null;
+        if (is_array($rowType)) {
+            $currentType = (string)($rowType[0] ?? '');
+        } elseif (is_scalar($rowType)) {
+            $currentType = (string)$rowType;
+        }
+        if ($currentType !== '' && !isset($fieldConfiguration[$currentType])) {
+            $label = LocalizationUtility::translate(
+                'message.unsupported_field_type.option',
+                [$currentType]
+            );
+            $options[] = [
+                'label' => $label !== '' ? $label : sprintf('%s (unsupported)', $currentType),
+                'value' => $currentType,
+                'icon' => 'extensions-tonictypes-field-' . strtolower($currentType),
             ];
         }
 

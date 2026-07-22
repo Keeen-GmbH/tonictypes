@@ -8,7 +8,6 @@ namespace K3n\Tonictypes\Service\Import;
 
 use K3n\Tonictypes\Service\Transfer\DatatypeTransferImportService;
 use K3n\Tonictypes\Service\Transfer\DatatypeTransferStatusService;
-use K3n\Tonictypes\Service\Transfer\TonictypesProGuard;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -24,11 +23,6 @@ final class PredefinedDatatypeImportService
         private readonly DatatypeTransferStatusService $transferStatusService,
         private readonly DatatypeTransferImportService $transferImportService,
     ) {
-    }
-
-    public function isProAvailable(): bool
-    {
-        return TonictypesProGuard::isAvailable();
     }
 
     public function isPredefinedArchiveAlreadyImported(): bool
@@ -59,8 +53,6 @@ final class PredefinedDatatypeImportService
      */
     public function importPredefinedArchive(int $storagePid): array
     {
-        TonictypesProGuard::assertAvailable();
-
         $backendUser = $GLOBALS['BE_USER'] ?? null;
         if (!$backendUser instanceof BackendUserAuthentication || !$backendUser->isAdmin()) {
             throw new \RuntimeException('Only TYPO3 administrators can import predefined datatypes.');

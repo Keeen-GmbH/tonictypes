@@ -74,7 +74,7 @@ class Logo
 
         if (!$this->backendAccessService->disableSupportMessage()) {
             $html .= '<small>'
-                ."<a class=\"btn btn-warning\" style=\"color:white; font-weight:bold; display:inline-block; margin-top:5px;\" href=\"https://t3planet.de/tonictypes-typo3-extension\" target=\"_blank\">"
+                ."<a class=\"btn btn-warning\" style=\"color:white; font-weight:bold; display:inline-block; margin-top:5px;\" href=\"https://t3planet.de/tonictypes\" target=\"_blank\">"
                 . LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:pro.upgrade_to_pro')
                 . '</a>'
                 . '</small>'
