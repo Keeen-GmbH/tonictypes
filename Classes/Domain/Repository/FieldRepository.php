@@ -113,7 +113,7 @@ class FieldRepository extends AbstractRepository
     {
 		$query = $this->createQueryWithSettings(true, true, false);
 		return $query->matching(
-			$query->equals("variable_name", $variableName)
+			$query->equals('variableName', $variableName)
 		)->execute()->getFirst();
 	}
 

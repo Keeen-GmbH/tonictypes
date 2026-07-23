@@ -18,7 +18,14 @@ use K3n\Tonictypes\Utility\StringUtility;
 class DatatypeNameEvaluation
 {
     /**
-     * DataHandler custom eval hook (TYPO3 v12/v13 compatible signature).
+     * Human-readable datatype names may include letters, numbers, spaces,
+     * hyphens and parentheses (e.g. "MCP Review Datatype (updated)").
+     * Special SQL-breaking characters are rejected; table names are sanitized separately.
+     */
+    private const NAME_PATTERN = '/^[A-Za-z][A-Za-z0-9() \-]*$/';
+
+    /**
+     * DataHandler custom eval hook (TYPO3 v12+ compatible signature).
      *
      * @param mixed $value
      * @param string $isIn
@@ -27,25 +34,55 @@ class DatatypeNameEvaluation
     public function evaluateFieldValue($value, $isIn = '', &$set = true): string
     {
         if (!is_scalar($value)) {
+            $set = false;
             return '';
         }
 
         $rawName = trim((string)$value);
-        if ($rawName == '') {
+        if ($rawName === '') {
+            $set = false;
             return '';
         }
 
-        $classCode = StringUtility::createCodeFromString($rawName);
-        if ($classCode == '') {
-            return '';
-        }
+        // Collapse repeated whitespace for stable storage / table suggestion.
+        $rawName = preg_replace('/\s+/', ' ', $rawName) ?? $rawName;
 
-        $className = ucfirst($classCode);
-        if ($this->isReservedPhpKeyword($className)) {
+        if ($this->getValidationError($rawName) !== null) {
+            $set = false;
             return '';
         }
 
         return $rawName;
+    }
+
+    /**
+     * Human-readable validation error, or null when the name is valid.
+     */
+    public function getValidationError(string $value): ?string
+    {
+        $rawName = trim(preg_replace('/\s+/', ' ', $value) ?? $value);
+        if ($rawName === '') {
+            return 'Datatype name cannot be empty.';
+        }
+
+        if (!preg_match(self::NAME_PATTERN, $rawName)) {
+            return 'Datatype name may only contain letters, numbers, spaces, hyphens and parentheses'
+                . ' (e.g. "Job Offer" or "MCP Review Datatype (updated)").'
+                . ' Characters like _ . , @ # / \\ are not allowed.';
+        }
+
+        // Must still produce a usable PHP/SQL identifier after sanitization.
+        $classCode = StringUtility::createCodeFromString($rawName);
+        if ($classCode === '') {
+            return 'Datatype name does not produce a valid identifier.';
+        }
+
+        $className = ucfirst($classCode);
+        if ($this->isReservedPhpKeyword($className)) {
+            return 'Invalid datatype name: PHP reserved keywords are not allowed.';
+        }
+
+        return null;
     }
 
     protected function isReservedPhpKeyword(string $candidate): bool
@@ -64,4 +101,3 @@ class DatatypeNameEvaluation
         return $token[0] !== T_STRING;
     }
 }
-

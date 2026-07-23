@@ -107,9 +107,43 @@ class TableFactory implements SingletonInterface
      */
     public function suggestTableNameByDatatypeName(string $datatypeName): string
     {
-        $parts = GeneralUtility::trimExplode(' ', $datatypeName, true);
-        $parts = array_map('strtolower', $parts);
-        return 'tx_tonictypes_domain_model_record_'.implode('_',$parts);
+        $normalized = strtolower(trim($datatypeName));
+        // Keep only safe SQL identifier characters derived from the human name.
+        $normalized = preg_replace('/[^a-z0-9]+/', '_', $normalized) ?? '';
+        $normalized = trim($normalized, '_');
+        $normalized = preg_replace('/_+/', '_', $normalized) ?? '';
+
+        if ($normalized === '') {
+            $normalized = 'record';
+        }
+
+        $tableName = 'tx_tonictypes_domain_model_record_' . $normalized;
+        // MySQL identifier limit is 64 characters.
+        if (strlen($tableName) > 64) {
+            $tableName = substr($tableName, 0, 64);
+            $tableName = rtrim($tableName, '_');
+        }
+
+        return $tableName;
+    }
+
+    /**
+     * Checks if a tablename is allowed for a Tonictypes record table.
+     *
+     * @param string $tableName
+     * @return bool
+     */
+    public function isAllowedTablename(string $tableName): bool
+    {
+        if ($tableName === '' || strlen($tableName) > 64) {
+            return false;
+        }
+
+        // Must be a Tonictypes record table with a safe SQL identifier suffix.
+        return (bool)preg_match(
+            '/^tx_tonictypes_domain_model_record_[a-z][a-z0-9_]*$/',
+            $tableName
+        );
     }
 
     /**
@@ -303,21 +337,6 @@ class TableFactory implements SingletonInterface
     {
         $missingColumns = $this->getMissingColumns($tableName, $datatype);
         return (count($missingColumns)>0);
-    }
-
-    /**
-     * Checks if a tablename is allowed
-     *
-     * @param string $tableName
-     * @return bool
-     */
-    public function isAllowedTablename(string $tableName): bool
-    {
-        if ($tableName == '') {
-            return false;
-        }
-
-        return true;
     }
 
     /**

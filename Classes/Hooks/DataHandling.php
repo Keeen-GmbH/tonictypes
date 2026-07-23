@@ -307,7 +307,7 @@ class DataHandling
         $datatypeUid = MathUtility::canBeInterpretedAsInteger((string)$datatypeUid) ? (int)$datatypeUid : 0;
 
         if ($datatypeUid <= 0) {
-            $datatypeByTable = $this->datatypeRepository->findOneBy(['tablename' => $table]);
+            $datatypeByTable = $this->datatypeRepository->findOneByTablename($table);
             if ($datatypeByTable instanceof Datatype) {
                 $datatypeUid = $datatypeByTable->getUid();
                 $recordRow['datatype'] = $datatypeUid;
@@ -491,7 +491,7 @@ class DataHandling
                 && MathUtility::canBeInterpretedAsInteger((string)$incomingDatatype)
                 && (int)$incomingDatatype > 0;
             if (!$hasDatatype) {
-                $datatype = $this->datatypeRepository->findOneBy(['tablename' => $table]);
+                $datatype = $this->datatypeRepository->findOneByTablename($table);
                 if ($datatype instanceof Datatype) {
                     $incomingFieldArray['datatype'] = $datatype->getUid();
                 }
@@ -537,22 +537,63 @@ class DataHandling
                     $set = true;
                     $validatedName = $nameEvaluator->evaluateFieldValue($incomingName, '', $set);
                     if ($validatedName === '') {
+                        $error = $nameEvaluator->getValidationError($incomingName)
+                            ?? 'Invalid datatype name.';
                         $this->backendFlashMessageService->addFlashMessage(
-                            'Invalid datatype name: PHP reserved keywords are not allowed.',
+                            $error,
                             '',
                             ContextualFeedbackSeverity::ERROR
                         );
                         $incomingFieldArray = null;
                         return;
                     }
+                    $incomingFieldArray['name'] = $validatedName;
                 }
-                // We need to check if the tablename is set
-                // If no tablename is defined, we need to create one out of the datatype name
-                $tableName = ($incomingFieldArray['tablename'])??'';
-                if($tableName == '' || !strpos($tableName,'tx_tonictypes_domain_model_record_') === false) {
-                    if(array_key_exists('name', $incomingFieldArray)) {
-                        $incomingFieldArray['tablename'] = $this->tableFactory->suggestTableNameByDatatypeName($incomingFieldArray['name']);
+
+                $isNewRecord = !MathUtility::canBeInterpretedAsInteger($id);
+                $existing = [];
+                if (!$isNewRecord) {
+                    $existing = BackendUtility::getRecord($table, (int)$id, 'name,tablename') ?: [];
+                }
+
+                $nameForTable = trim((string)($incomingFieldArray['name'] ?? ($existing['name'] ?? '')));
+                $currentTable = trim((string)($existing['tablename'] ?? ''));
+                $payloadHasTablename = array_key_exists('tablename', $incomingFieldArray);
+                $payloadTable = $payloadHasTablename
+                    ? trim((string)$incomingFieldArray['tablename'])
+                    : '';
+
+                if ($isNewRecord) {
+                    // Always derive a sanitized SQL table name for new datatypes.
+                    if (($payloadTable === '' || !$this->tableFactory->isAllowedTablename($payloadTable))
+                        && $nameForTable !== ''
+                    ) {
+                        $incomingFieldArray['tablename'] = $this->tableFactory->suggestTableNameByDatatypeName($nameForTable);
                     }
+                } elseif ($payloadHasTablename && $payloadTable !== '' && !$this->tableFactory->isAllowedTablename($payloadTable)) {
+                    // Sanitize invalid explicit tablename instead of storing parentheses etc.
+                    if ($nameForTable === '') {
+                        $this->backendFlashMessageService->addFlashMessage(
+                            sprintf('Invalid tablename "%s". Use only lowercase letters, numbers and underscores.', $payloadTable),
+                            '',
+                            ContextualFeedbackSeverity::ERROR
+                        );
+                        $incomingFieldArray = null;
+                        return;
+                    }
+                    $incomingFieldArray['tablename'] = $this->tableFactory->suggestTableNameByDatatypeName($nameForTable);
+                } elseif (
+                    $nameForTable !== ''
+                    && (
+                        ($currentTable !== '' && !$this->tableFactory->isAllowedTablename($currentTable))
+                        || (
+                            array_key_exists('name', $incomingFieldArray)
+                            && ($currentTable === '' || !$this->tableFactory->tableExists($currentTable))
+                        )
+                    )
+                ) {
+                    // Auto-heal invalid stored names, and keep unpublished tables in sync with name.
+                    $incomingFieldArray['tablename'] = $this->tableFactory->suggestTableNameByDatatypeName($nameForTable);
                 }
                 break;
             default:

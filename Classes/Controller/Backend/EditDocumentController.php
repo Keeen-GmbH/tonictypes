@@ -202,7 +202,7 @@ class EditDocumentController extends \TYPO3\CMS\Backend\Controller\EditDocumentC
          ***********************************************************************************************************/
         $view->assign('tonictypesContext', false);
         $datatypeUid = 0;
-        $datatypeByTable = $this->datatypeRepository->findOneBy(['tablename' => $tableName]);
+        $datatypeByTable = $this->datatypeRepository->findOneByTablename($tableName);
         if ($datatypeByTable instanceof Datatype) {
             $datatypeUid = (int)$datatypeByTable->getUid();
         }

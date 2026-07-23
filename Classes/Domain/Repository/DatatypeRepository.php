@@ -17,6 +17,25 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 class DatatypeRepository extends AbstractRepository
 {
     /**
+     * Find datatype by published record tablename (ignores storage PID).
+     *
+     * Default Extbase findOneBy() respects storage pages and often returns null
+     * for MCP / DataHandler hooks outside a configured plugin storage context.
+     */
+    public function findOneByTablename(string $tablename, bool $onlyEnabled = false): ?\K3n\Tonictypes\Domain\Model\Datatype
+    {
+        $tablename = trim($tablename);
+        if ($tablename === '') {
+            return null;
+        }
+
+        $query = $this->createQueryWithSettings(false, !$onlyEnabled, false);
+        $result = $query->matching($query->equals('tablename', $tablename))->execute()->getFirst();
+
+        return $result instanceof \K3n\Tonictypes\Domain\Model\Datatype ? $result : null;
+    }
+
+    /**
      * FindAll Override
      *
      * @param bool $respectStoragePage

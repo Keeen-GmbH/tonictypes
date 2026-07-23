@@ -49,7 +49,8 @@ class DatatypeRecordTableMigrationService
      *     created: bool,
      *     updated: bool,
      *     tcaStatus: string,
-     *     notes: list<string>
+     *     notes: list<string>,
+     *     droppedOrphanColumns: list<string>
      * }
      */
     public function ensureRecordTable(int $datatypeUid, bool $preferFreshSchema = false): array
@@ -72,6 +73,7 @@ class DatatypeRecordTableMigrationService
         $tableExisted = $this->tableFactory->tableExists($tableName);
         $wasCreated = false;
         $wasUpdated = false;
+        $droppedOrphanColumns = [];
 
         $createStatement = $this->tableFactory->getCreateTableStatementByDatatype($datatype, $tableName);
         $sqlStatements = $this->tableFactory->getSqlStatements($createStatement);
@@ -132,6 +134,13 @@ class DatatypeRecordTableMigrationService
             );
         }
 
+        // Publish must match assigned fields: drop DB columns for removed fields so the
+        // datatype UI no longer shows "Unused columns found".
+        $droppedOrphanColumns = $this->dropOrphanColumnsAfterPublish($tableName, $datatype, $notes);
+        if ($droppedOrphanColumns !== []) {
+            $wasUpdated = true;
+        }
+
         $tcaStatus = $this->writeTcaPhpFile($datatype, $tableName);
         $this->clearAutoloadAndCache();
 
@@ -141,7 +150,45 @@ class DatatypeRecordTableMigrationService
             'updated' => $wasUpdated && !$wasCreated,
             'tcaStatus' => $tcaStatus,
             'notes' => $notes,
+            'droppedOrphanColumns' => $droppedOrphanColumns,
         ];
+    }
+
+    /**
+     * @param list<string> $notes
+     * @return list<string>
+     */
+    private function dropOrphanColumnsAfterPublish(string $tableName, Datatype $datatype, array &$notes): array
+    {
+        if (!$this->tableFactory->tableExists($tableName)) {
+            return [];
+        }
+
+        $orphanColumns = $this->tableFactory->getOrphanColumns($tableName, $datatype);
+        if ($orphanColumns === []) {
+            return [];
+        }
+
+        $result = $this->tableFactory->dropColumns($tableName, $orphanColumns);
+        $dropped = $result['dropped'];
+        if ($dropped !== []) {
+            $notes[] = sprintf(
+                'Dropped unused column(s) from "%s": %s.',
+                $tableName,
+                implode(', ', $dropped)
+            );
+        }
+
+        foreach ($result['errors'] as $columnName => $errorMessage) {
+            $notes[] = sprintf(
+                'Could not drop unused column "%s" from "%s": %s',
+                $columnName,
+                $tableName,
+                $errorMessage
+            );
+        }
+
+        return $dropped;
     }
 
     /**
