@@ -63,10 +63,15 @@ class FieldSettingsService extends AbstractSettingsService implements SingletonI
             if ($usedType === '' || isset($dsConfig[$usedType])) {
                 continue;
             }
-            // Pro-only types without Pro, or unknown types after successful TS load.
-            // Never flag free types as unsupported when fieldtypes failed to load.
-            if (($premiumWithoutPro && isset($premiumTypes[$usedType])) || $fieldtypesLoaded) {
+            // Pro-only types without Pro → unsupported notice.
+            // Any other used type without TS entry still needs a TCA type/showitem
+            // so FormFlex AJAX (recordTypeValue) does not fatal.
+            if ($premiumWithoutPro && isset($premiumTypes[$usedType])) {
                 $dsConfig[$usedType] = self::UNSUPPORTED_FIELDTYPE_FLEXFORM;
+            } elseif ($fieldtypesLoaded) {
+                $dsConfig[$usedType] = self::UNSUPPORTED_FIELDTYPE_FLEXFORM;
+            } else {
+                $dsConfig[$usedType] = $emptyDs;
             }
         }
 

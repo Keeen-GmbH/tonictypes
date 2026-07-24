@@ -227,6 +227,24 @@ abstract class AbstractField
         return $values;
     }
 
+    /**
+     * Scalar default for Extbase class property init (Update Class / Fluid templates).
+     * getDefaultValue() often returns an array, which Fluid cannot cast to string.
+     *
+     * @return string|int|float|bool
+     */
+    public function getDefaultValueForProperty()
+    {
+        $value = $this->getDefaultValue();
+        if (is_array($value)) {
+            $value = reset($value);
+        }
+        if (is_array($value) || $value === null || $value === false) {
+            return '';
+        }
+
+        return $value;
+    }
 
     /**
      * Determines the value of the field

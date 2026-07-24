@@ -111,5 +111,18 @@ final class FieldtypeFlexformTcaApplicator
                 ]
             );
         }
+
+        // FormFlex AJAX forces recordTypeValue; ensure every known type keeps a string showitem.
+        $showitemFallback = is_string($fallbackTypeConfiguration['showitem'] ?? null)
+            ? $fallbackTypeConfiguration['showitem']
+            : self::DEFAULT_SHOWITEM;
+        foreach ($types as $typeKey => $typeConfig) {
+            if (!is_array($typeConfig)) {
+                continue;
+            }
+            if (!isset($typeConfig['showitem']) || !is_string($typeConfig['showitem']) || $typeConfig['showitem'] === '') {
+                $types[$typeKey]['showitem'] = $showitemFallback;
+            }
+        }
     }
 }

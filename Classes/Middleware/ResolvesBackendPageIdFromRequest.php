@@ -47,7 +47,42 @@ trait ResolvesBackendPageIdFromRequest
             return $pid;
         }
 
+        // FormFlex AJAX (record_flex_container_add) posts tableName + vanillaUid only.
+        if (($pid = $this->resolvePidFromRecordContext($request)) > 0) {
+            return $pid;
+        }
+
         return $this->toPositiveInt($GLOBALS['BE_USER']?->uc['moduleData']['web_layout'] ?? null);
+    }
+
+    /**
+     * Resolve storage PID from FormEngine / FlexForm AJAX payloads.
+     */
+    protected function resolvePidFromRecordContext(ServerRequestInterface $request): int
+    {
+        $body = $request->getParsedBody();
+        $query = $request->getQueryParams();
+        if (!is_array($body)) {
+            $body = [];
+        }
+
+        $tableName = (string)($body['tableName'] ?? $query['tableName'] ?? '');
+        if ($tableName === '' || !isset($GLOBALS['TCA'][$tableName])) {
+            return 0;
+        }
+
+        foreach (['vanillaUid', 'databaseRowUid', 'uid'] as $uidKey) {
+            $uid = $body[$uidKey] ?? $query[$uidKey] ?? null;
+            if (!MathUtility::canBeInterpretedAsInteger($uid) || (int)$uid <= 0) {
+                continue;
+            }
+            $record = BackendUtility::getRecord($tableName, (int)$uid, 'pid');
+            if (is_array($record) && ($pid = $this->toPositiveInt($record['pid'] ?? null)) > 0) {
+                return $pid;
+            }
+        }
+
+        return 0;
     }
 
     protected function resolvePidFromEdit(ServerRequestInterface $request): int
