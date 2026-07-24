@@ -141,7 +141,14 @@ class DatatypeTransferExportService
 
         foreach ($fieldRows as $fieldRow) {
             $fieldUid = (int)$fieldRow['uid'];
-            $stableId = (string)($fieldRow['id'] ?: ('field_' . $fieldUid));
+            // Prefer a durable identity: explicit id, then variable_name, then uid fallback.
+            $stableId = trim((string)($fieldRow['id'] ?? ''));
+            if ($stableId === '') {
+                $stableId = trim((string)($fieldRow['variable_name'] ?? ''));
+            }
+            if ($stableId === '') {
+                $stableId = 'field_' . $fieldUid;
+            }
             $fieldUidMap[$fieldUid] = $stableId;
         }
 
