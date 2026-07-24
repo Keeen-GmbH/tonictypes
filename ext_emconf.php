@@ -14,7 +14,7 @@ $EM_CONF[$_EXTKEY] = [
 	'description' => 'Maximize development speed with tonictypes, the evolution of the proven typotonic extension (over 1,000 downloads). Build on a foundation of success and create custom TCA records like news, jobs, or events on the fly directly in the TYPO3 backend—no PHP extension coding required. This successor features powerful new list and detail plugins alongside adjustable backend filters for total control. Only Fluid templating is needed to match any design. Stop managing overhead and start building faster.',
 	'category' => 'plugin',
 	'shy' => 0,
-	'version' => '2.0.0',
+	'version' => '2.1.0',
 	'dependencies' => 'cms,extbase,fluid',
 	'conflicts' => '',
 	'priority' => '',
@@ -32,7 +32,7 @@ $EM_CONF[$_EXTKEY] = [
 	'CGLcompliance_note' => '',
 	'constraints' => [
 		'depends' => [
-            'php' => '8.1.0-8.5.99',
+            'php' => '8.2.0-8.5.99',
 			'typo3' => '12.4.0-14.9.99',
 			'extbase' => '',
 			'fluid' => '',
@@ -46,8 +46,8 @@ $EM_CONF[$_EXTKEY] = [
 	'suggests' => [
 	],
     'autoload' => [
-        'classmap' => [
-            'Classes',
-        ]
-    ]
+        'psr-4' => [
+            'K3n\\Tonictypes\\' => 'Classes/',
+        ],
+    ],
 ];
