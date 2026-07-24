@@ -462,7 +462,7 @@ class DatatypeTransferImportService
     private function importField(array $fieldData, int $targetPid, string $strategy, int $datatypeUid = 0): array
     {
         $stableId = (string)($fieldData['stableId'] ?? '');
-        $existingUid = $this->findFieldUidForImport($fieldData, $datatypeUid);
+        $existingUid = $this->findFieldUidForImport($fieldData, $datatypeUid, $targetPid);
 
         if ($existingUid > 0 && $strategy === self::STRATEGY_SKIP) {
             return [
@@ -476,7 +476,14 @@ class DatatypeTransferImportService
         }
 
         $record = $fieldData;
-        unset($record['stableId'], $record['sorting'], $record['fieldValues'], $record['field_values']);
+        unset(
+            $record['stableId'],
+            $record['sorting'],
+            $record['fieldValues'],
+            $record['field_values'],
+            $record['values'],
+            $record['uid']
+        );
         $record['pid'] = $targetPid;
         $record['id'] = $stableId;
         if (trim((string)($record['type'] ?? '')) === '') {
@@ -745,25 +752,53 @@ class DatatypeTransferImportService
     }
 
     /**
+     * Resolve an existing field to update instead of creating a duplicate.
+     *
+     * Match order:
+     * 1. Fields already linked to the datatype (stableId / variable_name)
+     * 2. Fields on the target storage page (stableId / variable_name)
+     *
      * @param array<string, mixed> $fieldData
      */
-    private function findFieldUidForImport(array $fieldData, int $datatypeUid): int
+    private function findFieldUidForImport(array $fieldData, int $datatypeUid, int $targetPid = 0): int
     {
-        if ($datatypeUid <= 0) {
-            return 0;
-        }
-
         $stableId = (string)($fieldData['stableId'] ?? '');
-        if ($stableId !== '') {
-            $uid = $this->findFieldUidByStableIdForDatatype($stableId, $datatypeUid);
-            if ($uid > 0) {
-                return $uid;
+        $variableName = trim((string)(
+            $fieldData['variable_name']
+            ?? $fieldData['variableName']
+            ?? ''
+        ));
+
+        if ($datatypeUid > 0) {
+            if ($stableId !== '') {
+                $uid = $this->findFieldUidByStableIdForDatatype($stableId, $datatypeUid);
+                if ($uid > 0) {
+                    return $uid;
+                }
+            }
+
+            if ($variableName !== '') {
+                $uid = $this->findFieldUidByVariableNameForDatatype($variableName, $datatypeUid);
+                if ($uid > 0) {
+                    return $uid;
+                }
             }
         }
 
-        $variableName = trim((string)($fieldData['variable_name'] ?? ''));
-        if ($variableName !== '') {
-            return $this->findFieldUidByVariableNameForDatatype($variableName, $datatypeUid);
+        if ($targetPid > 0) {
+            if ($stableId !== '') {
+                $uid = $this->findFieldUidByStableIdOnPid($stableId, $targetPid);
+                if ($uid > 0) {
+                    return $uid;
+                }
+            }
+
+            if ($variableName !== '') {
+                $uid = $this->findFieldUidByVariableNameOnPid($variableName, $targetPid);
+                if ($uid > 0) {
+                    return $uid;
+                }
+            }
         }
 
         return 0;
@@ -856,6 +891,55 @@ class DatatypeTransferImportService
                 $queryBuilder->expr()->eq('variable_name', $queryBuilder->createNamedParameter($variableName)),
                 $queryBuilder->expr()->eq('deleted', 0)
             )
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+
+        return (int)$uid;
+    }
+
+    private function findFieldUidByStableIdOnPid(string $stableId, int $pid): int
+    {
+        if ($stableId === '' || $pid <= 0) {
+            return 0;
+        }
+
+        $fieldTable = ExtensionConfiguration::EXTENSION_FIELD_TABLE;
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($fieldTable);
+        $queryBuilder->getRestrictions()->removeAll();
+        $uid = $queryBuilder
+            ->select('uid')
+            ->from($fieldTable)
+            ->where(
+                $queryBuilder->expr()->eq('id', $queryBuilder->createNamedParameter($stableId)),
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('deleted', 0)
+            )
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+
+        return (int)$uid;
+    }
+
+    private function findFieldUidByVariableNameOnPid(string $variableName, int $pid): int
+    {
+        if ($variableName === '' || $pid <= 0) {
+            return 0;
+        }
+
+        $fieldTable = ExtensionConfiguration::EXTENSION_FIELD_TABLE;
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($fieldTable);
+        $queryBuilder->getRestrictions()->removeAll();
+        $uid = $queryBuilder
+            ->select('uid')
+            ->from($fieldTable)
+            ->where(
+                $queryBuilder->expr()->eq('variable_name', $queryBuilder->createNamedParameter($variableName)),
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('deleted', 0)
+            )
+            ->orderBy('uid', 'ASC')
             ->setMaxResults(1)
             ->executeQuery()
             ->fetchOne();
