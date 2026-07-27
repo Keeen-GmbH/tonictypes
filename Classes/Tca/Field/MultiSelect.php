@@ -50,7 +50,8 @@ class MultiSelect extends Select implements Tca\FieldInterface
     public function getTca(): array
     {
         $tca = parent::getTca();
-        $tca['config']['renderType'] = $this->getField()->getConfig('renderType');
+        $renderType = (string)($this->getField()->getConfig('renderType') ?? '');
+        $tca['config']['renderType'] = $renderType !== '' ? $renderType : 'selectMultipleSideBySide';
         return $tca;
     }
 

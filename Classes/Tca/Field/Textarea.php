@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Tca\Field;
 
 use K3n\Tonictypes\Tca;
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class Textarea extends Tca\AbstractField implements Tca\FieldInterface
 {
@@ -88,16 +90,35 @@ class Textarea extends Tca\AbstractField implements Tca\FieldInterface
 
         // renderType
         if ($renderType = $this->getField()->getConfig('renderType')) {
+            // t3editor was renamed to codeEditor in TYPO3 v13+.
+            if (
+                $renderType === 't3editor'
+                && GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() >= 13
+            ) {
+                $renderType = 'codeEditor';
+            }
             $tca['config']['renderType'] = $renderType;
 
-            if ($renderType == 't3editor') {
-                $tca['config']['format'] = $this->getField()->getConfig('format')??'html';
+            if ($renderType === 't3editor' || $renderType === 'codeEditor') {
+                $format = $this->getField()->getConfig('format');
+                $format = ($format === null || $format === '') ? 'html' : (string)$format;
+
+                // TYPO3 v13+ codeEditor does not support "mixed" format.
+                if (
+                    $renderType === 'codeEditor'
+                    && GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() >= 13
+                    && $format === 'mixed'
+                ) {
+                    $format = 'html';
+                }
+
+                $tca['config']['format'] = $format;
             }
         }
 
         // placeholder
         if($placeholder = $this->getField()->getConfig('placeholder')) {
-            $tca['config']['placeholder'] = $placeholder;
+            $tca['config']['placeholder'] = $placeholder;   
         }
 
         // autocomplete

@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Tca\Field;
 
 use K3n\Tonictypes\Tca;
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class Editor extends Textarea implements Tca\FieldInterface
 {
@@ -24,14 +26,28 @@ class Editor extends Textarea implements Tca\FieldInterface
      */
     public function getTca(): array
     {
+        // t3editor was renamed to codeEditor in TYPO3 v13+.
+        $renderType = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() >= 13
+            ? 'codeEditor'
+            : 't3editor';
+
+        $format = $this->getField()->getConfig('format');
+        if ($format === null || $format === '') {
+            $format = $renderType === 'codeEditor' ? 'html' : 'mixed';
+        }
+        // TYPO3 v13/v14 codeEditor does not support "mixed" format mode.
+        if ($renderType === 'codeEditor' && $format === 'mixed') {
+            $format = 'html';
+        }
+
         $tca = [
             'exclude' => (int)$this->getField()->isExclude(),
             'label' => $this->getField()->getFrontendLabel(),
             'config' => [
                 'type' => 'text',
-                'renderType' => 't3editor', // TYPO3 13: codeEditor
+                'renderType' => $renderType,
                 'enableRichtext' => true,
-                'format' => $this->getField()->getConfig('format')?:'mixed',
+                'format' => (string)$format,
                 'rows' => (int)$this->getField()->getConfig('rows')?:10,
             ],
         ];

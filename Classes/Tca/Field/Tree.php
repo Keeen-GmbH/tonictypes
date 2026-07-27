@@ -54,18 +54,26 @@ class Tree extends Select
             $tca['config']['items'] = $this->getItems();
         }
 
-        if ($foreignTable = $this->getField()->getConfig('foreign_table')) {
-            $tca['config']['foreign_table'] = $foreignTable;
+        // foreign_table is mandatory for selectTree (TreeDataProviderFactory throws without it).
+        // Default to "pages" when not yet configured — matches the first option in the flexform.
+        $foreignTable = (string)($this->getField()->getConfig('foreign_table') ?? '');
+        if ($foreignTable === '') {
+            $foreignTable = 'pages';
+        }
+        $tca['config']['foreign_table'] = $foreignTable;
+
+        // parentField is mandatory in treeConfig (TreeDataProviderFactory throws without it).
+        if (empty($tca['config']['treeConfig']['parentField']) && empty($tca['config']['treeConfig']['childrenField'])) {
             switch ($foreignTable) {
                 case 'sys_category':
                     $tca['config']['treeConfig']['parentField'] = 'parent';
                     break;
                 case 'pages':
+                default:
                     $tca['config']['treeConfig']['parentField'] = 'pid';
                     break;
             }
         }
-
 
         return $tca;
     }
