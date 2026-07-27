@@ -54,6 +54,23 @@ $boot = static function (): void {
     ];
 
     /***********************************
+     * TYPO3 v12–v14: codeEditor / t3editor / RTE expect string values.
+     * Cast int leftovers from former passthrough/number columns (strict on v14).
+     ***********************************/
+    $textFieldStringProvider = [
+        'depends' => [
+            \TYPO3\CMS\Backend\Form\FormDataProvider\DatabaseEditRow::class,
+            \TYPO3\CMS\Backend\Form\FormDataProvider\DatabaseRowDefaultValues::class,
+        ],
+    ];
+    if (class_exists(\TYPO3\CMS\Backend\Form\FormDataProvider\TcaText::class)) {
+        $textFieldStringProvider['before'] = [
+            \TYPO3\CMS\Backend\Form\FormDataProvider\TcaText::class,
+        ];
+    }
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']['tcaDatabaseRecord'][\K3n\Tonictypes\Form\FormDataProvider\EnsureTextFieldStringValues::class] = $textFieldStringProvider;
+
+    /***********************************
      * Hook when saving record
      ***********************************/
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['tonictypes'] = \K3n\Tonictypes\Hooks\DataHandling::class;

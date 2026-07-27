@@ -283,6 +283,90 @@ class TableFactory implements SingletonInterface
     }
 
     /**
+     * Widen numeric leftover columns to text when a field type was changed
+     * (e.g. passthrough int → editor/text). Safe for existing data.
+     *
+     * @return list<string> Altered column names
+     */
+    public function widenTextColumns(string $tableName, Datatype $datatype): array
+    {
+        if ($tableName === '' || !$this->tableExists($tableName)) {
+            return [];
+        }
+
+        $altered = [];
+        $connection = $this->getConnection();
+        $schemaManager = $connection->createSchemaManager();
+        $existingColumns = $schemaManager->listTableColumns($tableName);
+
+        foreach ($datatype->getFields() as $field) {
+            $code = trim((string)$field->getCode());
+            if ($code === '' || (!isset($existingColumns[$code]) && !isset($existingColumns[strtolower($code)]))) {
+                continue;
+            }
+
+            $column = $existingColumns[$code] ?? $existingColumns[strtolower($code)] ?? null;
+            if ($column === null) {
+                continue;
+            }
+
+            $tcaModel = $field->getTca();
+            if (!is_object($tcaModel) || !method_exists($tcaModel, 'getSqlCreateStatement')) {
+                continue;
+            }
+
+            $targetSql = trim((string)$tcaModel->getSqlCreateStatement());
+            if ($targetSql === '' || !$this->isTextLikeSqlDefinition($targetSql)) {
+                continue;
+            }
+
+            $currentType = strtolower((string)$column->getType()->getName());
+            if (!$this->isNumericColumnType($currentType)) {
+                continue;
+            }
+
+            try {
+                $connection->executeStatement(sprintf(
+                    'ALTER TABLE %s MODIFY %s %s',
+                    $connection->quoteIdentifier($tableName),
+                    $connection->quoteIdentifier($code),
+                    $targetSql
+                ));
+                $altered[] = $code;
+            } catch (\Throwable) {
+                // Leave column as-is; FormDataProvider still protects FormEngine.
+            }
+        }
+
+        return $altered;
+    }
+
+    private function isTextLikeSqlDefinition(string $sql): bool
+    {
+        $normalized = strtolower($sql);
+        return str_contains($normalized, 'text')
+            || str_contains($normalized, 'varchar')
+            || str_contains($normalized, 'char(')
+            || str_contains($normalized, 'blob');
+    }
+
+    private function isNumericColumnType(string $typeName): bool
+    {
+        return in_array($typeName, [
+            'integer',
+            'bigint',
+            'smallint',
+            'tinyint',
+            'int',
+            'float',
+            'double',
+            'decimal',
+            'boolean',
+            'bool',
+        ], true);
+    }
+
+    /**
      * Drop unused (orphan) columns from a record table.
      *
      * @param list<string> $columnNames

@@ -46,12 +46,31 @@ class Editor extends Textarea implements Tca\FieldInterface
             'config' => [
                 'type' => 'text',
                 'renderType' => $renderType,
-                'enableRichtext' => true,
                 'format' => (string)$format,
-                'rows' => (int)$this->getField()->getConfig('rows')?:10,
+                'default' => '',
+                'rows' => (int)($this->getField()->getConfig('rows') ?: 10),
             ],
         ];
 
-        return $this->mergeConfigurationToTca($tca);
+        $tca = $this->mergeConfigurationToTca($tca);
+
+        // TYPO3 v14: codeEditor/t3editor expect a string default, not int/array.
+        if (isset($tca['config']['default']) && !is_string($tca['config']['default'])) {
+            $default = $tca['config']['default'];
+            $tca['config']['default'] = is_array($default) ? (string)(reset($default) ?? '') : (string)$default;
+        }
+
+        return $tca;
+    }
+
+    public function getDefaultValue(): string
+    {
+        $value = parent::getDefaultValue();
+
+        if (is_array($value)) {
+            $value = reset($value);
+        }
+
+        return is_scalar($value) ? (string)$value : '';
     }
 }

@@ -134,6 +134,17 @@ class DatatypeRecordTableMigrationService
             );
         }
 
+        // Field type changes (e.g. passthrough int → editor text) are skipped by
+        // safe add-only migration; widen leftover numeric columns explicitly.
+        $widenedColumns = $this->tableFactory->widenTextColumns($tableName, $datatype);
+        if ($widenedColumns !== []) {
+            $wasUpdated = true;
+            $notes[] = sprintf(
+                'Widened column(s) to text storage: %s.',
+                implode(', ', $widenedColumns)
+            );
+        }
+
         // Publish must match assigned fields: drop DB columns for removed fields so the
         // datatype UI no longer shows "Unused columns found".
         $droppedOrphanColumns = $this->dropOrphanColumnsAfterPublish($tableName, $datatype, $notes);
