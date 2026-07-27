@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -50,8 +51,8 @@ class Rte extends Textarea implements Tca\FieldInterface
             'label' => $this->getField()->getFrontendLabel(),
             'config' => [
                 'type' => 'text',
-                "enableRichtext" => true,
-                "richtextConfiguration" => $this->getField()->getConfig("richtextConfiguration"),
+                'enableRichtext' => true,
+                'richtextConfiguration' => $this->getField()->getConfig('richtextConfiguration'),
 
             ],
         ];

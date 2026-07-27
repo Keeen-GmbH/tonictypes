@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -215,7 +216,7 @@ trait ExtbaseQueryFunctions
     /**
      * Decode the given JSON
      *
-     * @param string incoming json
+     * @param string $json incoming json
      * @throws Exception
      * @return array
      */
@@ -317,7 +318,7 @@ trait ExtbaseQueryFunctions
      */
     private function makeArrayQueryIn(Query $query, stdClass $rule, string $operator, array $value): ConstraintInterface
     {
-        $field = str_replace('FIELD:','', $rule->field);
+        $field = str_replace('FIELD:', '', $rule->field);
         if ($operator == 'NOT IN') {
             return $query->logicalNot($query->in($field, $value));
         }
@@ -337,7 +338,7 @@ trait ExtbaseQueryFunctions
      */
     private function makeArrayQueryBetween(Query $query, stdClass $rule, array $value): ConstraintInterface
     {
-        $field = str_replace('FIELD:','', $rule->field);
+        $field = str_replace('FIELD:', '', $rule->field);
         if (count($value) !== 2) {
             throw new Exception("{$field} should be an array with only two items.");
         }
@@ -355,14 +356,14 @@ trait ExtbaseQueryFunctions
      */
     private function makeArrayQueryInList(Query $query, stdClass $rule, array $value)
     {
-        $field = str_replace('FIELD:','', $rule->field);
+        $field = str_replace('FIELD:', '', $rule->field);
         if (count($value) < 1) {
             throw new \Exception("{$field} should be an array with at least one item.");
         }
 
         $constraints = [];
         foreach ($value as $_v) {
-            switch($rule->operator) {
+            switch ($rule->operator) {
                 case 'in_list_equal':
                     $constraints[] = $query->equals($field, $_v);
                     break;

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -47,7 +48,7 @@ class Input extends Textarea
             'exclude' => (int)$this->getField()->isExclude(),
             'label' => $this->getField()->getFrontendLabel(),
             'config' => [
-                'type' => ($this->getField()->getConfig('type')!='')?$this->getField()->getConfig('type'):'input',
+                'type' => ($this->getField()->getConfig('type') != '') ? $this->getField()->getConfig('type') : 'input',
                 'size' => $this->getField()->getConfig('size') ?? 300,
             ],
         ];
@@ -68,7 +69,7 @@ class Input extends Textarea
         // renderType
         if ($this->getField()->getConfig('valuePicker')) {
             $items = $this->getItems();
-            foreach($items as $_item) {
+            foreach ($items as $_item) {
                 $tca['config']['valuePicker']['items'][] = [$_item['label'],$_item['value']];
             }
         }

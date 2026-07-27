@@ -28,7 +28,8 @@ final class RegisterDatatypeIconsOnBootCompleted
 {
     public function __construct(
         private readonly TonictypesIconRegistry $iconRegistry
-    ) {}
+    ) {
+    }
 
     public function __invoke(BootCompletedEvent $event): void
     {

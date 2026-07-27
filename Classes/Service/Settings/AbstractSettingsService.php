@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -36,222 +37,222 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
  */
 abstract class AbstractSettingsService implements SingletonInterface
 {
-  /**
-   * @var BackendConfigurationManager
-   */
-  protected $backendConfigurationManager;
+    /**
+     * @var BackendConfigurationManager
+     */
+    protected $backendConfigurationManager;
 
-  /**
-   * @var ConfigurationManager
-   */
-  protected $configurationManager;
+    /**
+     * @var ConfigurationManager
+     */
+    protected $configurationManager;
 
-  public function injectBackendConfigurationManager(BackendConfigurationManager $backendConfigurationManager): void
-  {
-    $this->backendConfigurationManager = $backendConfigurationManager;
-  }
-
-  public function injectConfigurationManager(ConfigurationManager $configurationManager): void
-  {
-    $this->configurationManager = $configurationManager;
-  }
-
-  /**
-   * @param string $path Dot-notation path without trailing dots
-   * @return array|mixed
-   */
-  public function getConfiguration(string $path, int $pid = 0)
-  {
-    $request = $this->getCurrentRequest();
-    $config = $this->isFrontendRequest($request)
-      ? $this->loadFrontendTypoScriptSetup()
-      : $this->loadBackendTypoScriptSetup($this->buildBackendTypoScriptRequest($request, $pid));
-
-    if (!is_array($config) || $config === []) {
-      return [];
+    public function injectBackendConfigurationManager(BackendConfigurationManager $backendConfigurationManager): void
+    {
+        $this->backendConfigurationManager = $backendConfigurationManager;
     }
 
-    try {
-      return ArrayUtility::getValueByPath(GeneralUtility::removeDotsFromTS($config), $path, '.');
-    } catch (\Exception $e) {
-      return [];
-    }
-  }
-
-  /**
-   * Pin TypoScript evaluation to the storage page's site (sys_template rootline and/or site sets).
-   */
-  protected function buildBackendTypoScriptRequest(ServerRequestInterface $request, int $pid): ServerRequestInterface
-  {
-    $pageId = $this->resolvePageId($request, $pid);
-    $site = $this->resolveSite($request, $pageId);
-
-    if ($pageId <= 0 && $site instanceof SiteInterface && !($site instanceof NullSite)) {
-      $pageId = $site->getRootPageId();
+    public function injectConfigurationManager(ConfigurationManager $configurationManager): void
+    {
+        $this->configurationManager = $configurationManager;
     }
 
-    $applicationType = $request->getAttribute('applicationType');
-    if (!is_int($applicationType)) {
-      $applicationType = SystemEnvironmentBuilder::REQUESTTYPE_BE;
-    }
+    /**
+     * @param string $path Dot-notation path without trailing dots
+     * @return array|mixed
+     */
+    public function getConfiguration(string $path, int $pid = 0)
+    {
+        $request = $this->getCurrentRequest();
+        $config = $this->isFrontendRequest($request)
+          ? $this->loadFrontendTypoScriptSetup()
+          : $this->loadBackendTypoScriptSetup($this->buildBackendTypoScriptRequest($request, $pid));
 
-    return (new ServerRequest())
-      ->withQueryParams(['id' => $pageId])
-      ->withAttribute('site', $site)
-      ->withAttribute('applicationType', $applicationType);
-  }
-
-  /**
-   * @return array<string, mixed>
-   */
-  protected function loadBackendTypoScriptSetup(ServerRequestInterface $typoScriptRequest): array
-  {
-    if (!$this->backendConfigurationManager instanceof BackendConfigurationManager) {
-      return [];
-    }
-
-    $this->resetBackendTypoScriptPageIdCache((int)($typoScriptRequest->getQueryParams()['id'] ?? 0));
-
-    try {
-      // v13+: getTypoScriptSetup(ServerRequestInterface)
-      if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() >= 13) {
-        $setup = $this->backendConfigurationManager->getTypoScriptSetup($typoScriptRequest);
-        return is_array($setup) ? $setup : [];
-      }
-
-      // v12: setRequest() + getTypoScriptSetup()
-      $previousRequest = $GLOBALS['TYPO3_REQUEST'] ?? null;
-      $GLOBALS['TYPO3_REQUEST'] = $typoScriptRequest;
-      try {
-        $this->backendConfigurationManager->setRequest($typoScriptRequest);
-        $setup = $this->backendConfigurationManager->getTypoScriptSetup();
-        return is_array($setup) ? $setup : [];
-      } finally {
-        if ($previousRequest instanceof ServerRequestInterface) {
-          $GLOBALS['TYPO3_REQUEST'] = $previousRequest;
-        } else {
-          unset($GLOBALS['TYPO3_REQUEST']);
+        if (!is_array($config) || $config === []) {
+            return [];
         }
-      }
-    } catch (\Throwable $e) {
-      return [];
-    }
-  }
 
-  /**
-   * @return array<string, mixed>
-   */
-  protected function loadFrontendTypoScriptSetup(): array
-  {
-    if (!$this->configurationManager instanceof ConfigurationManagerInterface) {
-      return [];
-    }
-    try {
-      $setup = $this->configurationManager->getConfiguration(
-        ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
-      );
-      return is_array($setup) ? $setup : [];
-    } catch (\Throwable $e) {
-      return [];
-    }
-  }
-
-  protected function getCurrentRequest(): ServerRequestInterface
-  {
-    $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
-    return $request instanceof ServerRequestInterface
-      ? $request
-      : GeneralUtility::makeInstance(ServerRequest::class);
-  }
-
-  protected function isFrontendRequest(ServerRequestInterface $request): bool
-  {
-    try {
-      return ApplicationType::fromRequest($request)->isFrontend();
-    } catch (\Throwable $e) {
-      return false;
-    }
-  }
-
-  protected function resolvePageId(ServerRequestInterface $request, int $pid): int
-  {
-    if ($pid > 0) {
-      return $pid;
+        try {
+            return ArrayUtility::getValueByPath(GeneralUtility::removeDotsFromTS($config), $path, '.');
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
-    foreach ([$request->getQueryParams()['id'] ?? null, $request->getParsedBody()['id'] ?? null] as $id) {
-      if (is_array($id)) {
-        $id = reset($id);
-      }
-      if (MathUtility::canBeInterpretedAsInteger($id) && (int)$id > 0) {
-        return (int)$id;
-      }
+    /**
+     * Pin TypoScript evaluation to the storage page's site (sys_template rootline and/or site sets).
+     */
+    protected function buildBackendTypoScriptRequest(ServerRequestInterface $request, int $pid): ServerRequestInterface
+    {
+        $pageId = $this->resolvePageId($request, $pid);
+        $site = $this->resolveSite($request, $pageId);
+
+        if ($pageId <= 0 && $site instanceof SiteInterface && !($site instanceof NullSite)) {
+            $pageId = $site->getRootPageId();
+        }
+
+        $applicationType = $request->getAttribute('applicationType');
+        if (!is_int($applicationType)) {
+            $applicationType = SystemEnvironmentBuilder::REQUESTTYPE_BE;
+        }
+
+        return (new ServerRequest())
+          ->withQueryParams(['id' => $pageId])
+          ->withAttribute('site', $site)
+          ->withAttribute('applicationType', $applicationType);
     }
 
-    return 0;
-  }
+    /**
+     * @return array<string, mixed>
+     */
+    protected function loadBackendTypoScriptSetup(ServerRequestInterface $typoScriptRequest): array
+    {
+        if (!$this->backendConfigurationManager instanceof BackendConfigurationManager) {
+            return [];
+        }
 
-  protected function resolveSite(ServerRequestInterface $request, int $pageId): SiteInterface
-  {
-    if ($pageId > 0) {
-      try {
-        return GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pageId);
-      } catch (SiteNotFoundException) {
-      }
+        $this->resetBackendTypoScriptPageIdCache((int)($typoScriptRequest->getQueryParams()['id'] ?? 0));
+
+        try {
+            // v13+: getTypoScriptSetup(ServerRequestInterface)
+            if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() >= 13) {
+                $setup = $this->backendConfigurationManager->getTypoScriptSetup($typoScriptRequest);
+                return is_array($setup) ? $setup : [];
+            }
+
+            // v12: setRequest() + getTypoScriptSetup()
+            $previousRequest = $GLOBALS['TYPO3_REQUEST'] ?? null;
+            $GLOBALS['TYPO3_REQUEST'] = $typoScriptRequest;
+            try {
+                $this->backendConfigurationManager->setRequest($typoScriptRequest);
+                $setup = $this->backendConfigurationManager->getTypoScriptSetup();
+                return is_array($setup) ? $setup : [];
+            } finally {
+                if ($previousRequest instanceof ServerRequestInterface) {
+                    $GLOBALS['TYPO3_REQUEST'] = $previousRequest;
+                } else {
+                    unset($GLOBALS['TYPO3_REQUEST']);
+                }
+            }
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
-    $existingSite = $request->getAttribute('site');
-    if ($existingSite instanceof SiteInterface && !($existingSite instanceof NullSite)) {
-      return $existingSite;
+    /**
+     * @return array<string, mixed>
+     */
+    protected function loadFrontendTypoScriptSetup(): array
+    {
+        if (!$this->configurationManager instanceof ConfigurationManagerInterface) {
+            return [];
+        }
+        try {
+            $setup = $this->configurationManager->getConfiguration(
+                ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+            );
+            return is_array($setup) ? $setup : [];
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
-    try {
-      $sites = GeneralUtility::makeInstance(SiteFinder::class)->getAllSites();
-      if (count($sites) === 1) {
-        return reset($sites);
-      }
-    } catch (\Throwable $e) {
+    protected function getCurrentRequest(): ServerRequestInterface
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        return $request instanceof ServerRequestInterface
+          ? $request
+          : GeneralUtility::makeInstance(ServerRequest::class);
     }
 
-    return new NullSite();
-  }
-
-  /**
-   * Clear Extbase's per-request page-id cache when evaluating a different page.
-   */
-  protected function resetBackendTypoScriptPageIdCache(int $pageId): void
-  {
-    try {
-      $runtimeCache = GeneralUtility::makeInstance(CacheManager::class)->getCache('runtime');
-      $cachedPageId = $runtimeCache->get('extbase-backend-typoscript-currentPageId');
-      if (is_int($cachedPageId) && $cachedPageId !== $pageId) {
-        $runtimeCache->remove('extbase-backend-typoscript-currentPageId');
-      }
-    } catch (\Throwable $e) {
+    protected function isFrontendRequest(ServerRequestInterface $request): bool
+    {
+        try {
+            return ApplicationType::fromRequest($request)->isFrontend();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
-  }
 
-  public function getPartialPaths(int $pid = 0): array
-  {
-    $config = $this->getConfiguration('plugin.tx_tonictypes.view.partialRootPaths', $pid);
-    return is_array($config) && $config !== []
-      ? $config
-      : [100 => 'EXT:tonictypes/Resources/Private/Partials/'];
-  }
+    protected function resolvePageId(ServerRequestInterface $request, int $pid): int
+    {
+        if ($pid > 0) {
+            return $pid;
+        }
 
-  public function getTemplatePaths(int $pid = 0): array
-  {
-    $config = $this->getConfiguration('plugin.tx_tonictypes.view.templateRootPaths', $pid);
-    return is_array($config) && $config !== []
-      ? $config
-      : [100 => 'EXT:tonictypes/Resources/Private/Templates/'];
-  }
+        foreach ([$request->getQueryParams()['id'] ?? null, $request->getParsedBody()['id'] ?? null] as $id) {
+            if (is_array($id)) {
+                $id = reset($id);
+            }
+            if (MathUtility::canBeInterpretedAsInteger($id) && (int)$id > 0) {
+                return (int)$id;
+            }
+        }
 
-  public function getLayoutPaths(int $pid = 0): array
-  {
-    $config = $this->getConfiguration('plugin.tx_tonictypes.view.layoutRootPaths', $pid);
-    return is_array($config) && $config !== []
-      ? $config
-      : [100 => 'EXT:tonictypes/Resources/Private/Layouts/'];
-  }
+        return 0;
+    }
+
+    protected function resolveSite(ServerRequestInterface $request, int $pageId): SiteInterface
+    {
+        if ($pageId > 0) {
+            try {
+                return GeneralUtility::makeInstance(SiteFinder::class)->getSiteByPageId($pageId);
+            } catch (SiteNotFoundException) {
+            }
+        }
+
+        $existingSite = $request->getAttribute('site');
+        if ($existingSite instanceof SiteInterface && !($existingSite instanceof NullSite)) {
+            return $existingSite;
+        }
+
+        try {
+            $sites = GeneralUtility::makeInstance(SiteFinder::class)->getAllSites();
+            if (count($sites) === 1) {
+                return reset($sites);
+            }
+        } catch (\Throwable $e) {
+        }
+
+        return new NullSite();
+    }
+
+    /**
+     * Clear Extbase's per-request page-id cache when evaluating a different page.
+     */
+    protected function resetBackendTypoScriptPageIdCache(int $pageId): void
+    {
+        try {
+            $runtimeCache = GeneralUtility::makeInstance(CacheManager::class)->getCache('runtime');
+            $cachedPageId = $runtimeCache->get('extbase-backend-typoscript-currentPageId');
+            if (is_int($cachedPageId) && $cachedPageId !== $pageId) {
+                $runtimeCache->remove('extbase-backend-typoscript-currentPageId');
+            }
+        } catch (\Throwable $e) {
+        }
+    }
+
+    public function getPartialPaths(int $pid = 0): array
+    {
+        $config = $this->getConfiguration('plugin.tx_tonictypes.view.partialRootPaths', $pid);
+        return is_array($config) && $config !== []
+          ? $config
+          : [100 => 'EXT:tonictypes/Resources/Private/Partials/'];
+    }
+
+    public function getTemplatePaths(int $pid = 0): array
+    {
+        $config = $this->getConfiguration('plugin.tx_tonictypes.view.templateRootPaths', $pid);
+        return is_array($config) && $config !== []
+          ? $config
+          : [100 => 'EXT:tonictypes/Resources/Private/Templates/'];
+    }
+
+    public function getLayoutPaths(int $pid = 0): array
+    {
+        $config = $this->getConfiguration('plugin.tx_tonictypes.view.layoutRootPaths', $pid);
+        return is_array($config) && $config !== []
+          ? $config
+          : [100 => 'EXT:tonictypes/Resources/Private/Layouts/'];
+    }
 }

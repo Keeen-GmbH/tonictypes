@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -11,6 +12,7 @@
  */
 
 declare(strict_types=1);
+
 namespace K3n\Tonictypes\Service\Settings;
 
 use K3n\Tonictypes\Domain\Model\Field;

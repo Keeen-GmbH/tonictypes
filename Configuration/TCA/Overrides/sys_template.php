@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *

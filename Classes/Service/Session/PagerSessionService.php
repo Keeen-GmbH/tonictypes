@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -19,16 +20,16 @@ class PagerSessionService extends SessionService
      * Session Prefix Key
      * @var string
      */
-    const SESSION_PREFIX_KEY = "tx-tonictypes-pager";
+    public const SESSION_PREFIX_KEY = 'tx-tonictypes-pager';
 
     /**
      * Session Keys
      *
      * @var string
      */
-    const SESSION_KEY_PAGE = "tx-tonictypes-page-selection";
-    const SESSION_KEY_PER_PAGE = "tx-tonictypes-page-per-page";
-    const SESSION_KEY_RECORD_COUNT = "tx-tonictypes-record-count";
+    public const SESSION_KEY_PAGE = 'tx-tonictypes-page-selection';
+    public const SESSION_KEY_PER_PAGE = 'tx-tonictypes-page-per-page';
+    public const SESSION_KEY_RECORD_COUNT = 'tx-tonictypes-record-count';
 
 
     /**

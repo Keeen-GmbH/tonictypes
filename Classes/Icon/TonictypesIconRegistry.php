@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,6 +10,7 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\Icon;
 
 use K3n\Tonictypes\Configuration\ExtensionConfiguration;
@@ -56,7 +58,7 @@ class TonictypesIconRegistry
             $query = GeneralUtility::makeInstance(ConnectionPool::class)
                 ->getConnectionForTable(ExtensionConfiguration::EXTENSION_DATATYPE_TABLE);
 
-            $datatypes = $query->select(['uid', 'name', 'icon'], 'tx_tonictypes_domain_model_datatype',['deleted'=>0])->fetchAllAssociative();
+            $datatypes = $query->select(['uid', 'name', 'icon'], 'tx_tonictypes_domain_model_datatype', ['deleted' => 0])->fetchAllAssociative();
 
         } catch (\Exception $e) {
             $datatypes = [];
@@ -74,7 +76,7 @@ class TonictypesIconRegistry
             // We need to add the selected datatype icon to the registry
             foreach ($datatypes as $_datatype) {
 
-                if($_datatype['icon'] === '') {
+                if ($_datatype['icon'] === '') {
                     continue;
                 }
 
@@ -83,7 +85,7 @@ class TonictypesIconRegistry
                 // Register icon
                 if (!$this->_getIconRegistry()->isRegistered($iconId)) {
                     $source = $icons['extensions-tonictypes-'.$_datatype['icon']];
-                    if(!is_null($source)) {
+                    if (!is_null($source)) {
                         $this->_getIconRegistry()->registerIcon($iconId, $bitmapProviderClassName, ['source' => $source]);
                     }
                 }
@@ -92,7 +94,7 @@ class TonictypesIconRegistry
                     $GLOBALS['TCA']['pages']['columns']['module']['config']['items'][] = [
                         'label' => $_datatype['name'],
                         'value' => $iconId,
-                        'icon' => $iconId
+                        'icon' => $iconId,
                     ];
                     $GLOBALS['TCA']['pages']['ctrl']['typeicon_classes']["contains-{$iconId}"] = $iconId;
                 }
@@ -103,7 +105,7 @@ class TonictypesIconRegistry
                 'value' => '--div--',
             ];
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             // We need to ignore exceptions here in case the table does not exist
             // No exception printing here
         }
@@ -120,8 +122,8 @@ class TonictypesIconRegistry
         $iconsFields = $this->getIcons($this->getFieldIconPaths(), 'extensions-tonictypes-field-', true, false);
         $bitmapProviderClassName = BitmapIconProvider::class;
 
-        $icons = array_merge($iconsDatatypes,$iconsFields);
-        foreach ($icons as $_id=>$_location) {
+        $icons = array_merge($iconsDatatypes, $iconsFields);
+        foreach ($icons as $_id => $_location) {
             if (!$this->_getIconRegistry()->isRegistered($_id)) {
                 $this->_getIconRegistry()->registerIcon(
                     $_id,
@@ -296,7 +298,7 @@ class TonictypesIconRegistry
     public function getIconByHash(string $hash): string
     {
         $icons = $this->getIcons();
-        foreach ($icons as $_hash=>$icon) {
+        foreach ($icons as $_hash => $icon) {
             if ($_hash == $hash) {
                 return $icon;
             }

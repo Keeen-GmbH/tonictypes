@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,6 +10,7 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\UserFunc;
 
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
@@ -29,12 +31,12 @@ use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapFactory;
 
 class Field
 {
-	/**
-	 * Field Repository
-	 *
-	 * @var FieldRepository
-	 */
-	protected $fieldRepository;
+    /**
+     * Field Repository
+     *
+     * @var FieldRepository
+     */
+    protected $fieldRepository;
 
     /**
      * Record Repository
@@ -43,12 +45,12 @@ class Field
      */
     protected $datatypeRepository;
 
-	/**
-	 * FlexForm Service
-	 *
-	 * @var FlexFormService
-	 */
-	protected $flexFormService;
+    /**
+     * FlexForm Service
+     *
+     * @var FlexFormService
+     */
+    protected $flexFormService;
 
     /**
      * Plugin Settings Service
@@ -64,34 +66,34 @@ class Field
      */
     protected $fieldSettingsService;
 
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		$this->fieldRepository = GeneralUtility::makeInstance(FieldRepository::class);
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->fieldRepository = GeneralUtility::makeInstance(FieldRepository::class);
         $this->datatypeRepository = GeneralUtility::makeInstance(DatatypeRepository::class);
-		$this->flexFormService = GeneralUtility::makeInstance(FlexFormService::class);
-		$this->pluginSettingsService = GeneralUtility::makeInstance(PluginSettingsService::class);
+        $this->flexFormService = GeneralUtility::makeInstance(FlexFormService::class);
+        $this->pluginSettingsService = GeneralUtility::makeInstance(PluginSettingsService::class);
         $this->fieldSettingsService = GeneralUtility::makeInstance(FieldSettingsService::class);
-	}
+    }
 
-	/**
-	 * Displays the generated field identifier for frontend identification
-	 *
-	 * @param array $config
-	 * @param array $parentObject
-	 * @return string
-	 */
-	public function displayGeneratedFieldIdentifier(array &$config, &$parentObject)
-	{
-		$row = $config['row'];
-		$text = ($row['variable_name'] != '')?$row['variable_name']:$row['frontend_label'];
-		$code = StringUtility::createCodeFromString($text);
-		$title = LocalizationUtility::translate('formvalue_access_to_hidden_field');
-		$recordName = $this->pluginSettingsService->getRecordVarName();
+    /**
+     * Displays the generated field identifier for frontend identification
+     *
+     * @param array $config
+     * @param array $parentObject
+     * @return string
+     */
+    public function displayGeneratedFieldIdentifier(array &$config, &$parentObject)
+    {
+        $row = $config['row'];
+        $text = ($row['variable_name'] != '') ? $row['variable_name'] : $row['frontend_label'];
+        $code = StringUtility::createCodeFromString($text);
+        $title = LocalizationUtility::translate('formvalue_access_to_hidden_field');
+        $recordName = $this->pluginSettingsService->getRecordVarName();
 
-		if (!$code) {
+        if (!$code) {
             $code = '<em>generated on save</em>';
         }
 
@@ -118,74 +120,73 @@ class Field
         $template = GeneralUtility::getFileAbsFileName($template);
         $view->setTemplatePathAndFilename($template);
 
-		return $view->render();
-	}
+        return $view->render();
+    }
 
-	/**
-	 * Displays all available field ids for helping while
-	 * using display conditions
-	 *
-	 * @param array $config
-	 * @param array $parentObject
-	 * @return string
-	 */
-	public function displayAvailableFieldIds(array &$config, &$parentObject)
-	{
-	    /* @var Template $templateUserFunc */
+    /**
+     * Displays all available field ids for helping while
+     * using display conditions
+     *
+     * @param array $config
+     * @param array $parentObject
+     * @return string
+     */
+    public function displayAvailableFieldIds(array &$config, &$parentObject)
+    {
+        /* @var Template $templateUserFunc */
         $templateUserFunc = GeneralUtility::makeInstance(Template::class);
         $row = $config['row'];
         $pid = $row['pid'];
         $fields = $this->fieldRepository->findAllOnPid($pid);
-        if(count($fields) > 0) {
+        if (count($fields) > 0) {
             $config['parameters']['fields'] = $fields;
         } else {
             return '<br />'.LocalizationUtility::translate('flexform.available_field_ids.no_fields_found');
         }
 
         return $templateUserFunc->displayTemplate($config, $parentObject);
-	}
+    }
 
-	/**
-	 * Populate fields
-	 *
-	 * @param array $config Configuration Array
-	 * @param array $parentObject Parent Object
-	 * @return array
-	 */
-	public function populateFields(array &$config, &$parentObject)
-	{
-		$options = [];
+    /**
+     * Populate fields
+     *
+     * @param array $config Configuration Array
+     * @param array $parentObject Parent Object
+     * @return array
+     */
+    public function populateFields(array &$config, &$parentObject)
+    {
+        $options = [];
 
-		$fields = $this->fieldRepository->findAll(false);
+        $fields = $this->fieldRepository->findAll(false);
 
-		$sorted = [];
-		foreach ($fields as $_field)
-		{
-			$pid = $_field->getPid();
-			$sorted[$pid][] = $_field;
-		}
+        $sorted = [];
+        foreach ($fields as $_field) {
+            $pid = $_field->getPid();
+            $sorted[$pid][] = $_field;
+        }
 
-		ksort($sorted);
+        ksort($sorted);
 
-		foreach ($sorted as $pid=>$fields) {
-		    $page = BackendUtility::getRecord('pages',$pid);
-		    $title = "[PID:{$pid}]"." ".$page['title'];
-		    $options[] = [
+        foreach ($sorted as $pid => $fields) {
+            $page = BackendUtility::getRecord('pages', $pid);
+            $title = "[PID:{$pid}]".' '.$page['title'];
+            $options[] = [
                 'label' => $title,
-                'value' => '--div--'
+                'value' => '--div--',
             ];
-			foreach ($fields as $_field) {
-			    /* @var \K3n\Tonictypes\Domain\Model\Field $_field */
-				$label = $this->_getFieldLabel($_field);
-				$options[] = [
+            foreach ($fields as $_field) {
+                /* @var \K3n\Tonictypes\Domain\Model\Field $_field */
+                $label = $this->_getFieldLabel($_field);
+                $options[] = [
                     'label' => $label,
-                    'value' => $_field->getVariableName()
+                    'value' => $_field->getVariableName(),
                 ];
-			}
-		}
+            }
+        }
 
-		$config['items'] = array_merge($config['items'], $options);
-	}
+        $config['items'] = array_merge($config['items'], $options);
+    }
 
     /**
      * Populate fields
@@ -201,17 +202,16 @@ class Field
         $fields = $this->fieldRepository->findAll(false);
 
         $sorted = [];
-        foreach ($fields as $_field)
-        {
+        foreach ($fields as $_field) {
             $pid = $_field->getPid();
             $sorted[$pid][] = $_field;
         }
 
         ksort($sorted);
 
-        foreach ($sorted as $pid=>$fields) {
-            $page = BackendUtility::getRecord('pages',$pid);
-            $title = "[PID:{$pid}]"." ".$page['title'];
+        foreach ($sorted as $pid => $fields) {
+            $page = BackendUtility::getRecord('pages', $pid);
+            $title = "[PID:{$pid}]".' '.$page['title'];
             $options[] = [$title, '--div--'];
             foreach ($fields as $_field) {
                 /* @var \K3n\Tonictypes\Domain\Model\Field $_field */
@@ -237,13 +237,13 @@ class Field
         // Retrieve possible palettes
         $datatypeId = $config['row']['uid'];
         /* @var \K3n\Tonictypes\Domain\Model\Datatype $datatype */
-        $datatype = $this->datatypeRepository->findByUid($datatypeId,false);
+        $datatype = $this->datatypeRepository->findByUid($datatypeId, false);
 
         if ($datatype instanceof \K3n\Tonictypes\Domain\Model\Datatype) {
             $palettes = $datatype->getPalettes();
 
             $options = [];
-            foreach ($palettes as $_paletteName=>$_fields) {
+            foreach ($palettes as $_paletteName => $_fields) {
                 $paletteString = implode(', ', $_fields);
                 $options[] = ["PALETTE: {$paletteString}", $_paletteName];
             }
@@ -251,87 +251,82 @@ class Field
         }
     }
 
-	/**
-	 * Populate fields
-	 *
-	 * @param array $config Configuration Array
-	 * @param array $parentObject Parent Object
-	 * @return array
-	 */
-	public function populateFieldsOnCurrentPid(array &$config, &$parentObject)
-	{
-		$pid = $config['flexParentDatabaseRow']['pid'];
+    /**
+     * Populate fields
+     *
+     * @param array $config Configuration Array
+     * @param array $parentObject Parent Object
+     * @return array
+     */
+    public function populateFieldsOnCurrentPid(array &$config, &$parentObject)
+    {
+        $pid = $config['flexParentDatabaseRow']['pid'];
 
-		$options = [];
-		$fields = $this->fieldRepository->findAllOnPids([$pid], true);
+        $options = [];
+        $fields = $this->fieldRepository->findAllOnPids([$pid], true);
 
-		$sortedFields = [];
+        $sortedFields = [];
 
-		foreach ($fields as $_field)
-		{
-			$type = $_field->getType();
-			$sortedFields[$type][] = $_field;
-		}
+        foreach ($fields as $_field) {
+            $type = $_field->getType();
+            $sortedFields[$type][] = $_field;
+        }
 
-		ksort($sortedFields);
+        ksort($sortedFields);
 
-		foreach ($sortedFields as $_type=>$_fields)
-		{
-			foreach ($_fields as $_field)
-			{
-				$label = $this->_getFieldLabel($_field);
-				$options[] = [$label, $_field->getUid()];
-			}
-		}
+        foreach ($sortedFields as $_type => $_fields) {
+            foreach ($_fields as $_field) {
+                $label = $this->_getFieldLabel($_field);
+                $options[] = [$label, $_field->getUid()];
+            }
+        }
 
         $config['items'] = array_merge($config['items'], $options);
-	}
+    }
 
-	/**
-	 * Populate fields
-	 *
-	 * @param array $config Configuration Array
-	 * @param array $parentObject Parent Object
-	 * @return array
-	 */
-	public function populateFieldsOnStoragePages(array &$config, &$parentObject)
-	{
-		$pages = $config['flexParentDatabaseRow']['pages'];
+    /**
+     * Populate fields
+     *
+     * @param array $config Configuration Array
+     * @param array $parentObject Parent Object
+     * @return array
+     */
+    public function populateFieldsOnStoragePages(array &$config, &$parentObject)
+    {
+        $pages = $config['flexParentDatabaseRow']['pages'];
 
-		if (!is_array($pages))
-			$pages = GeneralUtility::intExplode(',', $pages);
+        if (!is_array($pages)) {
+            $pages = GeneralUtility::intExplode(',', $pages);
+        }
 
-		$pids = [];
-		foreach ($pages as $_page)
-		{
-			if (is_array($_page)) {
-				$pids[] = $_page['uid'];
-			}
-			else {
-				preg_match('/(?<table>.*)_(?<uid>[0-9]{0,11})|.*/', $_page, $match);
+        $pids = [];
+        foreach ($pages as $_page) {
+            if (is_array($_page)) {
+                $pids[] = $_page['uid'];
+            } else {
+                preg_match('/(?<table>.*)_(?<uid>[0-9]{0,11})|.*/', $_page, $match);
 
-				if (is_array($match))
-				{
-					if (isset($match['uid']))
-						$pids[] = $match['uid'];
-					else
-						$pids[] = $match[0];
-				}
-			}
+                if (is_array($match)) {
+                    if (isset($match['uid'])) {
+                        $pids[] = $match['uid'];
+                    } else {
+                        $pids[] = $match[0];
+                    }
+                }
+            }
 
-		}
+        }
 
-		$options = [];
-		$fields = $this->fieldRepository->findAllOnPids($pids);
+        $options = [];
+        $fields = $this->fieldRepository->findAllOnPids($pids);
 
-		foreach ($fields as $_field)
-		{
-			$label = $this->_getFieldLabel($_field);
-			$options[] = [$label, $_field->getUid()];
-		}
+        foreach ($fields as $_field) {
+            $label = $this->_getFieldLabel($_field);
+            $options[] = [$label, $_field->getUid()];
+        }
 
-		$config['items'] = array_merge($config['items'], $options);
-	}
+        $config['items'] = array_merge($config['items'], $options);
+    }
 
     /**
      * Populate fields by a table name setting
@@ -344,13 +339,13 @@ class Field
     {
         $datatypeId = null;
         if (array_key_exists('datatype', $config['row'])) {
-            if(is_array($config['row']['datatype'])) {
+            if (is_array($config['row']['datatype'])) {
                 $datatypeId = reset($config['row']['datatype']);
             } else {
                 $datatypeId = $config['row']['datatype'];
             }
         }
-        if(!null === $datatypeId && $datatypeId > 0) {
+        if (!null === $datatypeId && $datatypeId > 0) {
             $datatype = $this->datatypeRepository->findByUid($datatypeId);
 
             if ($datatype instanceof \K3n\Tonictypes\Domain\Model\Datatype) {
@@ -388,7 +383,9 @@ class Field
         $table = (is_array($row['foreign_table'])) ? reset($row['foreign_table']) : $row['foreign_table'];
         $options = [];
 
-        if ($table == '' || !$table) return;
+        if ($table == '' || !$table) {
+            return;
+        }
 
         // Retrieve all fields of the selected table
         /* @var Connection $query */
@@ -402,7 +399,7 @@ class Field
                 $field = $_column['Field'];
                 $options[] = [
                     'label' => $field,
-                    'value' => $field
+                    'value' => $field,
                 ];
             }
         }
@@ -469,10 +466,11 @@ class Field
             throw new \Exception($exceptionMessage);
         }
 
-        if (is_array($config['items']))
+        if (is_array($config['items'])) {
             $config['items'] = array_merge($config['items'], $options);
-        else
+        } else {
             $config['items'] = $options;
+        }
     }
 
     /**
@@ -491,16 +489,16 @@ class Field
         /** @var \K3n\Tonictypes\Domain\Model\Field $field */
         $field = $this->fieldRepository->findOneBy(['uid' => (int)$fieldUid]);
 
-        if($field instanceof \K3n\Tonictypes\Domain\Model\Field) {
+        if ($field instanceof \K3n\Tonictypes\Domain\Model\Field) {
 
             $frontendType = $field->getFrontendType();
 
-            if(class_exists($frontendType)) {
+            if (class_exists($frontendType)) {
                 // Selected field is a domain/model or object storage field
                 // We get the related information
-                if($datatypeUid = $field->getConfig('datatype')) {
+                if ($datatypeUid = $field->getConfig('datatype')) {
                     $datatype = $this->datatypeRepository->findOneBy(['uid' => (int)$datatypeUid]);
-                    if($datatype instanceof \K3n\Tonictypes\Domain\Model\Datatype) {
+                    if ($datatype instanceof \K3n\Tonictypes\Domain\Model\Datatype) {
                         $tableName = $datatype->getTablename();
                     }
                 } else {
@@ -514,10 +512,10 @@ class Field
                     }
                 }
 
-                if($tableName != '') {
+                if ($tableName != '') {
                     /** @var TableFactory $tableFactory */
                     $tableFactory = GeneralUtility::makeInstance(TableFactory::class);
-                    if($tableFactory->tableExists($tableName)) {
+                    if ($tableFactory->tableExists($tableName)) {
                         $configFt = $config;
                         $configFt['row']['foreign_table'] = $tableName;
                         $configFt['items'] = [
@@ -525,11 +523,11 @@ class Field
                         ];
                         $this->populateFieldsFromTable($configFt, $parentObject);
 
-                        if(!empty($configFt['items'])) {
+                        if (!empty($configFt['items'])) {
                             $options = '';
-                            foreach($configFt['items'] as $_item) {
-                                $selected = ($_item[0] == $config['itemFormElValue'])?'selected':'';
-                                $options.="<option value=\"{$_item[0]}\" {$selected}>{$_item[1]}</option>";
+                            foreach ($configFt['items'] as $_item) {
+                                $selected = ($_item[0] == $config['itemFormElValue']) ? 'selected' : '';
+                                $options .= "<option value=\"{$_item[0]}\" {$selected}>{$_item[1]}</option>";
                             }
 
                             $label = LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.sub_field');
@@ -541,10 +539,10 @@ class Field
                                 <div class=\"alert alert-info\">{$description}</div>
                                 <div class=\"formengine-field-item t3js-formengine-field-item\">
                                     <div class=\"form-control-wrap\">
-                                        <select id=\"{$fieldId}\" name=\"{$config['itemFormElName']}\" class=\"form-control form-control-adapt\">".$options."</select>
+                                        <select id=\"{$fieldId}\" name=\"{$config['itemFormElName']}\" class=\"form-control form-control-adapt\">".$options.'</select>
                                     </div>
                                 </div>
-                            ";
+                            ';
                         }
                     }
                 }
@@ -573,14 +571,14 @@ class Field
         return (string)preg_replace('/^[^a-zA-Z]/', 'x', $fieldId);
     }
 
-	/**
-	 * Transforms a label for a field
-	 *
-	 * @param \K3n\Tonictypes\Domain\Model\Field $field
-	 * @return string
-	 */
-	protected function _getFieldLabel(\K3n\Tonictypes\Domain\Model\Field $field)
-	{
-		return "[{$field->getPid()}] " . strtoupper($field->getType()) . ": " . $field->getFrontendLabel() . " {".$field->getCode()."}";
-	}
+    /**
+     * Transforms a label for a field
+     *
+     * @param \K3n\Tonictypes\Domain\Model\Field $field
+     * @return string
+     */
+    protected function _getFieldLabel(\K3n\Tonictypes\Domain\Model\Field $field)
+    {
+        return "[{$field->getPid()}] " . strtoupper($field->getType()) . ': ' . $field->getFrontendLabel() . ' {'.$field->getCode().'}';
+    }
 }

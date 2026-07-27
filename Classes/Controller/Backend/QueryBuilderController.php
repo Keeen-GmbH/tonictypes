@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -23,10 +24,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class QueryBuilderController extends AbstractBackendController
 {
@@ -227,8 +228,8 @@ class QueryBuilderController extends AbstractBackendController
             ],
         ];
 
-        $responseBody = json_encode($configuration,JSON_UNESCAPED_UNICODE);
-        $response->withHeader('Content-Type','application/json')->getBody()->write($responseBody);
+        $responseBody = json_encode($configuration, JSON_UNESCAPED_UNICODE);
+        $response->withHeader('Content-Type', 'application/json')->getBody()->write($responseBody);
 
         return $response;
     }
@@ -245,13 +246,13 @@ class QueryBuilderController extends AbstractBackendController
         $filters = [];
         $filters = array_merge($filters, $this->getDefaultFilters());
 
-        if($datatypeUid > 0) {
+        if ($datatypeUid > 0) {
             $datatype = $this->datatypeRepository->findByUid($datatypeUid, false);
             /* @var Datatype $_datatype */
-            if($datatype instanceof Datatype) {
+            if ($datatype instanceof Datatype) {
 
                 $defaultFilterValues = $this->_getValuesByPids($datatype, $pids, $languageUid);
-                if(!empty($defaultFilterValues)) {
+                if (!empty($defaultFilterValues)) {
                     $defaultFilter = [
                         'id' => 'FIELD:uid',
                         'label' => LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:flexform.selection_by_single_records'),
@@ -267,7 +268,7 @@ class QueryBuilderController extends AbstractBackendController
                 }
 
                 $fields = $datatype->getFields();
-                foreach($fields as $_field) {
+                foreach ($fields as $_field) {
                     /* @var Field $_field */
                     $filterConfig = $this->_getFilterByField($_field);
                     $filterConfig['optgroup'] = "[{$datatype->getUid()}] {$datatype->getName()}";
@@ -293,14 +294,14 @@ class QueryBuilderController extends AbstractBackendController
             return [];
         }
 
-        if(!empty($pids)) {
+        if (!empty($pids)) {
             $items = $repository->findAllOnPids($pids, false, $languageUid);
         } else {
             $items = $repository->findAll();
         }
 
         $values = [];
-        foreach($items as $_item) {
+        foreach ($items as $_item) {
             // Pain check for removing workspace records
             // TODO: integrate workspace id here to get correct records
             // This removes workspace compatibility for this filer
@@ -391,7 +392,7 @@ class QueryBuilderController extends AbstractBackendController
     {
         $datatypes = $this->datatypeRepository->findAll(false);
         $values = [];
-        foreach($datatypes as $_datatype) {
+        foreach ($datatypes as $_datatype) {
             /* @var Datatype $_datatype */
             $values[$_datatype->getUid()] =  $_datatype->getName();
         }
@@ -407,7 +408,7 @@ class QueryBuilderController extends AbstractBackendController
      */
     protected function _getFilterByField(Field $field): array
     {
-        if($field->getIsObjectStorage()) {
+        if ($field->getIsObjectStorage()) {
 
             $class = trim($field->getFrontendType(), '\\');
             /* @var \TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject $model */
@@ -422,7 +423,7 @@ class QueryBuilderController extends AbstractBackendController
                 'input' => 'FUNC',
             ];
 
-            foreach($properties as $_propertyName=>$_val) {
+            foreach ($properties as $_propertyName => $_val) {
                 $filter['options'][$field->getVariableName().'.'.$_propertyName] = $_propertyName;
             }
 

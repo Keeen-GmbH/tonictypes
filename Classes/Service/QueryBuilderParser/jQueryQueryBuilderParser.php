@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,8 +14,8 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Service\QueryBuilderParser;
 
+use stdClass;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
-use \stdClass;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -29,7 +30,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class jQueryQueryBuilderParser
 {
-
     use jQueryQueryBuilderFunctions;
 
     protected $fields;
@@ -233,7 +233,7 @@ class jQueryQueryBuilderParser
         if ($this->operatorRequiresArray($operator)) {
             $value = GeneralUtility::trimExplode(',', $value);
             return $this->makeQueryWhenArray($queryBuilder, $rule, $sqlOperator, $value, $condition);
-        } else if ($this->operatorIsNull($operator)) {
+        } elseif ($this->operatorIsNull($operator)) {
             return $this->makeQueryWhenNull($queryBuilder, $rule, $sqlOperator, $condition);
         }
 
@@ -241,7 +241,7 @@ class jQueryQueryBuilderParser
         // inutile de sécurisé "field" ici car il a été filtré à l'entrée, idem pour "operator"
         if ($condition === 'and') {
             return $queryBuilder->andWhere($rule->field . ' ' . $sqlOperator['operator'] . ' :' . $key)->setParameter($key, $value);
-        } else if ($condition === 'or') {
+        } elseif ($condition === 'or') {
             return $queryBuilder->orWhere($rule->field . ' ' . $sqlOperator['operator'] . ' :' . $key)->setParameter($key, $value);
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -15,7 +16,6 @@ namespace K3n\Tonictypes\ViewHelpers\String;
 
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 
 class ExplodeViewHelper extends AbstractViewHelper
 {

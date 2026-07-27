@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,13 +14,14 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Factory;
 
-use K3n\Tonictypes\Domain\Model\Datatype;
-use K3n\Tonictypes\Fluid\View\StandaloneView;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\SchemaException;
 use InvalidArgumentException;
+use K3n\Tonictypes\Configuration\ExtensionConfiguration;
+use K3n\Tonictypes\Domain\Model\Datatype;
+use K3n\Tonictypes\Fluid\View\StandaloneView;
 use RuntimeException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -29,7 +31,6 @@ use TYPO3\CMS\Core\Database\Schema\SchemaMigrator;
 use TYPO3\CMS\Core\Database\Schema\SqlReader;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use K3n\Tonictypes\Configuration\ExtensionConfiguration;
 
 class TableFactory implements SingletonInterface
 {
@@ -157,7 +158,7 @@ class TableFactory implements SingletonInterface
     public function isRecordTable(string $tableName): bool
     {
         // We need to check all datatypes, if the according tablename is set somewhere
-        return ($this->getConnection()->select(["uid"],ExtensionConfiguration::EXTENSION_DATATYPE_TABLE,["tablename"=>$tableName])->rowCount() > 0);
+        return ($this->getConnection()->select(['uid'], ExtensionConfiguration::EXTENSION_DATATYPE_TABLE, ['tablename' => $tableName])->rowCount() > 0);
     }
 
     /**
@@ -194,7 +195,7 @@ class TableFactory implements SingletonInterface
         $columns = $this->getTableColumns($tableName);
         $missingColumns = [];
         foreach ($datatype->getFields() as $_field) {
-            if (!in_array($_field->getCode(),$columns)) {
+            if (!in_array($_field->getCode(), $columns)) {
                 $missingColumns[] = $_field;
             }
         }
@@ -420,7 +421,7 @@ class TableFactory implements SingletonInterface
     public function tableNeedsUpdate(string $tableName, Datatype $datatype): bool
     {
         $missingColumns = $this->getMissingColumns($tableName, $datatype);
-        return (count($missingColumns)>0);
+        return (count($missingColumns) > 0);
     }
 
     /**
@@ -482,7 +483,7 @@ class TableFactory implements SingletonInterface
             }
             $updateSuggestions[$operation] = array_filter(
                 $statements,
-                static fn($sql): bool => is_string($sql) && str_contains($sql, $needle)
+                static fn ($sql): bool => is_string($sql) && str_contains($sql, $needle)
             );
         }
 
@@ -524,11 +525,11 @@ class TableFactory implements SingletonInterface
     {
         /* @var StandaloneView $standaloneView */
         $standaloneView = GeneralUtility::makeInstance(StandaloneView::class);
-        $templateFile = "EXT:tonictypes/Resources/Private/Init/CREATE_STATEMENT.sql";
+        $templateFile = 'EXT:tonictypes/Resources/Private/Init/CREATE_STATEMENT.sql';
         $templateFile = GeneralUtility::getFileAbsFileName($templateFile);
         $standaloneView->setTemplatePathAndFilename($templateFile);
-        $standaloneView->assign("datatype", $datatype);
-        $standaloneView->assign("tableName", $tableName);
+        $standaloneView->assign('datatype', $datatype);
+        $standaloneView->assign('tableName', $tableName);
         return $standaloneView->render();
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -24,9 +25,9 @@ class PluginSettingsService extends AbstractSettingsService
      * Template Selection
      * @var string
      */
-    const TEMPLATE_SELECTION_DEBUG          = 'DEBUG';
-    const TEMPLATE_SELECTION_CUSTOM			= 'CUSTOM';
-    const TEMPLATE_SELECTION_FLUID			= 'FLUID';
+    public const TEMPLATE_SELECTION_DEBUG          = 'DEBUG';
+    public const TEMPLATE_SELECTION_CUSTOM			= 'CUSTOM';
+    public const TEMPLATE_SELECTION_FLUID			= 'FLUID';
 
     /**
      * Plugin Name
@@ -39,7 +40,7 @@ class PluginSettingsService extends AbstractSettingsService
      */
     public function __construct()
     {
-        $this->setExtensionName( 'tx_' . Configuration::EXTENSION_KEY );
+        $this->setExtensionName('tx_' . Configuration::EXTENSION_KEY);
     }
 
     /**

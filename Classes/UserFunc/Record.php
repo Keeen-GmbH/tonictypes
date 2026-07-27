@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,11 +14,11 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\UserFunc;
 
+use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use K3n\Tonictypes\Domain\Model\Datatype;
 
 class Record
 {
@@ -42,26 +43,26 @@ class Record
      */
     public function populateRecordsByDatatypeSelection(array &$config, &$parentObject): void
     {
-        $pages = $config["flexParentDatabaseRow"]["pages"];
+        $pages = $config['flexParentDatabaseRow']['pages'];
 
         if (!is_array($pages)) {
-            $pages = GeneralUtility::intExplode(",", $pages);
+            $pages = GeneralUtility::intExplode(',', $pages);
         }
 
         $datatypeUid = $config['row']['settings.datatype_selection'];
 
-        if(is_array($datatypeUid)) {
+        if (is_array($datatypeUid)) {
             $datatypeUid = (int)reset($datatypeUid);
         }
 
-        if($datatypeUid <= 0) {
+        if ($datatypeUid <= 0) {
             return;
         }
 
         /* @var Datatype $datatype */
         $datatype = $this->datatypeRepository->findByUid($datatypeUid, false);
 
-        if($datatype instanceof Datatype) {
+        if ($datatype instanceof Datatype) {
             $table = $datatype->getTablename();
 
             // Fetch all records of datatype on the selected pages
@@ -80,9 +81,9 @@ class Record
                 ->fetchAllAssociative();
 
             $options = [];
-            if(!empty($result)) {
-                $options[] = ["[{$datatype->getUid()}] {$datatype->getName()}x", "--div--"];
-                foreach($result as $_row) {
+            if (!empty($result)) {
+                $options[] = ["[{$datatype->getUid()}] {$datatype->getName()}x", '--div--'];
+                foreach ($result as $_row) {
                     $label = $_row['title'];
                     $value = $_row['uid'];
                     $options[] = [
@@ -92,7 +93,7 @@ class Record
                 }
             }
 
-            $config["items"] = array_merge($config["items"], $options);
+            $config['items'] = array_merge($config['items'], $options);
         }
     }
 }

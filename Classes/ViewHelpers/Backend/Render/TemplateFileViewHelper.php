@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -53,7 +54,7 @@ class TemplateFileViewHelper extends AbstractRenderViewHelper
         $configuration = $this->configurationManager->getConfiguration(ConfigurationManager::CONFIGURATION_TYPE_FULL_TYPOSCRIPT);
         $templateConfiguration = $configuration['plugin.']['tx_tonictypes.']['templates.'] ?? [];
 
-        if(is_array($templateConfiguration)) {
+        if (is_array($templateConfiguration)) {
             return GeneralUtility::removeDotsFromTS($templateConfiguration);
         }
 
@@ -71,17 +72,17 @@ class TemplateFileViewHelper extends AbstractRenderViewHelper
         if (is_array($templateConfiguration) && array_key_exists($this->arguments['id'], $templateConfiguration)) {
             $singleTemplateConfiguration = $templateConfiguration[$this->arguments['id']];
             $string = '';
-            if(isset($singleTemplateConfiguration['icon'])) {
+            if (isset($singleTemplateConfiguration['icon'])) {
                 $filePath = GeneralUtility::getFileAbsFileName($singleTemplateConfiguration['icon']);
                 $filePath = PathUtility::getAbsoluteWebPath($filePath);
                 $string .= '<img src="'.$filePath.'" border="0">'. ' ';
             }
 
-            if(isset($singleTemplateConfiguration['name'])) {
+            if (isset($singleTemplateConfiguration['name'])) {
                 $string .= $singleTemplateConfiguration['name'];
             }
 
-            if(isset($singleTemplateConfiguration['file'])) {
+            if (isset($singleTemplateConfiguration['file'])) {
                 return $string . ' ' . '(' . $singleTemplateConfiguration['file'] . ')';
             }
 

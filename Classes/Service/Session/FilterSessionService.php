@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -19,14 +20,14 @@ class FilterSessionService extends SessionService
      * Session Prefix Key
      * @var string
      */
-    const SESSION_PREFIX_KEY = 'tx-tonictypes-filter';
+    public const SESSION_PREFIX_KEY = 'tx-tonictypes-filter';
 
     /**
      * Session Keys for Sorting
      * @var string
      */
-    const SESSION_KEY_FILTERS = 'tx-tonictypes-filter-filters';
-    const SESSION_KEY_SELECTED = 'tx-tonictypes-filter-selected';
+    public const SESSION_KEY_FILTERS = 'tx-tonictypes-filter-filters';
+    public const SESSION_KEY_SELECTED = 'tx-tonictypes-filter-selected';
 
     /**
      * Sets the selected options to the session

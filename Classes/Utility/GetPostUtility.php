@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -18,33 +19,33 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class GetPostUtility
 {
-	/**
-	 * Secures a GET variable
-	 *
-	 * @param string $variable
-	 * @return string
-	 */
-	public static function secureVariableGet(string $variable): string
-	{
-		$variable = htmlspecialchars($variable);
-		$variable = strip_tags($variable);
+    /**
+     * Secures a GET variable
+     *
+     * @param string $variable
+     * @return string
+     */
+    public static function secureVariableGet(string $variable): string
+    {
+        $variable = htmlspecialchars($variable);
+        $variable = strip_tags($variable);
 
-		return $variable;
-	}
+        return $variable;
+    }
 
-	/**
-	 * Secures a POST variable
-	 *
-	 * @param string $variable
-	 * @return string
-	 */
-	public static function secureVariablePost(string $variable): string
-	{
-		$variable = htmlspecialchars($variable);
-		$variable = strip_tags($variable);
+    /**
+     * Secures a POST variable
+     *
+     * @param string $variable
+     * @return string
+     */
+    public static function secureVariablePost(string $variable): string
+    {
+        $variable = htmlspecialchars($variable);
+        $variable = strip_tags($variable);
 
-		return $variable;
-	}
+        return $variable;
+    }
 
     /**
      * @param string $parameterName

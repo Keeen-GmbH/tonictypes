@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,6 +14,7 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Tca;
 
+use Exception;
 use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Model\Field;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
@@ -20,8 +22,8 @@ use K3n\Tonictypes\Exception\TcaGeneratorException;
 use K3n\Tonictypes\Factory\TableFactory;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Icon\TonictypesIconRegistry;
+use K3n\Tonictypes\Service\Backend\FlashMessageService;
 use K3n\Tonictypes\Service\Cache\TcaCacheService;
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -33,7 +35,6 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
-use K3n\Tonictypes\Service\Backend\FlashMessageService;
 
 class Generator implements MiddlewareInterface
 {
@@ -188,9 +189,11 @@ class Generator implements MiddlewareInterface
             $tcaDefaultYaml = file_get_contents($tcaDefaultFile);
             $this->getStandaloneView()->setTemplateSource($tcaDefaultYaml);
 
-            $typeiconClasses = $this->tonictypesIconRegistry->getIcons(['EXT:tonictypes/Resources/Public/Icons/Datatype'],'extensions-tonictypes-', true, false);
+            $typeiconClasses = $this->tonictypesIconRegistry->getIcons(['EXT:tonictypes/Resources/Public/Icons/Datatype'], 'extensions-tonictypes-', true, false);
             $keys = array_keys($typeiconClasses);
-            $values = array_map(function($value) { return 'extensions-tonictypes-'.$value; }, $keys);
+            $values = array_map(function ($value) {
+                return 'extensions-tonictypes-'.$value;
+            }, $keys);
             $icons = array_combine($keys, $values);
 
             // We need to fetch all datatype to get the assigned tables and generate the tca of the according fields
@@ -306,7 +309,7 @@ class Generator implements MiddlewareInterface
                 }
             }
 
-        } catch (Exception $e)	{
+        } catch (Exception $e) {
             throw new TcaGeneratorException($e->getMessage(), $e->getCode(), $e->getPrevious());
         }
     }
@@ -326,7 +329,7 @@ class Generator implements MiddlewareInterface
                 GeneralUtility::makeInstance($tcaSchemaFactoryClass)->rebuild($GLOBALS['TCA']);
             }
         } catch (TcaGeneratorException $e) {
-            $message = 'Message: ' . $e->getMessage() . "\r\n" . "in File " . $e->getFile() . ":" . $e->getLine();
+            $message = 'Message: ' . $e->getMessage() . "\r\n" . 'in File ' . $e->getFile() . ':' . $e->getLine();
             $title = 'Latest Tonictypes Tca Generator Error';
             $this->backendFlashMessageService->addFlashMessage($message, $title, ContextualFeedbackSeverity::ERROR, $request);
         }

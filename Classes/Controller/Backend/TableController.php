@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -20,12 +21,12 @@ use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
 use K3n\Tonictypes\Service\Tca\DatatypeTcaFileService;
 use K3n\Tonictypes\Utility\LocalizationUtility;
-use TYPO3\CMS\Core\Http\Response;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class TableController extends AbstractBackendController implements LoggerAwareInterface
 {
@@ -48,7 +49,7 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
         $contents = "<?php\n"
             . "declare(strict_types=1);\n"
             . "defined('TYPO3') or die();\n\n"
-            . "return " . var_export($tca, true) . ";\n";
+            . 'return ' . var_export($tca, true) . ";\n";
 
         $old = @file_get_contents($absFile);
         if (is_string($old) && md5($old) === md5($contents)) {
@@ -185,7 +186,7 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
         $tableExists = false;
         $tcaFileExists = false;
 
-        if(!is_null($tableName) && $tableName != '') {
+        if (!is_null($tableName) && $tableName != '') {
             $tableExists = $this->tableFactory->tableExists($tableName);
             $tcaFile = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Configuration/TCA/' . $tableName . '.php');
             $tcaFileExists = file_exists($tcaFile);
@@ -220,8 +221,8 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
         $templateFile = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Resources/Private/Templates/UserFunc/Table/Status.html');
         $view->setTemplatePathAndFilename($templateFile);
 
-        $tableNeedsUpdate = (count($missingColumns)>0);
-        if(is_array($updateStatements) && array_key_exists('change', $updateStatements) && is_array($updateStatements['change']) && !empty($updateStatements['change'])) {
+        $tableNeedsUpdate = (count($missingColumns) > 0);
+        if (is_array($updateStatements) && array_key_exists('change', $updateStatements) && is_array($updateStatements['change']) && !empty($updateStatements['change'])) {
             $tableNeedsUpdate = true;
         }
 
@@ -262,11 +263,11 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
         $tableName = strip_tags($parsedBody['tableName']);
         $tableExists = false;
 
-        if(!is_null($tableName) && $tableName != '') {
+        if (!is_null($tableName) && $tableName != '') {
             $tableExists = $this->tableFactory->tableExists($tableName);
         }
 
-        if($tableExists) {
+        if ($tableExists) {
             try {
                 $this->tableFactory->dropTable($tableName);
             } catch (\Exception $e) {
@@ -369,11 +370,11 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
         $datatypeId = (int)$parsedBody['datatypeId'];
         $datatype = $this->datatypeRepository->findByUid($datatypeId);
 
-        if(!($datatype instanceof Datatype)) {
+        if (!($datatype instanceof Datatype)) {
             $response = GeneralUtility::makeInstance(Response::class);
             $response->getBody()->write(json_encode([
                 'success' => false,
-                'html' => LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.migrate.message.records_not_created_yet')
+                'html' => LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.migrate.message.records_not_created_yet'),
             ]));
             return $response;
         }

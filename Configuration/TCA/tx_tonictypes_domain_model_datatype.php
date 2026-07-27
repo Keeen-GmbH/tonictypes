@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -51,12 +52,12 @@ return [
         'searchFields' => 'name,description,icon,fields,',
         'iconfile' => 'EXT:tonictypes/Resources/Public/Icons/Domain/Model/datatype.svg',
     ],
-	'interface' => [
-		'showRecordFieldList' => 'logo, hidden,name,tablename,class,description,icon,color,title_divider,hide_records,hide_add,fields,tab_config,disable_general_tab,enable_seo,cache_tca',
-	],
-	'types' => [
-		'1' => [
-			'showitem' => '
+    'interface' => [
+        'showRecordFieldList' => 'logo, hidden,name,tablename,class,description,icon,color,title_divider,hide_records,hide_add,fields,tab_config,disable_general_tab,enable_seo,cache_tca',
+    ],
+    'types' => [
+        '1' => [
+            'showitem' => '
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,
                     logo, name, description, tablename, class,
                 --div--;LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:tx_tonictypes_domain_model_datatype.fields,
@@ -70,13 +71,13 @@ return [
                 --div--;LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:advanced_settings,
                     cache_tca
             ',
-		],
-	],
-	'palettes' => [
-		'timeRestriction' => ['showitem' => 'starttime, endtime'],
-		'language' => ['showitem' => 'sys_language_uid, l10n_parent'],
-	],
-	'columns' => [
+        ],
+    ],
+    'palettes' => [
+        'timeRestriction' => ['showitem' => 'starttime, endtime'],
+        'language' => ['showitem' => 'sys_language_uid, l10n_parent'],
+    ],
+    'columns' => [
         'sys_language_uid' => [
             'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
@@ -88,112 +89,112 @@ return [
                     [
                         'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.allLanguages',
                         -1,
-                        'flags-multiple'
+                        'flags-multiple',
                     ],
                 ],
                 'default' => 0,
-            ]
+            ],
         ],
-		'l10n_parent' => [
-			'displayCond' => 'FIELD:sys_language_uid:>:0',
-			'exclude' => true,
-			'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
-			'config' => [
-				'type' => 'select',
-				'renderType' => 'selectSingle',
-				'items' => [
-					['', 0],
-				],
-				'foreign_table' => 'tx_tonictypes_domain_model_datatype',
-				'foreign_table_where' => 'AND tx_tonictypes_domain_model_datatype.pid=###CURRENT_PID### AND tx_tonictypes_domain_model_datatype.sys_language_uid IN (-1,0)',
+        'l10n_parent' => [
+            'displayCond' => 'FIELD:sys_language_uid:>:0',
+            'exclude' => true,
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
+            'config' => [
+                'type' => 'select',
+                'renderType' => 'selectSingle',
+                'items' => [
+                    ['', 0],
+                ],
+                'foreign_table' => 'tx_tonictypes_domain_model_datatype',
+                'foreign_table_where' => 'AND tx_tonictypes_domain_model_datatype.pid=###CURRENT_PID### AND tx_tonictypes_domain_model_datatype.sys_language_uid IN (-1,0)',
                 'default' => 0,
             ],
-		],
-		'l10n_diffsource' => [
-			'config' => [
-				'type' => 'passthrough',
-			],
-		],
-		't3ver_label' => [
-			'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.versionLabel',
-			'config' => [
-				'type' => 'input',
-				'size' => 30,
-				'max' => 30
-			]
-		],
-		'crdate' => [
-			'exclude' => true,
-			'label' => '',
-			'config' => [
-				'type' => 'input',
-				'size' => 30,
-				'eval' => 'int'
-			],
-		],
-		'tstamp' => [
-			'exclude' => true,
-			'label' => '',
-			'config' => [
-				'type' => 'input',
-				'size' => 30,
-				'eval' => 'int'
-			],
-		],
-		'hidden' => [
-			'exclude' => true,
-			'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hidden',
-			'config' => [
-				'type' => 'check',
-			],
-		],
-		'starttime' => [
-			'exclude' => true,
-			'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
-			'config' => [
-				'type' => 'input',
-				'renderType' => 'inputDateTime',
-				'eval' => 'datetime,int',
-				'default' => 0,
-				'behaviour' => [
-					'allowLanguageSynchronization' => true,
-				]
-			]
-		],
-		'endtime' => [
-			'exclude' => true,
-			'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
-			'config' => [
-				'type' => 'input',
-				'renderType' => 'inputDateTime',
-				'eval' => 'datetime,int',
-				'default' => 0,
-				'range' => [
-					'upper' => mktime(0, 0, 0, 1, 1, 2038),
-				],
-				'behaviour' => [
-					'allowLanguageSynchronization' => true,
-				]
-			]
-		],
-		'logo' => [
-			'exclude' => true,
-			'label' => '',
-			'config' => [
-				'type' => 'user',
-				'userFunc' => 'K3n\Tonictypes\UserFunc\Logo->displayLogoText',
-			],
-		],
-		'name' => [
-			'exclude' => true,
-			'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.name',
-			'config' => [
-				'type' => 'input',
-				'size' => 30,
+        ],
+        'l10n_diffsource' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
+        't3ver_label' => [
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.versionLabel',
+            'config' => [
+                'type' => 'input',
+                'size' => 30,
+                'max' => 30,
+            ],
+        ],
+        'crdate' => [
+            'exclude' => true,
+            'label' => '',
+            'config' => [
+                'type' => 'input',
+                'size' => 30,
+                'eval' => 'int',
+            ],
+        ],
+        'tstamp' => [
+            'exclude' => true,
+            'label' => '',
+            'config' => [
+                'type' => 'input',
+                'size' => 30,
+                'eval' => 'int',
+            ],
+        ],
+        'hidden' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hidden',
+            'config' => [
+                'type' => 'check',
+            ],
+        ],
+        'starttime' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
+            'config' => [
+                'type' => 'input',
+                'renderType' => 'inputDateTime',
+                'eval' => 'datetime,int',
+                'default' => 0,
+                'behaviour' => [
+                    'allowLanguageSynchronization' => true,
+                ],
+            ],
+        ],
+        'endtime' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
+            'config' => [
+                'type' => 'input',
+                'renderType' => 'inputDateTime',
+                'eval' => 'datetime,int',
+                'default' => 0,
+                'range' => [
+                    'upper' => mktime(0, 0, 0, 1, 1, 2038),
+                ],
+                'behaviour' => [
+                    'allowLanguageSynchronization' => true,
+                ],
+            ],
+        ],
+        'logo' => [
+            'exclude' => true,
+            'label' => '',
+            'config' => [
+                'type' => 'user',
+                'userFunc' => 'K3n\Tonictypes\UserFunc\Logo->displayLogoText',
+            ],
+        ],
+        'name' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.name',
+            'config' => [
+                'type' => 'input',
+                'size' => 30,
                 'required' => true,
-				'eval' => 'trim,required,' . \K3n\Tonictypes\Evaluation\DatatypeNameEvaluation::class
-			],
-		],
+                'eval' => 'trim,required,' . \K3n\Tonictypes\Evaluation\DatatypeNameEvaluation::class,
+            ],
+        ],
         'tablename' => [
             'exclude' => true,
             'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf.tx_tonictypes_domain_model_datatype.tablename',
@@ -212,89 +213,89 @@ return [
                 'type' => 'user',
                 'userFunc' => 'K3n\\Tonictypes\\UserFunc\\Datatype->getClassField',
                 'size' => 30,
-                'eval' => ''
+                'eval' => '',
             ],
         ],
-		'description' => [
-			'exclude' => true,
-			'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.description',
-			'config' => [
-				'type' => 'text',
-				'cols' => 40,
-				'rows' => 2,
-				'eval' => 'trim',
-			],
-		],
-		'icon' => [
-			'exclude' => true,
-			'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.icon',
-			'config' => [
-				'type' => 'user',
-				'userFunc' => 'K3n\\Tonictypes\\UserFunc\\Icon->displayIconSelection',
-				'size' => 30,
-				'eval' => ''
-			],
-		],
-		'color' => [
-			'exclude' => true,
+        'description' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.description',
+            'config' => [
+                'type' => 'text',
+                'cols' => 40,
+                'rows' => 2,
+                'eval' => 'trim',
+            ],
+        ],
+        'icon' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.icon',
+            'config' => [
+                'type' => 'user',
+                'userFunc' => 'K3n\\Tonictypes\\UserFunc\\Icon->displayIconSelection',
+                'size' => 30,
+                'eval' => '',
+            ],
+        ],
+        'color' => [
+            'exclude' => true,
             'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.color',
-			'config' => [
-				'type' => 'input',
-				'renderType' => 'colorpicker',
-				'size' => 30,
-				'eval' => 'trim',
-			],
-		],
-		'title_divider' => [
-			'exclude' => true,
+            'config' => [
+                'type' => 'input',
+                'renderType' => 'colorpicker',
+                'size' => 30,
+                'eval' => 'trim',
+            ],
+        ],
+        'title_divider' => [
+            'exclude' => true,
             'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.title_divider',
             'description' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.title_divider.description',
-			'config' => [
-				'type' => 'select',
-				'renderType' => 'selectSingle',
-				'items' => [
-					['(space)',				"(SPACE)"],
-					['.', 					"."],
-					[',', 					","],
-					[',(space)',			",(SPACE)"],
-					['_', 					"_"],
-					['-', 					"-"],
-					['=', 					"="],
-					['(space)-(space)',		"(SPACE)-(SPACE)"],
-					[';', 					";"],
-					[';(space)', 			";(SPACE)"],
-					['+', 					"+"],
-					['(space)+(space)', 	"(SPACE)+(SPACE)"],
-					['>', 					">"],
-					['(space)>(space)', 	"(SPACE)>(SPACE)"],
-					['*', 					"*"],
-					['(space)*(space)',		"(SPACE)*(SPACE)"],
-					['~', 					"~"],
-					['(space)~(space)', 	"(SPACE)~(SPACE)"],
-					['->', 					"->"],
-					['(space)->(space)',	"(SPACE)->(SPACE)"],
-					['=>', 					"=>"],
-					['(space)=>(space)',	"(SPACE)=>(SPACE)"],
-					[':', 					":"],
-					[':(space)', 			":(SPACE)"],
-					['::', 					"::"],
-					['(space)::(space)', 	"(SPACE)::(SPACE)"],
-					['/', 					"/"],
-					['(space)/(space)',		"(SPACE)/(SPACE)"],
-				],
-				'size' => 1,
-				'maxitems' => 1,
-				'eval' => ''
-			],
-		],
-		'hide_records' => [
-			'exclude' => true,
-			'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.hide_records',
-			'config' => [
-				'type' => 'check',
-				'default' => 0,
-			],
-		],
+            'config' => [
+                'type' => 'select',
+                'renderType' => 'selectSingle',
+                'items' => [
+                    ['(space)',				'(SPACE)'],
+                    ['.', 					'.'],
+                    [',', 					','],
+                    [',(space)',			',(SPACE)'],
+                    ['_', 					'_'],
+                    ['-', 					'-'],
+                    ['=', 					'='],
+                    ['(space)-(space)',		'(SPACE)-(SPACE)'],
+                    [';', 					';'],
+                    [';(space)', 			';(SPACE)'],
+                    ['+', 					'+'],
+                    ['(space)+(space)', 	'(SPACE)+(SPACE)'],
+                    ['>', 					'>'],
+                    ['(space)>(space)', 	'(SPACE)>(SPACE)'],
+                    ['*', 					'*'],
+                    ['(space)*(space)',		'(SPACE)*(SPACE)'],
+                    ['~', 					'~'],
+                    ['(space)~(space)', 	'(SPACE)~(SPACE)'],
+                    ['->', 					'->'],
+                    ['(space)->(space)',	'(SPACE)->(SPACE)'],
+                    ['=>', 					'=>'],
+                    ['(space)=>(space)',	'(SPACE)=>(SPACE)'],
+                    [':', 					':'],
+                    [':(space)', 			':(SPACE)'],
+                    ['::', 					'::'],
+                    ['(space)::(space)', 	'(SPACE)::(SPACE)'],
+                    ['/', 					'/'],
+                    ['(space)/(space)',		'(SPACE)/(SPACE)'],
+                ],
+                'size' => 1,
+                'maxitems' => 1,
+                'eval' => '',
+            ],
+        ],
+        'hide_records' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.hide_records',
+            'config' => [
+                'type' => 'check',
+                'default' => 0,
+            ],
+        ],
         'hide_add' => [
             'exclude' => true,
             'label'   => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.hide_add',
@@ -320,7 +321,7 @@ return [
                 'renderType' => 'selectMultipleSideBySide',
                 'enableMultiSelectFilterTextfield' => true,
                 'foreign_table' => 'tx_tonictypes_domain_model_field',
-				'foreign_table_where' => 'AND tx_tonictypes_domain_model_field.pid=###CURRENT_PID### AND tx_tonictypes_domain_model_field.sys_language_uid IN (-1, 0) AND tx_tonictypes_domain_model_field.frontend_label IS NOT NULL AND tx_tonictypes_domain_model_field.frontend_label != \'\' AND tx_tonictypes_domain_model_field.variable_name IS NOT NULL AND tx_tonictypes_domain_model_field.variable_name != \'\' AND EXISTS (SELECT 1 FROM tx_tonictypes_domain_model_fieldvalue WHERE tx_tonictypes_domain_model_fieldvalue.field=tx_tonictypes_domain_model_field.uid AND tx_tonictypes_domain_model_fieldvalue.pid=###CURRENT_PID### AND tx_tonictypes_domain_model_fieldvalue.deleted=0 AND tx_tonictypes_domain_model_fieldvalue.sys_language_uid IN (-1, 0))',
+                'foreign_table_where' => 'AND tx_tonictypes_domain_model_field.pid=###CURRENT_PID### AND tx_tonictypes_domain_model_field.sys_language_uid IN (-1, 0) AND tx_tonictypes_domain_model_field.frontend_label IS NOT NULL AND tx_tonictypes_domain_model_field.frontend_label != \'\' AND tx_tonictypes_domain_model_field.variable_name IS NOT NULL AND tx_tonictypes_domain_model_field.variable_name != \'\' AND EXISTS (SELECT 1 FROM tx_tonictypes_domain_model_fieldvalue WHERE tx_tonictypes_domain_model_fieldvalue.field=tx_tonictypes_domain_model_field.uid AND tx_tonictypes_domain_model_fieldvalue.pid=###CURRENT_PID### AND tx_tonictypes_domain_model_fieldvalue.deleted=0 AND tx_tonictypes_domain_model_fieldvalue.sys_language_uid IN (-1, 0))',
                 'MM' => 'tx_tonictypes_datatype_field_mm',
                 'size' => 10,
                 'autoSizeMax' => 30,
@@ -339,19 +340,19 @@ return [
                 ],
             ],
         ],
-		'tab_config' => [
-			'exclude' => true,
-			'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.tab_config',
-			'config' => GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14 ? [
-				'type' => 'flex',
-				'ds' => [
-					'default' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Datatype/TabConfig.xml',
-				],
-			] : [
-				'type' => 'flex',
-				'ds' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Datatype/TabConfig.xml',
-			],
-		],
+        'tab_config' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.tab_config',
+            'config' => GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14 ? [
+                'type' => 'flex',
+                'ds' => [
+                    'default' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Datatype/TabConfig.xml',
+                ],
+            ] : [
+                'type' => 'flex',
+                'ds' => 'FILE:EXT:tonictypes/Configuration/FlexForms/Datatype/TabConfig.xml',
+            ],
+        ],
         'disable_general_tab' => [
             'exclude' => true,
             'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.disable_general_tab',
@@ -384,6 +385,5 @@ return [
                 'default' => 1,
             ],
         ],
-	],
+    ],
 ];
-

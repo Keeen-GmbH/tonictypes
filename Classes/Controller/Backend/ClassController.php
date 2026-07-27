@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -17,10 +18,10 @@ use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
-use TYPO3\CMS\Core\Http\Response;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ClassController extends AbstractBackendController
 {
@@ -73,12 +74,12 @@ class ClassController extends AbstractBackendController
     public function classStatusAction(ServerRequestInterface $request): ResponseInterface
     {
         $parsedBody = $request->getParsedBody();
-        $datatypeId = $parsedBody["datatypeId"];
+        $datatypeId = $parsedBody['datatypeId'];
         $datatype = $this->datatypeRepository->findByUid($datatypeId);
         $success = false;
         $view = $this->getView();
 
-        $templateFile = GeneralUtility::getFileAbsFileName("EXT:tonictypes/Resources/Private/Templates/UserFunc/Class/Status.html");
+        $templateFile = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Resources/Private/Templates/UserFunc/Class/Status.html');
         $view->setTemplatePathAndFilename($templateFile);
 
         if ($datatype instanceof Datatype) {
@@ -86,12 +87,12 @@ class ClassController extends AbstractBackendController
 
             try {
                 $variables = [
-                    "className" => $suggestedFullQualifiedClassName,
-                    "classValid" => $this->classFactory->classValid($datatype),
-                    "datatype"  => $datatype,
-                    "classFileName" => $datatype->getClassFilePath(),
-                    "repositoryFileName" => $datatype->getRepositoryFilePath(),
-                    "classActual" => $this->classFactory->classActual($datatype),
+                    'className' => $suggestedFullQualifiedClassName,
+                    'classValid' => $this->classFactory->classValid($datatype),
+                    'datatype'  => $datatype,
+                    'classFileName' => $datatype->getClassFilePath(),
+                    'repositoryFileName' => $datatype->getRepositoryFilePath(),
+                    'classActual' => $this->classFactory->classActual($datatype),
                 ];
 
                 $view->assignMultiple($variables);
@@ -105,7 +106,7 @@ class ClassController extends AbstractBackendController
             $success = true;
 
             $variables = [
-                "isNew" => true,
+                'isNew' => true,
             ];
 
             $view->assignMultiple($variables);
@@ -113,7 +114,7 @@ class ClassController extends AbstractBackendController
         }
 
         $response = GeneralUtility::makeInstance(Response::class);
-        $response->getBody()->write(json_encode(["success" => $success,"html" => $output]));
+        $response->getBody()->write(json_encode(['success' => $success,'html' => $output]));
         return $response;
     }
 
@@ -128,7 +129,7 @@ class ClassController extends AbstractBackendController
         $this->clearAutoloadAndCache();
 
         $parsedBody = $request->getParsedBody();
-        $datatypeId = $parsedBody["datatypeId"];
+        $datatypeId = $parsedBody['datatypeId'];
         $datatype = $this->datatypeRepository->findByUid($datatypeId);
 
         $suggestedFullQualifiedClassName = null;
@@ -144,25 +145,25 @@ class ClassController extends AbstractBackendController
             $this->clearAutoloadAndCache();
 
             $view = $this->getView();
-            $templateFile = GeneralUtility::getFileAbsFileName("EXT:tonictypes/Resources/Private/Templates/UserFunc/Class/Migrate.html");
+            $templateFile = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Resources/Private/Templates/UserFunc/Class/Migrate.html');
             $view->setTemplatePathAndFilename($templateFile);
 
             $variables = [
-                "error" => ($domainModelClassFileBuilt == true && $domainRepositoryClassFileBuild == true),
-                "className" => $datatype->getFullyQualifiedClassName(),
+                'error' => ($domainModelClassFileBuilt == true && $domainRepositoryClassFileBuild == true),
+                'className' => $datatype->getFullyQualifiedClassName(),
             ];
 
             $view->assignMultiple($variables);
             $contents = $view->render();
 
             $response = GeneralUtility::makeInstance(Response::class);
-            $response->getBody()->write(json_encode(["success" => true,"html" => $contents]));
+            $response->getBody()->write(json_encode(['success' => true,'html' => $contents]));
 
             return $response;
         }
 
         $response = GeneralUtility::makeInstance(Response::class);
-        $response->getBody()->write(json_encode(["success" => true,"html" => '']));
+        $response->getBody()->write(json_encode(['success' => true,'html' => '']));
 
         return $response;
     }
@@ -176,7 +177,7 @@ class ClassController extends AbstractBackendController
     public function classDeleteAction(ServerRequestInterface $request): ResponseInterface
     {
         $parsedBody = $request->getParsedBody();
-        $datatypeId = $parsedBody["datatypeId"];
+        $datatypeId = $parsedBody['datatypeId'];
         $datatype = $this->datatypeRepository->findByUid($datatypeId);
 
         $suggestedFullQualifiedClassName = null;

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -15,21 +16,21 @@ namespace K3n\Tonictypes\Configuration;
 
 class ExtensionConfiguration
 {
-	/**
-	 * Extension Key
+    /**
+     * Extension Key
      *
-	 * @var string
-	 */
-	const EXTENSION_KEY = 'tonictypes';
+     * @var string
+     */
+    public const EXTENSION_KEY = 'tonictypes';
 
     /**
      * Tables
      *
      * @var string
      */
-    const EXTENSION_FIELD_TABLE 			= 'tx_tonictypes_domain_model_field';
-    const EXTENSION_FIELD_VALUE_TABLE		= 'tx_tonictypes_domain_model_fieldvalue';
-    const EXTENSION_DATATYPE_TABLE 			= 'tx_tonictypes_domain_model_datatype';
+    public const EXTENSION_FIELD_TABLE 			= 'tx_tonictypes_domain_model_field';
+    public const EXTENSION_FIELD_VALUE_TABLE		= 'tx_tonictypes_domain_model_fieldvalue';
+    public const EXTENSION_DATATYPE_TABLE 			= 'tx_tonictypes_domain_model_datatype';
 
     /**
      * Gets the language field for datatypes

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,6 +10,7 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\UserFunc;
 
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -27,10 +29,10 @@ class Extension
         $extList = ExtensionManagementUtility::getLoadedExtensionListArray();
         sort($extList);
 
-        foreach($extList as $_i=>$_ext) {
+        foreach ($extList as $_i => $_ext) {
             $options[] = [
                 'label' => $_ext,
-                'value' => $_ext
+                'value' => $_ext,
             ];
         }
 

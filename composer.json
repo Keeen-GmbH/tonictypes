@@ -28,11 +28,35 @@
       "K3n\\Tonictypes\\": "Classes/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "K3n\\Tonictypes\\Tests\\": "Tests/"
+    }
+  },
   "replace": {
     "typo3-ter/tonictypes": "self.version"
   },
+  "config": {
+    "vendor-dir": ".Build/vendor",
+    "bin-dir": ".Build/bin",
+    "sort-packages": true,
+    "platform": {
+      "php": "8.2.0"
+    },
+    "allow-plugins": {
+      "composer/package-versions-deprecated": true,
+      "php-http/discovery": true,
+      "typo3/class-alias-loader": true,
+      "typo3/cms-cli": true,
+      "typo3/cms-composer-installers": true
+    },
+    "audit": {
+      "block-insecure": false
+    }
+  },
   "extra": {
     "typo3/cms": {
+      "web-dir": ".Build/public",
       "extension-key": "tonictypes"
     }
   },
@@ -42,5 +66,47 @@
       "email": "support@tonictypes.com",
       "homepage": "http://www.tonictypes.com"
     }
-  ]
+  ],
+  "scripts": {
+    "cs:check": ".Build/bin/php-cs-fixer fix --dry-run --diff",
+    "cs:fix": ".Build/bin/php-cs-fixer fix",
+    "stan": ".Build/bin/phpstan analyse --memory-limit=512M",
+    "test": ".Build/bin/phpunit -c Build/phpunit/UnitTests.xml",
+    "test:functional": ".Build/bin/phpunit -c Build/phpunit/FunctionalTests.xml",
+    "test:all": [
+      "@composer test",
+      "@composer test:functional"
+    ],
+    "ci": [
+      "@composer test",
+      "@composer test:functional",
+      "@composer stan",
+      "@composer cs:fix"
+    ],
+    "smoke:standalone": [
+      "@composer test",
+      "@composer stan"
+    ]
+  },
+  "scripts-descriptions": {
+    "cs:check": "Run PHP-CS-Fixer in dry-run mode",
+    "cs:fix": "Apply PHP-CS-Fixer fixes",
+    "stan": "Run PHPStan static analysis",
+    "test": "Run unit tests (Build/phpunit/UnitTests.xml)",
+    "test:functional": "Run TYPO3 functional tests with SQLite (Build/phpunit/FunctionalTests.xml)",
+    "test:all": "Run unit tests then functional tests",
+    "smoke:standalone": "Run unit tests + PHPStan (CI smoke)"
+  },
+  "require-dev": {
+    "doctrine/instantiator": "~2.0.0",
+    "friendsofphp/php-cs-fixer": "^3.94",
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^10.5 || ^11.5",
+    "typo3/cms-backend": "^12.4 || ^13.4 || ^14.3",
+    "typo3/cms-extbase": "^12.4 || ^13.4 || ^14.3",
+    "typo3/cms-fluid": "^12.4 || ^13.4 || ^14.3",
+    "typo3/cms-frontend": "^12.4 || ^13.4 || ^14.3",
+    "typo3/cms-install": "^12.4 || ^13.4 || ^14.3",
+    "typo3/testing-framework": "^8.2 || ^9.0"
+  }
 }

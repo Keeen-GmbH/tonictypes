@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -30,15 +31,15 @@ class Link extends Input
         // allowedTypes
         if ($allowedTypes = $this->getField()->getConfig('allowedTypes')) {
             $delimeters = [
-                "|",
-                "/",
-                ".",
-                "-",
-                ";",
+                '|',
+                '/',
+                '.',
+                '-',
+                ';',
             ];
 
-            $tca['config']['allowedTypes'] = str_replace($delimeters,',',$allowedTypes);
-            $tca['config']['allowedTypes'] = GeneralUtility::trimExplode(',',$allowedTypes,true);
+            $tca['config']['allowedTypes'] = str_replace($delimeters, ',', $allowedTypes);
+            $tca['config']['allowedTypes'] = GeneralUtility::trimExplode(',', $allowedTypes, true);
         }
 
         return $this->mergeConfigurationToTca($tca);

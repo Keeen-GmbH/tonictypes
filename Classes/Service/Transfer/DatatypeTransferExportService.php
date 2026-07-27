@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -69,7 +70,7 @@ class DatatypeTransferExportService
             $fields = $payload['fields'] ?? [];
             usort(
                 $fields,
-                static fn(array $a, array $b): int => ((int)($a['sorting'] ?? 0)) <=> ((int)($b['sorting'] ?? 0))
+                static fn (array $a, array $b): int => ((int)($a['sorting'] ?? 0)) <=> ((int)($b['sorting'] ?? 0))
             );
             foreach ($fields as $fieldPayload) {
                 if (!is_array($fieldPayload)) {
@@ -293,7 +294,7 @@ class DatatypeTransferExportService
             ->executeQuery()
             ->fetchAllAssociative();
 
-        return array_map(static fn(array $row): int => (int)$row['uid_foreign'], $rows);
+        return array_map(static fn (array $row): int => (int)$row['uid_foreign'], $rows);
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -49,9 +50,9 @@ class RecordViewHelper extends AbstractRenderViewHelper
         $record = BackendUtility::getRecordWSOL($table, $uid);
 
         $string = '';
-        if(is_array($record) && !empty($record)) {
+        if (is_array($record) && !empty($record)) {
             $labelField = $GLOBALS['TCA'][$table]['ctrl']['label'];
-            $string .= $this->iconFactory->getIconForRecord($table,$record, GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13 ? Icon::SIZE_SMALL : IconSize::SMALL)->render();
+            $string .= $this->iconFactory->getIconForRecord($table, $record, GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13 ? Icon::SIZE_SMALL : IconSize::SMALL)->render();
             $string .= ' ';
             $string .= '['.$record['uid'].']'.' '.$record[$labelField];
         } else {

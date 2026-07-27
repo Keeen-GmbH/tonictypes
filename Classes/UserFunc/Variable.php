@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,6 +10,7 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\UserFunc;
 
 use K3n\Tonictypes\Service\FlexForm\FlexFormService;
@@ -58,13 +60,13 @@ class Variable
         $variables = $this->variableRepository->findByTypes($types);
 
         $options = [];
-        foreach($variables as $_variable) {
+        foreach ($variables as $_variable) {
             /* @var \K3n\Tonictypes\Domain\Model\Variable $_variable */
             $label = "[u:{$_variable->getUid()}|p:{$_variable->getPid()}] " . LocalizationUtility::translate("variable_type.{$_variable->getType()}") . " {{$_variable->getVariableName()}}";
             $value = $_variable->getVariableName();
             $options[] = [
                 'label' => $label,
-                'value' => $value
+                'value' => $value,
             ];
         }
 
@@ -78,7 +80,7 @@ class Variable
      */
     public function populateGetPostVariables(array &$config, &$parentObject): void
     {
-        $row = (isset($config['flexParentDatabaseRow']))?$config['flexParentDatabaseRow']:$config['row'];
+        $row = (isset($config['flexParentDatabaseRow'])) ? $config['flexParentDatabaseRow'] : $config['row'];
         if (is_array($row['pi_flexform'] ?? null)) {
             $flex = $row['pi_flexform'];
         } elseif (is_string($row['pi_flexform'] ?? null)) {
@@ -100,19 +102,19 @@ class Variable
         }
 
         $variables = [];
-        if(!empty($variableIds)) {
+        if (!empty($variableIds)) {
             $variables = $this->variableRepository->findByUids($variableIds);
         }
 
         /* @var \K3n\Tonictypes\Domain\Model\Variable $_variable */
         $options = [];
         foreach ($variables as $_variable) {
-            if($_variable->getType() == \K3n\Tonictypes\Domain\Model\Variable::VARIABLE_TYPE_GET ||
+            if ($_variable->getType() == \K3n\Tonictypes\Domain\Model\Variable::VARIABLE_TYPE_GET ||
                 $_variable->getType() == \K3n\Tonictypes\Domain\Model\Variable::VARIABLE_TYPE_POST) {
 
                 $options[] = [
                     'label' => '{'.$_variable->getVariableName().'}',
-                    'value' => $_variable->getUid()
+                    'value' => $_variable->getUid(),
                 ];
             }
         }

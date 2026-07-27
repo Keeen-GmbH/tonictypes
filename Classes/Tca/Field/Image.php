@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -12,8 +13,6 @@ declare(strict_types=1);
  */
 
 namespace K3n\Tonictypes\Tca\Field;
-
-use TYPO3\CMS\Core\Resource\File;
 
 class Image extends FileRelation
 {

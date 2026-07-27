@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -14,11 +15,10 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Domain\Model;
 
 use K3n\Tonictypes\Exception\TcaGeneratorException;
+use K3n\Tonictypes\Service\FlexForm\FlexFormService;
 use K3n\Tonictypes\Service\Settings\FieldSettingsService;
 use K3n\Tonictypes\Tca\AbstractField;
 use K3n\Tonictypes\Tca\FieldInterface;
-use K3n\Tonictypes\Utility\FieldtypeConfigurationUtility;
-use K3n\Tonictypes\Service\FlexForm\FlexFormService;
 use K3n\Tonictypes\Utility\StringUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
@@ -436,7 +436,7 @@ class Field extends AbstractModel
      */
     public function getCode(): string
     {
-        $text = ($this->variableName)?$this->variableName:$this->frontendLabel;
+        $text = ($this->variableName) ? $this->variableName : $this->frontendLabel;
         $code = StringUtility::createCodeFromString($text);
         return $code;
     }
@@ -661,8 +661,9 @@ class Field extends AbstractModel
     public function getFieldValueById(int $fieldValueId)
     {
         foreach ($this->fieldValues as $_fieldValue) {
-            if ($_fieldValue->getUid() == $fieldValueId)
+            if ($_fieldValue->getUid() == $fieldValueId) {
                 return $_fieldValue;
+            }
         }
 
         return false;
@@ -699,11 +700,11 @@ class Field extends AbstractModel
         $defaultValues = [];
         $fieldValues = clone $this->fieldValues;
 
-        foreach ($fieldValues as $_fieldValue)
-        {
+        foreach ($fieldValues as $_fieldValue) {
             /* @var \K3n\Tonictypes\Domain\Model\FieldValue $_fieldValue */
-            if ($_fieldValue->isDefault())
+            if ($_fieldValue->isDefault()) {
                 $defaultValues[] = $_fieldValue;
+            }
 
         }
 
@@ -849,7 +850,7 @@ class Field extends AbstractModel
             $this->config = array_merge($flexformConfig, $this->config);
         }
 
-        $confValue = ($this->config[$confValueName]??null);
+        $confValue = ($this->config[$confValueName] ?? null);
         return $confValue;
     }
 
@@ -968,7 +969,7 @@ class Field extends AbstractModel
     public function getForeignRecordDefaults(): array
     {
         $configuration = $this->getConfig('foreign_record_defaults');
-        if(!is_array($configuration)) {
+        if (!is_array($configuration)) {
             $configuration = [];
         }
 
@@ -977,8 +978,7 @@ class Field extends AbstractModel
         $recordDefaults = [];
         if (is_array($extracted) && count($extracted)) {
             $recordDefaults = [];
-            foreach ($extracted as $_def=>$_defVal)
-            {
+            foreach ($extracted as $_def => $_defVal) {
                 $recordDefaults['columns'][$_def] = [
                     'config' => [
                         'default' => $_defVal,

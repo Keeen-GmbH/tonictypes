@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,8 +14,8 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Form\Element;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Form\Element\UserElement as BackendFormUserElement;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class UserElement extends BackendFormUserElement
 {

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -18,14 +19,14 @@ class ConfigurationSessionService extends BackendSessionService
     /**
      * @var string
      */
-    protected $storageKey = "tx_tonictypes_configuration";
+    protected $storageKey = 'tx_tonictypes_configuration';
 
     /**
      * Session Key
      *
      * @var string
      */
-    const SESSION_KEY_CONFIGURATION = "tx-tonictypes-configuration";
+    public const SESSION_KEY_CONFIGURATION = 'tx-tonictypes-configuration';
 
     /**
      * Sets a configuration value

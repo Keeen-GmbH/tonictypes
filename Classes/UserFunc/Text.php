@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,10 +10,10 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\UserFunc;
 
 use K3n\Tonictypes\Domain\Model\Variable;
-use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Utility\LocalizationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -58,7 +59,7 @@ class Text
      */
     public function displayNothing(array &$config, &$parentObject)
     {
-        return "";
+        return '';
     }
 
     /**
@@ -70,7 +71,7 @@ class Text
      */
     public function displayNoConfigurationMessage(array &$config, &$parentObject)
     {
-        $message = LocalizationUtility::translate("message.this_field_has_no_configuration");
+        $message = LocalizationUtility::translate('message.this_field_has_no_configuration');
         return "<div class=\"message message-alert\">{$message}</div>";
     }
 
@@ -132,15 +133,17 @@ class Text
      */
     public function displayMessage(array &$config, &$parentObject)
     {
-        $message = "Error @ {$config["itemFormElName"]}";
+        $message = "Error @ {$config['itemFormElName']}";
 
-        $parameters = $config["parameters"];
-        if (isset($parameters["message"]))
-            $message = $parameters["message"];
+        $parameters = $config['parameters'];
+        if (isset($parameters['message'])) {
+            $message = $parameters['message'];
+        }
 
-        $severity = "danger";
-        if (isset($parameters["severity"]))
-            $severity = $parameters["severity"];
+        $severity = 'danger';
+        if (isset($parameters['severity'])) {
+            $severity = $parameters['severity'];
+        }
 
         return "<div class=\"alert alert-{$severity}\">{$message}</div>";
     }

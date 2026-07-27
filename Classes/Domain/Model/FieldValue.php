@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -22,10 +23,10 @@ class FieldValue extends AbstractModel
      *
      * @var string
      */
-    const TYPE_FIXED_VALUE		= 10;
-    const TYPE_DATABASE			= 20;
-    const TYPE_TYPOSCRIPT		= 30;
-    const TYPE_FIELDVALUES		= 40;
+    public const TYPE_FIXED_VALUE		= 10;
+    public const TYPE_DATABASE			= 20;
+    public const TYPE_TYPOSCRIPT		= 30;
+    public const TYPE_FIELDVALUES		= 40;
 
     /**
      * Selection of Value Type
@@ -103,7 +104,7 @@ class FieldValue extends AbstractModel
      *
      * @var \K3n\Tonictypes\Domain\Model\Field
      */
-    protected $field = NULL;
+    protected $field = null;
 
     /**
      * Returns the type
@@ -153,7 +154,7 @@ class FieldValue extends AbstractModel
     public function getValue()
     {
         $expl = GeneralUtility::trimExplode('|', $this->valueContent);
-        if(count($expl) >= 2) {
+        if (count($expl) >= 2) {
             return $expl[1];
         }
 
@@ -166,7 +167,7 @@ class FieldValue extends AbstractModel
     public function getLabel(): string
     {
         $expl = GeneralUtility::trimExplode('|', $this->valueContent);
-        if(count($expl) >= 2) {
+        if (count($expl) >= 2) {
             return (string)reset($expl);
         }
 

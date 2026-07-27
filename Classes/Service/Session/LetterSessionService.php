@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -20,15 +21,15 @@ class LetterSessionService extends SessionService
      *
      * @var string
      */
-    const SESSION_PREFIX_KEY = "tx-tonictypes-letter";
+    public const SESSION_PREFIX_KEY = 'tx-tonictypes-letter';
 
     /**
      * Session Keys
      *
      * @var string
      */
-    const SESSION_KEY_LETTER = "tx-tonictypes-letter-selection";
-    const SESSION_KEY_LETTER_FIELD = "tx-tonictypes-letter-field";
+    public const SESSION_KEY_LETTER = 'tx-tonictypes-letter-selection';
+    public const SESSION_KEY_LETTER_FIELD = 'tx-tonictypes-letter-field';
 
     /**
      * Sets the selected letter to the session

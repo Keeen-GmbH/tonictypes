@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -22,7 +23,6 @@ use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Reflection\ReflectionService;
 
-
 class ClassFactory implements SingletonInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
@@ -32,8 +32,8 @@ class ClassFactory implements SingletonInterface, LoggerAwareInterface
      *
      * @var string
      */
-    const DOMAIN_MODEL_TEMPLATE_FILE = "EXT:tonictypes/Resources/Private/Init/Record.php.phtml";
-    const DOMAIN_REPOSITORY_TEMPLATE_FILE = "EXT:tonictypes/Resources/Private/Init/RecordRepository.php.phtml";
+    public const DOMAIN_MODEL_TEMPLATE_FILE = 'EXT:tonictypes/Resources/Private/Init/Record.php.phtml';
+    public const DOMAIN_REPOSITORY_TEMPLATE_FILE = 'EXT:tonictypes/Resources/Private/Init/RecordRepository.php.phtml';
 
     /**
      * Reflection Service
@@ -66,10 +66,10 @@ class ClassFactory implements SingletonInterface, LoggerAwareInterface
         $className = $datatype->getClassName();
 
         $variables = [
-            "className" => $className,
-            "classValid" => $this->classValid($datatype),
-            "datatype"  => $datatype,
-            "fileName" => $classTemplateFile,
+            'className' => $className,
+            'classValid' => $this->classValid($datatype),
+            'datatype'  => $datatype,
+            'fileName' => $classTemplateFile,
         ];
 
         return $standaloneView->renderSection('class', $variables);

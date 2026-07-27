@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -23,83 +24,83 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
 class Datatype extends AbstractModel
 {
-	/**
-	 * Datatype Name
-	 *
-	 * @var string
-	 * @TYPO3\CMS\Extbase\Annotation\Validate(validator="NotEmpty")
-	 */
-	protected $name = '';
+    /**
+     * Datatype Name
+     *
+     * @var string
+     * @TYPO3\CMS\Extbase\Annotation\Validate(validator="NotEmpty")
+     */
+    protected $name = '';
 
-	/**
-	 * Datatype Description. Will be showed when creating a new record.
-	 *
-	 * @var string
-	 */
-	protected $description = '';
+    /**
+     * Datatype Description. Will be showed when creating a new record.
+     *
+     * @var string
+     */
+    protected $description = '';
 
-	/**
-	 * Datatype Icon
-	 *
-	 * @var string
-	 */
-	protected $icon = '';
+    /**
+     * Datatype Icon
+     *
+     * @var string
+     */
+    protected $icon = '';
 
-	/**
-	 * Default Template File for this Datatype
-	 *
-	 * @var string
-	 */
-	protected $templatefile = '';
+    /**
+     * Default Template File for this Datatype
+     *
+     * @var string
+     */
+    protected $templatefile = '';
 
-	/**
-	 * Background Color for the Datatype
-	 *
-	 * @var string
-	 */
-	protected $color = '';
+    /**
+     * Background Color for the Datatype
+     *
+     * @var string
+     */
+    protected $color = '';
 
-	/**
-	 * Hide Records of this type in the backend
-	 *
-	 * @var bool
-	 */
-	protected $hideRecords = false;
+    /**
+     * Hide Records of this type in the backend
+     *
+     * @var bool
+     */
+    protected $hideRecords = false;
 
-	/**
-	 * Hide Add Button in the backend
-	 *
-	 * @var bool
-	 */
-	protected $hideAdd = false;
+    /**
+     * Hide Add Button in the backend
+     *
+     * @var bool
+     */
+    protected $hideAdd = false;
 
-	/**
-	 * Datatype - Field Relations
-	 *
-	 * @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\K3n\Tonictypes\Domain\Model\Field>
-	 */
-	protected $fields = NULL;
+    /**
+     * Datatype - Field Relations
+     *
+     * @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\K3n\Tonictypes\Domain\Model\Field>
+     */
+    protected $fields = null;
 
-	/**
-	 * Tab Configuration
-	 *
-	 * @var string
-	 */
-	protected $tabConfig = '';
+    /**
+     * Tab Configuration
+     *
+     * @var string
+     */
+    protected $tabConfig = '';
 
-	/**
-	 * Title Divider
-	 *
-	 * @var string
-	 */
-	protected $titleDivider = ' ';
+    /**
+     * Title Divider
+     *
+     * @var string
+     */
+    protected $titleDivider = ' ';
 
     /**
      * Table Name
      *
      * @var string
      */
-	protected $tablename = '';
+    protected $tablename = '';
 
     /**
      * Disable 'General' Tab
@@ -127,47 +128,47 @@ class Datatype extends AbstractModel
      */
     protected $cacheTca = true;
 
-	/**
-	 * __construct
-	 */
-	public function __construct()
-	{
-	    parent::__construct();
-		//Do not remove the next line: It would break the functionality
-		$this->initStorageObjects();
-	}
+    /**
+     * __construct
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        //Do not remove the next line: It would break the functionality
+        $this->initStorageObjects();
+    }
 
-	/**
-	 * Initializes all ObjectStorage properties
-	 * Do not modify this method!
-	 * It will be rewritten on each save in the extension builder
-	 * You may modify the constructor of this class instead
-	 *
-	 * @return void
-	 */
-	protected function initStorageObjects(): void
-	{
-		$this->fields = new ObjectStorage();
-	}
+    /**
+     * Initializes all ObjectStorage properties
+     * Do not modify this method!
+     * It will be rewritten on each save in the extension builder
+     * You may modify the constructor of this class instead
+     *
+     * @return void
+     */
+    protected function initStorageObjects(): void
+    {
+        $this->fields = new ObjectStorage();
+    }
 
-	/**
-	 * Returns the name
-	 *
-	 * @return string $name
-	 */
-	public function getName(): string
-	{
-		return $this->name;
-	}
+    /**
+     * Returns the name
+     *
+     * @return string $name
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
     /**
      * Gets an instance of the according repository
      * @return AbstractRepository|null
      */
-	public function getRepository(): ?AbstractRepository
+    public function getRepository(): ?AbstractRepository
     {
         $repositoryClassName = $this->getFullyQualifiedRepositoryClassName();
-        if(class_exists($repositoryClassName) && $repositoryClassName != '') {
+        if (class_exists($repositoryClassName) && $repositoryClassName != '') {
             try {
                 $repository = GeneralUtility::makeInstance($repositoryClassName);
             } catch (\Exception $e) {
@@ -177,7 +178,7 @@ class Datatype extends AbstractModel
 
                 return null;
             }
-            if($repository instanceof AbstractRepository) {
+            if ($repository instanceof AbstractRepository) {
                 return $repository;
             }
         }
@@ -191,16 +192,16 @@ class Datatype extends AbstractModel
      * @param string $domain
      * @return string
      */
-	protected function _getNamespace(string $domain = 'Model'): string
+    protected function _getNamespace(string $domain = 'Model'): string
     {
         $parts = $this->_getNamespaceParts();
         // Remove last element from parts
-        unset($parts[count($parts)-1]);
+        unset($parts[count($parts) - 1]);
         $namespace = 'K3n\\Tonictypes\\Domain\\'.$domain.'\\Record\\';
-        $namespace.=implode('\\', $parts);
+        $namespace .= implode('\\', $parts);
 
         if (count($parts)) {
-            $namespace.='\\';
+            $namespace .= '\\';
         }
 
         return $namespace;
@@ -214,8 +215,8 @@ class Datatype extends AbstractModel
      */
     protected function _getNamespaceParts(): array
     {
-        $partName = str_replace('tx_tonictypes_domain_model_record_','',$this->tablename);
-        $parts = GeneralUtility::trimExplode("_", $partName);
+        $partName = str_replace('tx_tonictypes_domain_model_record_', '', $this->tablename);
+        $parts = GeneralUtility::trimExplode('_', $partName);
         return array_map('ucfirst', $parts);
     }
 
@@ -225,7 +226,7 @@ class Datatype extends AbstractModel
      *
      * @return string
      */
-	public function getClassName(): string
+    public function getClassName(): string
     {
         $parts = $this->_getNamespaceParts();
         return end($parts);
@@ -259,7 +260,7 @@ class Datatype extends AbstractModel
      */
     public function getFullyQualifiedClassName(): string
     {
-       return $this->getModelNamespace() . '\\' . $this->getClassName();
+        return $this->getModelNamespace() . '\\' . $this->getClassName();
     }
 
     /**
@@ -292,7 +293,7 @@ class Datatype extends AbstractModel
      */
     public function getRepositoryFilePath(): string
     {
-        return $this->_generateFilePath('EXT:tonictypes/Classes/Domain/Repository/Record/','Repository');
+        return $this->_generateFilePath('EXT:tonictypes/Classes/Domain/Repository/Record/', 'Repository');
     }
 
     /**
@@ -307,272 +308,275 @@ class Datatype extends AbstractModel
     {
         $parts = $this->_getNamespaceParts();
         $filename = end($parts) . $suffix .'.php';
-        unset($parts[count($parts)-1]);
-        $path=$prefix.implode('/', $parts);
+        unset($parts[count($parts) - 1]);
+        $path = $prefix.implode('/', $parts);
 
         if (count($parts)) {
-            $path.='/';
+            $path .= '/';
         }
 
         return $path.$filename;
     }
 
-	/**
-	 * Sets the name
-	 *
-	 * @param string $name
-	 * @return void
-	 */
-	public function setName(string $name): void
-	{
-		$this->name = $name;
-	}
+    /**
+     * Sets the name
+     *
+     * @param string $name
+     * @return void
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
 
-	/**
-	 * Returns the description
-	 *
-	 * @return string $description
-	 */
-	public function getDescription(): string
-	{
-		return $this->description;
-	}
-
-	/**
-	 * Sets the description
-	 *
-	 * @param string $description
-	 * @return void
-	 */
-	public function setDescription(string $description): string
-	{
-		$this->description = $description;
+    /**
+     * Returns the description
+     *
+     * @return string $description
+     */
+    public function getDescription(): string
+    {
         return $this->description;
-	}
+    }
 
-	/**
-	 * Returns the icon
-	 *
-	 * @return string $icon
-	 */
-	public function getIcon(): string
-	{
-		return $this->icon;
-	}
+    /**
+     * Sets the description
+     *
+     * @param string $description
+     * @return void
+     */
+    public function setDescription(string $description): string
+    {
+        $this->description = $description;
+        return $this->description;
+    }
 
-	/**
-	 * Sets the icon
-	 *
-	 * @param string $icon
-	 * @return void
-	 */
-	public function setIcon(string $icon): void
-	{
-		$this->icon = $icon;
-	}
+    /**
+     * Returns the icon
+     *
+     * @return string $icon
+     */
+    public function getIcon(): string
+    {
+        return $this->icon;
+    }
 
-	/**
-	 * Gets an information string about this datatype
-	 *
-	 * @return string
-	 */
-	public function getInfo(): string
-	{
-		$info = "";
-		if ($this->getUid())
-			$info .= "[{$this->getUid()}] ";
+    /**
+     * Sets the icon
+     *
+     * @param string $icon
+     * @return void
+     */
+    public function setIcon(string $icon): void
+    {
+        $this->icon = $icon;
+    }
 
-		$info .= $this->getName();
+    /**
+     * Gets an information string about this datatype
+     *
+     * @return string
+     */
+    public function getInfo(): string
+    {
+        $info = '';
+        if ($this->getUid()) {
+            $info .= "[{$this->getUid()}] ";
+        }
 
-		return $info;
-	}
+        $info .= $this->getName();
 
-	/**
-	 * Gets the color
-	 *
-	 * @return string
-	 */
-	public function getColor(): string
-	{
-		return $this->color;
-	}
+        return $info;
+    }
 
-	/**
-	 * Sets the color for the datatype
-	 *
-	 * @param string $color
-	 * @return void
-	 */
-	public function setColor(string $color): void
-	{
-		$this->color = $color;
-	}
+    /**
+     * Gets the color
+     *
+     * @return string
+     */
+    public function getColor(): string
+    {
+        return $this->color;
+    }
 
-	/**
-	 * Gets the setting to hide
-	 * records of this type in
-	 * the backend
-	 *
-	 * @return bool
-	 */
-	public function getHideRecords(): bool
-	{
-		return $this->hideRecords;
-	}
+    /**
+     * Sets the color for the datatype
+     *
+     * @param string $color
+     * @return void
+     */
+    public function setColor(string $color): void
+    {
+        $this->color = $color;
+    }
 
-	/**
-	 * Sets the configuration to hide backend
-	 * records of this type
-	 *
-	 * @param bool $hideRecords
-	 * @return void
-	 */
-	public function setHideRecords(bool $hideRecords = true): void
-	{
-		$this->hideRecords = $hideRecords;
-	}
+    /**
+     * Gets the setting to hide
+     * records of this type in
+     * the backend
+     *
+     * @return bool
+     */
+    public function getHideRecords(): bool
+    {
+        return $this->hideRecords;
+    }
 
-	/**
-	 * Gets the configuration to hide the
-	 * add button in the backend
-	 *
-	 * @return bool
-	 */
-	public function getHideAdd(): bool
-	{
-		return $this->hideAdd;
-	}
+    /**
+     * Sets the configuration to hide backend
+     * records of this type
+     *
+     * @param bool $hideRecords
+     * @return void
+     */
+    public function setHideRecords(bool $hideRecords = true): void
+    {
+        $this->hideRecords = $hideRecords;
+    }
 
-	/**
-	 * Sets the configuration to hide the add button
-	 * in the backend
-	 *
-	 * @param bool $hideAdd
-	 * @return void
-	 */
-	public function setHideAdd(bool $hideAdd = true): void
-	{
-		$this->hideAdd = $hideAdd;
-	}
+    /**
+     * Gets the configuration to hide the
+     * add button in the backend
+     *
+     * @return bool
+     */
+    public function getHideAdd(): bool
+    {
+        return $this->hideAdd;
+    }
 
-	/**
-	 * Adds a Field
-	 *
-	 * @param Field $field
-	 * @return void
-	 */
-	public function addField(Field $field): void
-	{
-		$this->fields->attach($field);
-	}
+    /**
+     * Sets the configuration to hide the add button
+     * in the backend
+     *
+     * @param bool $hideAdd
+     * @return void
+     */
+    public function setHideAdd(bool $hideAdd = true): void
+    {
+        $this->hideAdd = $hideAdd;
+    }
 
-	/**
-	 * Removes a Field
-	 *
-	 * @param Field $fieldToRemove The Field to be removed
-	 * @return void
-	 */
-	public function removeField(Field $fieldToRemove): void
-	{
-		$this->fields->detach($fieldToRemove);
-	}
+    /**
+     * Adds a Field
+     *
+     * @param Field $field
+     * @return void
+     */
+    public function addField(Field $field): void
+    {
+        $this->fields->attach($field);
+    }
 
-	/**
-	 * Returns the fields
-	 *
-	 * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\K3n\Tonictypes\Domain\Model\Field> $fields
-	 */
-	public function getFields(): ObjectStorage
-	{
-		return $this->fields;
-	}
+    /**
+     * Removes a Field
+     *
+     * @param Field $fieldToRemove The Field to be removed
+     * @return void
+     */
+    public function removeField(Field $fieldToRemove): void
+    {
+        $this->fields->detach($fieldToRemove);
+    }
 
-	/**
-	 * Gets an array with all fields, sorted
-	 * by type
-	 *
-	 * @return array
-	 */
-	public function getSortedFields(): array
-	{
-		$sortArr = [];
-		$fields = $this->fields;
+    /**
+     * Returns the fields
+     *
+     * @return \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\K3n\Tonictypes\Domain\Model\Field> $fields
+     */
+    public function getFields(): ObjectStorage
+    {
+        return $this->fields;
+    }
 
-		foreach ($fields as $_field)
-			$sortArr[$_field->getType()][] = $_field;
+    /**
+     * Gets an array with all fields, sorted
+     * by type
+     *
+     * @return array
+     */
+    public function getSortedFields(): array
+    {
+        $sortArr = [];
+        $fields = $this->fields;
 
-		asort($sortArr);
+        foreach ($fields as $_field) {
+            $sortArr[$_field->getType()][] = $_field;
+        }
 
-		return $sortArr;
-	}
+        asort($sortArr);
 
-	/**
-	 * Gets the fields as an approachable
-	 * array
-	 *
-	 * @return array
-	 */
-	public function getApproachableFields(): array
-	{
-		$approachable = [];
+        return $sortArr;
+    }
 
-		$fields = $this->fields;
-		foreach ($fields as $_field)
-			$approachable[$_field->getCode()] = $_field;
+    /**
+     * Gets the fields as an approachable
+     * array
+     *
+     * @return array
+     */
+    public function getApproachableFields(): array
+    {
+        $approachable = [];
 
-		return $approachable;
-	}
+        $fields = $this->fields;
+        foreach ($fields as $_field) {
+            $approachable[$_field->getCode()] = $_field;
+        }
 
-	/**
-	 * Sets the fields
-	 *
-	 * @param \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\K3n\Tonictypes\Domain\Model\Field> $fields
-	 * @return void
-	 */
-	public function setFields(ObjectStorage $fields): void
-	{
-		$this->fields = $fields;
-	}
+        return $approachable;
+    }
 
-	/**
-	 * Checks if the datatype has fields
-	 *
-	 * @return int
-	 */
-	public function hasFields(): int
-	{
-		return $this->fields != null ? (count($this->fields)) : 0;
-	}
+    /**
+     * Sets the fields
+     *
+     * @param \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\K3n\Tonictypes\Domain\Model\Field> $fields
+     * @return void
+     */
+    public function setFields(ObjectStorage $fields): void
+    {
+        $this->fields = $fields;
+    }
 
-	/**
-	 * Gets the title divider
-	 *
-	 * @return string
-	 */
-	public function getTitleDivider(): string
-	{
-		return str_replace("(SPACE)", " ", $this->titleDivider);
-	}
+    /**
+     * Checks if the datatype has fields
+     *
+     * @return int
+     */
+    public function hasFields(): int
+    {
+        return $this->fields != null ? (count($this->fields)) : 0;
+    }
 
-	/**
-	 * Sets the title divider
-	 *
-	 * @param string $titleDivider
-	 * @return void
-	 */
-	public function setTitleDivider(string $titleDivider): void
-	{
-		$this->titleDivider = $titleDivider;
-	}
+    /**
+     * Gets the title divider
+     *
+     * @return string
+     */
+    public function getTitleDivider(): string
+    {
+        return str_replace('(SPACE)', ' ', $this->titleDivider);
+    }
 
-	/**
-	 * Checks if the datatype has a field
-	 *
-	 * @param Field $field
-	 * @return bool
-	 */
-	public function hasField(Field $field): bool
-	{
+    /**
+     * Sets the title divider
+     *
+     * @param string $titleDivider
+     * @return void
+     */
+    public function setTitleDivider(string $titleDivider): void
+    {
+        $this->titleDivider = $titleDivider;
+    }
+
+    /**
+     * Checks if the datatype has a field
+     *
+     * @param Field $field
+     * @return bool
+     */
+    public function hasField(Field $field): bool
+    {
         foreach ($this->getFields() as $_field) {
             if ($_field->getUid() == $field->getUid()) {
                 return true;
@@ -580,22 +584,24 @@ class Datatype extends AbstractModel
         }
 
         return false;
-	}
+    }
 
-	/**
-	 * Gets a field by id
-	 *
-	 * @param int $fieldId
-	 * @return null|Field
-	 */
-	public function getFieldById(int $fieldId): ?Field
-	{
-		foreach ($this->fields as $_field)
-			if ($_field->getUid() == $fieldId)
-				return $_field;
+    /**
+     * Gets a field by id
+     *
+     * @param int $fieldId
+     * @return null|Field
+     */
+    public function getFieldById(int $fieldId): ?Field
+    {
+        foreach ($this->fields as $_field) {
+            if ($_field->getUid() == $fieldId) {
+                return $_field;
+            }
+        }
 
-		return null;
-	}
+        return null;
+    }
 
     /**
      * Gets a field by variable name
@@ -605,30 +611,33 @@ class Datatype extends AbstractModel
      */
     public function getFieldByVariableName(string $variableName): ?Field
     {
-        foreach ($this->fields as $_field)
-            if ($_field->getVariableName() == $variableName)
+        foreach ($this->fields as $_field) {
+            if ($_field->getVariableName() == $variableName) {
                 return $_field;
+            }
+        }
 
         return null;
     }
 
-	/**
-	 * Determines if the record has an title field
-	 * or needs to use its own title
-	 *
-	 * @return bool
-	 */
-	public function getHasTitleField(): bool
-	{
-		$fields = $this->getFields();
-		foreach ($fields as $_field) {
-			/* @var Field $_field */
-			if ($_field->getIsRecordTitle())
-				return true;
-		}
+    /**
+     * Determines if the record has an title field
+     * or needs to use its own title
+     *
+     * @return bool
+     */
+    public function getHasTitleField(): bool
+    {
+        $fields = $this->getFields();
+        foreach ($fields as $_field) {
+            /* @var Field $_field */
+            if ($_field->getIsRecordTitle()) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
     /**
      * Gets the table name
@@ -724,50 +733,50 @@ class Datatype extends AbstractModel
 
 
 
-	/**
-	 * Sets the tab configuration
-	 *
-	 * @param string $tabConfig
-	 * @return void
-	 */
-	public function setTabConfig(string $tabConfig): void
-	{
-		$this->tabConfig = $tabConfig;
-	}
+    /**
+     * Sets the tab configuration
+     *
+     * @param string $tabConfig
+     * @return void
+     */
+    public function setTabConfig(string $tabConfig): void
+    {
+        $this->tabConfig = $tabConfig;
+    }
 
-	/**
-	 * Gets the tab configuration
-	 *
-	 * @return string
-	 */
-	public function getTabConfig(): string
-	{
-		return $this->tabConfig;
-	}
+    /**
+     * Gets the tab configuration
+     *
+     * @return string
+     */
+    public function getTabConfig(): string
+    {
+        return $this->tabConfig;
+    }
 
     /**
      * @return string
      */
-	public function getTabConfiguration(): string
+    public function getTabConfiguration(): string
     {
-        $generalConfig = "";
-        $tabConfig = "";
+        $generalConfig = '';
+        $tabConfig = '';
         $tabConfigurationArray = $this->getTabConfigurationArray();
 
         if (!$this->getDisableGeneralTab()) {
-            $generalConfig .= "--div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,";
-            if(!$this->getHasTitleField()) {
-                $generalConfig.="title,";
+            $generalConfig .= '--div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,';
+            if (!$this->getHasTitleField()) {
+                $generalConfig .= 'title,';
             }
         }
 
         // Use tab configuration for the rest of the fields
         $usedFieldIds = [];
-        foreach ($tabConfigurationArray as $_tabId=>$_tabConfig) {
-            $tabLabel = $_tabConfig["label"];
-            $tabFields = $_tabConfig["fields"];
-            $usedFieldIds = array_merge($usedFieldIds,$_tabConfig["fieldIds"]);
-                $tabConfig .= "--div--;{$tabLabel},{$tabFields},";
+        foreach ($tabConfigurationArray as $_tabId => $_tabConfig) {
+            $tabLabel = $_tabConfig['label'];
+            $tabFields = $_tabConfig['fields'];
+            $usedFieldIds = array_merge($usedFieldIds, $_tabConfig['fieldIds']);
+            $tabConfig .= "--div--;{$tabLabel},{$tabFields},";
         }
 
         $usedFieldIds = array_unique($usedFieldIds);
@@ -775,7 +784,7 @@ class Datatype extends AbstractModel
         // Get all fields that are not assigned to tabs
         $fields = $this->getFields();
         foreach ($fields as $_field) {
-            if ($_field->getPalette() == "") {
+            if ($_field->getPalette() == '') {
                 if (!in_array($_field->getUid(), $usedFieldIds)) {
                     $generalConfig .= "{$_field->getCode()},";
                 }
@@ -785,35 +794,35 @@ class Datatype extends AbstractModel
         return $generalConfig.$tabConfig;
     }
 
-	/**
-	 * Gets the complete tab configuration array
-	 *
-	 * @return array
-	 */
-	public function getTabConfigurationArray(): array
-	{
-		$tabConfig = $this->getTabConfig();
+    /**
+     * Gets the complete tab configuration array
+     *
+     * @return array
+     */
+    public function getTabConfigurationArray(): array
+    {
+        $tabConfig = $this->getTabConfig();
         $flexformService = GeneralUtility::makeInstance(FlexFormService::class);
-		$flexformConfig = $flexformService->convertFlexFormContentToArray($tabConfig);
+        $flexformConfig = $flexformService->convertFlexFormContentToArray($tabConfig);
 
-		$configArray = [];
-		if (isset($flexformConfig["field"]) && is_array($flexformConfig["field"])) {
-            foreach ($flexformConfig["field"] as $_id => $_tab) {
-                $tab = $_tab["tab"];
-                $label = $tab["tab_name"];
+        $configArray = [];
+        if (isset($flexformConfig['field']) && is_array($flexformConfig['field'])) {
+            foreach ($flexformConfig['field'] as $_id => $_tab) {
+                $tab = $_tab['tab'];
+                $label = $tab['tab_name'];
 
-                if (str_starts_with($label, "LLL:")) {
+                if (str_starts_with($label, 'LLL:')) {
                     $label = LocalizationUtility::translate($label);
                 }
 
-                $icon = (array_key_exists('tab_icon', $tab))?$tab['tab_icon']:'';
-                $colorCss = (isset($tab["tab_icon_color"])) ? " style=\"color:{$tab["tab_icon_color"]}\"" : "";
+                $icon = (array_key_exists('tab_icon', $tab)) ? $tab['tab_icon'] : '';
+                $colorCss = (isset($tab['tab_icon_color'])) ? " style=\"color:{$tab['tab_icon_color']}\"" : '';
 
                 if ($icon != '') {
                     $icon = "<span class=\"icon-unify\"{$colorCss}><i class=\"fa {$icon}\"></i></span>";
                 }
 
-                $fields = GeneralUtility::trimExplode(",", $tab["tab_fields"]);
+                $fields = GeneralUtility::trimExplode(',', $tab['tab_fields']);
 
                 if (count($fields)) {
                     $assignedFields = [];
@@ -832,20 +841,20 @@ class Datatype extends AbstractModel
                         }
                     }
 
-                    $fieldsStr = implode(",", $assignedFields);
+                    $fieldsStr = implode(',', $assignedFields);
 
                     $configArray[$_id] = [
-                        "label" => $label,
-                        "fields" => $fieldsStr,
-                        "fieldIds" => $fields,
-                        "containsPalette" => $containsPalette,
+                        'label' => $label,
+                        'fields' => $fieldsStr,
+                        'fieldIds' => $fields,
+                        'containsPalette' => $containsPalette,
                     ];
 
                 }
             }
         }
-		return $configArray;
-	}
+        return $configArray;
+    }
 
     /**
      * Gets palettes information
@@ -853,7 +862,7 @@ class Datatype extends AbstractModel
      *
      * @return array
      */
-	public function getPalettes(): array
+    public function getPalettes(): array
     {
         $palettes = [];
         $fields = $this->getFields();
@@ -861,7 +870,7 @@ class Datatype extends AbstractModel
         foreach ($fields as $_field) {
             /* @var Field $_field */
             $palette = $_field->getPalette();
-            if (trim($palette) != "") {
+            if (trim($palette) != '') {
                 $palettes[$palette][] = $_field->getCode();
             }
         }

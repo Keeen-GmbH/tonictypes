@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,8 +14,8 @@ use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
 use K3n\Tonictypes\Domain\Repository\FieldRepository;
 use K3n\Tonictypes\Factory\ClassFactory;
 use K3n\Tonictypes\Factory\TableFactory;
-use K3n\Tonictypes\Icon\TonictypesIconRegistry;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
+use K3n\Tonictypes\Icon\TonictypesIconRegistry;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -322,7 +323,7 @@ class DatatypeRecordTableMigrationService
             ->executeQuery()
             ->fetchAllAssociative();
 
-        return array_map(static fn(array $row): int => (int)$row['uid_foreign'], $rows);
+        return array_map(static fn (array $row): int => (int)$row['uid_foreign'], $rows);
     }
 
     private function writeTcaPhpFile(Datatype $datatype, string $tableName): string
@@ -382,7 +383,7 @@ class DatatypeRecordTableMigrationService
         );
         $keys = array_keys($typeiconClasses);
         $values = array_map(
-            static fn(string $value): string => 'extensions-tonictypes-' . $value,
+            static fn (string $value): string => 'extensions-tonictypes-' . $value,
             $keys
         );
         $icons = array_combine($keys, $values) ?: [];

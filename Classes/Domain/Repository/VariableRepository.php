@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -26,12 +27,12 @@ class VariableRepository extends AbstractRepository
      */
     public function findByType(string $type): QueryResultInterface
     {
-		$query = $this->createQueryWithSettings(true,false,false);
+        $query = $this->createQueryWithSettings(true, false, false);
 
-		return $query->matching(
-			$query->equals('type', $type)
-		)->execute();
-	}
+        return $query->matching(
+            $query->equals('type', $type)
+        )->execute();
+    }
 
     /**
      * Find Variables by given storage pids
@@ -41,9 +42,9 @@ class VariableRepository extends AbstractRepository
      */
     public function findByStoragePids(array $storagePids): QueryResultInterface
     {
-		$query = $this->createQueryWithSettings(false, false, true, $storagePids);
-		return $query->execute();
-	}
+        $query = $this->createQueryWithSettings(false, false, true, $storagePids);
+        return $query->execute();
+    }
 
     /**
      * Find Variables by types
@@ -53,7 +54,7 @@ class VariableRepository extends AbstractRepository
      */
     public function findByTypes(array $types): QueryResultInterface
     {
-        $query = $this->createQueryWithSettings(true,false,false);
+        $query = $this->createQueryWithSettings(true, false, false);
 
         return $query->matching(
             $query->in('type', $types)

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,6 +10,7 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\UserFunc;
 
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
@@ -19,94 +21,94 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class Datatype
 {
-	/**
-	 * Datatype Repository
-	 * @var DatatypeRepository
-	 */
-	protected $datatypeRepository;
+    /**
+     * Datatype Repository
+     * @var DatatypeRepository
+     */
+    protected $datatypeRepository;
 
     /**
      * Table Factory
      * @var TableFactory
      */
-	protected $tableFactory;
+    protected $tableFactory;
 
     /**
      * Tonictypes Icon Registry
      * @var TonictypesIconRegistry
      */
-	protected $dvIconRegistry;
+    protected $dvIconRegistry;
 
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		$this->datatypeRepository	= GeneralUtility::makeInstance(DatatypeRepository::class);
-	    $this->tableFactory         = GeneralUtility::makeInstance(TableFactory::class);
-	    $this->dvIconRegistry       = GeneralUtility::makeInstance(TonictypesIconRegistry::class);
-	}
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->datatypeRepository	= GeneralUtility::makeInstance(DatatypeRepository::class);
+        $this->tableFactory         = GeneralUtility::makeInstance(TableFactory::class);
+        $this->dvIconRegistry       = GeneralUtility::makeInstance(TonictypesIconRegistry::class);
+    }
 
-	/**
-	 * Populate datatypes
-	 * @param array $config Configuration Array
-	 * @param mixed $parentObject Parent Object
-	 * @return void
-	 */
-	public function populateDatatypesAction(array &$config, &$parentObject): void
-	{
-		$pageId = (int)$config['flexParentDatabaseRow']['pid'];
+    /**
+     * Populate datatypes
+     * @param array $config Configuration Array
+     * @param mixed $parentObject Parent Object
+     * @return void
+     */
+    public function populateDatatypesAction(array &$config, &$parentObject): void
+    {
+        $pageId = (int)$config['flexParentDatabaseRow']['pid'];
 
-		$options = [];
-		$usedIds = [];
+        $options = [];
+        $usedIds = [];
 
         $request = $GLOBALS['TYPO3_REQUEST'];
         $queryParams = $request->getQueryParams();
         if (!empty($queryParams['datatype'])) {
-			$dId = (int)$queryParams['datatype'];
-			$datatype = $this->datatypeRepository->findByUid($dId, false);
-			$icon = IconUtility::getIconByHash($datatype->getIcon());
-			$options[] = [
+            $dId = (int)$queryParams['datatype'];
+            $datatype = $this->datatypeRepository->findByUid($dId, false);
+            $icon = IconUtility::getIconByHash($datatype->getIcon());
+            $options[] = [
                 'label' => $datatype->getInfo(),
                 'value' => $datatype->getUid(),
-                $icon
+                $icon,
             ];
-		} else {
-			$options[] = [
+        } else {
+            $options[] = [
                 'label' => '',
                 'value' => '',
             ];
-		}
+        }
 
-		$datatypesLocalPage = $this->datatypeRepository->findAllOnPid($pageId);
-		if ($datatypesLocalPage->count()) {
-			$options[] = [
+        $datatypesLocalPage = $this->datatypeRepository->findAllOnPid($pageId);
+        if ($datatypesLocalPage->count()) {
+            $options[] = [
                 'label' => Locale::translate('on_this_page'),
-                'value' => '--div--'
+                'value' => '--div--',
             ];
 
-			foreach ($datatypesLocalPage as $_datatype) {
-				/* @var \K3n\Tonictypes\Domain\Model\Datatype $_datatype */
-				$icon = $this->dvIconRegistry->getIconByHash($_datatype->getIcon());
-				$options[] = [
+            foreach ($datatypesLocalPage as $_datatype) {
+                /* @var \K3n\Tonictypes\Domain\Model\Datatype $_datatype */
+                $icon = $this->dvIconRegistry->getIconByHash($_datatype->getIcon());
+                $options[] = [
                     'label' => $_datatype->getInfo(),
                     'value' => $_datatype->getUid(),
-                    $icon
+                    $icon,
                 ];
-				$usedIds[] = $_datatype->getUid();
-			}
-		}
+                $usedIds[] = $_datatype->getUid();
+            }
+        }
 
-		$datatypesOtherPages = $this->datatypeRepository->findAll(false);
+        $datatypesOtherPages = $this->datatypeRepository->findAll(false);
 
-		if ($datatypesOtherPages->count()) {
-			$headerSet = false;
-			foreach ($datatypesOtherPages as $_datatype) {
+        if ($datatypesOtherPages->count()) {
+            $headerSet = false;
+            foreach ($datatypesOtherPages as $_datatype) {
                 if ($_datatype->getPid() !== $pageId && !in_array($_datatype->getUid(), $usedIds)) {
                     if ($headerSet === false) {
                         $options[] = [
                             'label' => Locale::translate('on_other_pages'),
-                            'value' => '--div--'
+                            'value' => '--div--',
                         ];
                         $headerSet = true;
                     }
@@ -116,18 +118,18 @@ class Datatype
                     $options[] = [
                         'label' => $_datatype->getInfo(),
                         'value' => $_datatype->getUid(),
-                        $icon
+                        $icon,
                     ];
                 }
-			}
-		}
+            }
+        }
 
-		if (is_array($config['items'])) {
+        if (is_array($config['items'])) {
             $config['items'] = array_merge($config['items'], $options);
         } else {
             $config['items'] = $options;
         }
-	}
+    }
 
     /**
      * Assume tablename

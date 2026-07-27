@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -15,20 +16,19 @@ namespace K3n\Tonictypes\ViewHelpers;
 
 use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
 
-
 abstract class AbstractViewHelper extends \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper
 {
-	/**
-	 * Plugin Settings Service
-	 *
-	 * @var PluginSettingsService
-	 */
-	protected $pluginSettingsService;
+    /**
+     * Plugin Settings Service
+     *
+     * @var PluginSettingsService
+     */
+    protected $pluginSettingsService;
 
     /**
      * @param PluginSettingsService $pluginSettingsService
      */
-	public function injectPluginSettingsService(PluginSettingsService $pluginSettingsService)
+    public function injectPluginSettingsService(PluginSettingsService $pluginSettingsService)
     {
         $this->pluginSettingsService = $pluginSettingsService;
     }

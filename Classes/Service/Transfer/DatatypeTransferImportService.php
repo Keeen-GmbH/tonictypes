@@ -1,7 +1,8 @@
 <?php
+
 declare(strict_types=1);
 /*
- * This file is part of the package k3n/tonictypes. 
+ * This file is part of the package k3n/tonictypes.
  */
 
 namespace K3n\Tonictypes\Service\Transfer;
@@ -9,9 +10,9 @@ namespace K3n\Tonictypes\Service\Transfer;
 use K3n\Tonictypes\Configuration\ExtensionConfiguration;
 use K3n\Tonictypes\Utility\LocalizationUtility;
 use Symfony\Component\Yaml\Yaml;
-use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -162,7 +163,7 @@ class DatatypeTransferImportService
             $fields = $payload['fields'] ?? [];
             usort(
                 $fields,
-                static fn(array $a, array $b): int => ((int)($a['sorting'] ?? 0)) <=> ((int)($b['sorting'] ?? 0))
+                static fn (array $a, array $b): int => ((int)($a['sorting'] ?? 0)) <=> ((int)($b['sorting'] ?? 0))
             );
             $datatypes[$exportKey]['fields'] = $fields;
             $datatypes[$exportKey]['datatype']['exportKey'] = (string)($datatypes[$exportKey]['datatype']['exportKey'] ?? $exportKey);
@@ -831,7 +832,7 @@ class DatatypeTransferImportService
             ->executeQuery()
             ->fetchAllAssociative();
 
-        return array_map(static fn(array $row): int => (int)$row['uid_foreign'], $rows);
+        return array_map(static fn (array $row): int => (int)$row['uid_foreign'], $rows);
     }
 
     private function findFieldUidByStableIdForDatatype(string $stableId, int $datatypeUid): int
@@ -1208,7 +1209,7 @@ class DatatypeTransferImportService
 
         return (string)preg_replace_callback(
             '/@datatype:([a-zA-Z0-9_]+)/',
-            function (array $matches) use ($targetPid): string {
+            function (array $matches): string {
                 $uid = $this->findDatatypeUidByTablename($matches[1]);
                 return (string)($uid > 0 ? $uid : 0);
             },

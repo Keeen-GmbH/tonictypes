@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -20,7 +21,7 @@ class BackendSessionService
     /**
      * @var string
      */
-    protected $storageKey = "tx_tonictypes";
+    protected $storageKey = 'tx_tonictypes';
 
     /**
      * Sets the according pid and calculated
@@ -31,7 +32,7 @@ class BackendSessionService
      */
     public function setAccordingPid(int $pid): void
     {
-        $storageKey = $this->storageKey . "-" . $pid;
+        $storageKey = $this->storageKey . '-' . $pid;
         $this->setStorageKey($storageKey);
     }
 
@@ -55,9 +56,9 @@ class BackendSessionService
      */
     public function set(string $key, $value): void
     {
-        $data       = $GLOBALS["BE_USER"]->getSessionData($this->storageKey);
+        $data       = $GLOBALS['BE_USER']->getSessionData($this->storageKey);
         $data[$key] = $value;
-        $GLOBALS["BE_USER"]->setAndSaveSessionData($this->storageKey, $data);
+        $GLOBALS['BE_USER']->setAndSaveSessionData($this->storageKey, $data);
     }
 
     /**
@@ -68,9 +69,9 @@ class BackendSessionService
      */
     public function unsetData(string $key): void
     {
-        $data = $GLOBALS["BE_USER"]->getSessionData($this->storageKey);
+        $data = $GLOBALS['BE_USER']->getSessionData($this->storageKey);
         unset($data[$key]);
-        $GLOBALS["BE_USER"]->setAndSaveSessionData($this->storageKey, $data);
+        $GLOBALS['BE_USER']->setAndSaveSessionData($this->storageKey, $data);
     }
 
 
@@ -82,7 +83,7 @@ class BackendSessionService
      */
     public function get(string $key)
     {
-        $data = $GLOBALS["BE_USER"]->getSessionData($this->storageKey);
+        $data = $GLOBALS['BE_USER']->getSessionData($this->storageKey);
 
         return isset($data[$key]) ? $data[$key] : null;
     }
@@ -98,18 +99,18 @@ class BackendSessionService
     {
         $key = $this->_underscore(substr($method, 3));
         switch (substr($method, 0, 3)) {
-            case "get":
+            case 'get':
                 return $this->get($key);
-            case "set":
+            case 'set':
                 $this->set($key, isset($args[0]) ? $args[0] : null);
                 return null;
-            case "uns":
+            case 'uns':
                 $this->unsetData($key);
 
                 return null;
         }
 
-        throw new Exception("Invalid method " . get_class($this) . "::" . $method . "(" . print_r($args, true) . ")");
+        throw new Exception('Invalid method ' . get_class($this) . '::' . $method . '(' . print_r($args, true) . ')');
     }
 
     /**
@@ -119,6 +120,6 @@ class BackendSessionService
      */
     protected function _underscore(string $name): string
     {
-        return strtolower(preg_replace("/(.)([A-Z])/", "$1_$2", $name));
+        return strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $name));
     }
 }

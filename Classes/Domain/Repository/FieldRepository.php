@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -16,7 +17,6 @@ namespace K3n\Tonictypes\Domain\Repository;
 use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Model\Field;
 use K3n\Tonictypes\Domain\Model\FieldValue;
-use TYPO3\CMS\Core\Database\DatabaseConnection;
 use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
@@ -31,16 +31,16 @@ class FieldRepository extends AbstractRepository
      */
     public function findEntriesForFieldValue(FieldValue $fieldValue): array
     {
-		$tablename 		= $fieldValue->getTableContent();
-		$columnname 	= $fieldValue->getColumnName();
-		$whereClause	= $fieldValue->getWhereClause();
+        $tablename 		= $fieldValue->getTableContent();
+        $columnname 	= $fieldValue->getColumnName();
+        $whereClause	= $fieldValue->getWhereClause();
 
-		$query = $this->createQuery();
-		$statement = "SELECT {$columnname} FROM {$tablename} {$whereClause}";
-		$query->statement($statement);
-		$result = $query->execute(true);
-		return $result;
-	}
+        $query = $this->createQuery();
+        $statement = "SELECT {$columnname} FROM {$tablename} {$whereClause}";
+        $query->statement($statement);
+        $result = $query->execute(true);
+        return $result;
+    }
 
     /**
      * Executes an raw query
@@ -52,13 +52,13 @@ class FieldRepository extends AbstractRepository
      */
     public function rawQuery(array $fields, string $table, string $where = ''): array
     {
-		$query = $this->createQuery();
-		$fields = implode(",", $fields);
-		$statement = "SELECT {$fields} FROM {$table} {$where}";
+        $query = $this->createQuery();
+        $fields = implode(',', $fields);
+        $statement = "SELECT {$fields} FROM {$table} {$where}";
 
-		$query->statement($statement);
-		return $query->execute(true);
-	}
+        $query->statement($statement);
+        return $query->execute(true);
+    }
 
     /**
      * FindAll Override
@@ -68,13 +68,13 @@ class FieldRepository extends AbstractRepository
      */
     public function findAll(bool $respectStoragePage = true): QueryResultInterface
     {
-		$query = $this->createQueryWithSettings(true, false, $respectStoragePage);
-		$querySettings = $query->getQuerySettings();
+        $query = $this->createQueryWithSettings(true, false, $respectStoragePage);
+        $querySettings = $query->getQuerySettings();
 
-		$this->setDefaultQuerySettings($querySettings);
+        $this->setDefaultQuerySettings($querySettings);
 
-		return parent::findAll();
-	}
+        return parent::findAll();
+    }
 
     /**
      * Finds all records on a given storage page id
@@ -95,13 +95,13 @@ class FieldRepository extends AbstractRepository
      * @return QueryResultInterface|array
      * @throws InvalidQueryException
      */
-	public function findByTypes(array $types)
-	{
-		$query = $this->createQueryWithSettings(true, false, false);
-		return $query->matching(
-			$query->in("type", $types)
-		)->execute();
-	}
+    public function findByTypes(array $types)
+    {
+        $query = $this->createQueryWithSettings(true, false, false);
+        return $query->matching(
+            $query->in('type', $types)
+        )->execute();
+    }
 
     /**
      * Finds a field by given variable name
@@ -111,11 +111,11 @@ class FieldRepository extends AbstractRepository
      */
     public function findOneByVariableName(string $variableName): ?Field
     {
-		$query = $this->createQueryWithSettings(true, true, false);
-		return $query->matching(
-			$query->equals('variableName', $variableName)
-		)->execute()->getFirst();
-	}
+        $query = $this->createQueryWithSettings(true, true, false);
+        return $query->matching(
+            $query->equals('variableName', $variableName)
+        )->execute()->getFirst();
+    }
 
     /**
      * Finds fields by a given datatype
@@ -125,16 +125,17 @@ class FieldRepository extends AbstractRepository
      */
     public function findByDatatype(Datatype $datatype): QueryResultInterface
     {
-		$fields = $datatype->getFields();
+        $fields = $datatype->getFields();
 
-		$ids = [];
-		foreach ($fields as $_field)
-			$ids[] = $_field->getUid();
+        $ids = [];
+        foreach ($fields as $_field) {
+            $ids[] = $_field->getUid();
+        }
 
-		$query = $this->createQueryWithSettings(false, true, false);
-		return $query->matching(
-			$query->in("uid", $ids)
-		)->execute();
-	}
+        $query = $this->createQueryWithSettings(false, true, false);
+        return $query->matching(
+            $query->in('uid', $ids)
+        )->execute();
+    }
 
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -28,7 +29,7 @@ class FluidRenderService
      */
     public function getView(): StandaloneView
     {
-        if(!$this->view) {
+        if (!$this->view) {
             $this->view = GeneralUtility::makeInstance(StandaloneView::class);
             $this->view->setRequest($GLOBALS['TYPO3_REQUEST']);
         }
@@ -47,7 +48,7 @@ class FluidRenderService
     {
         $this->getView()->assignMultiple($variables);
 
-        if($enforceString === true) {
+        if ($enforceString === true) {
             return (string)$this->getView()->renderSource($fluid);
         }
 

@@ -1,3 +1,19 @@
+# Generated datatype artifacts
 /Classes/Domain/Model/Record/*
 /Classes/Domain/Repository/Record/*
 /Configuration/TCA/tx_tonictypes_domain_model_record_*.php
+
+# Build / CI
+/.Build
+.cache
+/composer.lock
+/Documentation-GENERATED-temp
+/out.txt
+/Tests/Build/.phpunit.result.cache
+.DS_Store
+.idea/
+.fleet/
+/var/
+.php-cs-fixer.cache
+composer.json.testing
+composer.json.orig

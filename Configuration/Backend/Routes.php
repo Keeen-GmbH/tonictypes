@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -16,6 +17,6 @@ return [
      */
     'record_edit' => [
         'path' => '/record/edit',
-        'target' => \K3n\Tonictypes\Controller\Backend\EditDocumentController::class . '::mainAction'
+        'target' => \K3n\Tonictypes\Controller\Backend\EditDocumentController::class . '::mainAction',
     ],
 ];

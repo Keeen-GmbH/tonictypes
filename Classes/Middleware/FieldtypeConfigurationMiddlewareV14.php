@@ -34,7 +34,8 @@ class FieldtypeConfigurationMiddlewareV14 implements MiddlewareInterface
     public function __construct(
         private readonly FieldSettingsService $fieldSettingsService,
         private readonly FieldtypeFlexformTcaApplicator $fieldtypeFlexformTcaApplicator,
-    ) {}
+    ) {
+    }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

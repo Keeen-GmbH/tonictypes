@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -117,12 +118,12 @@ class Textarea extends Tca\AbstractField implements Tca\FieldInterface
         }
 
         // placeholder
-        if($placeholder = $this->getField()->getConfig('placeholder')) {
-            $tca['config']['placeholder'] = $placeholder;   
+        if ($placeholder = $this->getField()->getConfig('placeholder')) {
+            $tca['config']['placeholder'] = $placeholder;
         }
 
         // autocomplete
-        if($autocomplete = $this->getField()->getConfig('autocomplete')) {
+        if ($autocomplete = $this->getField()->getConfig('autocomplete')) {
             $tca['config']['autocomplete'] = true;
         }
 

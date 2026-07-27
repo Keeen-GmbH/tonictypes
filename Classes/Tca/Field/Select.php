@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -14,7 +15,6 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Tca\Field;
 
 use K3n\Tonictypes\Fluid\View\StandaloneView;
-
 use K3n\Tonictypes\Tca;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -121,7 +121,7 @@ class Select extends Tca\AbstractField implements Tca\FieldInterface
 
                 if (isset($GLOBALS['TCA'][$foreignTable]['ctrl']['languageField'])) {
                     $languageField = $GLOBALS['TCA'][$foreignTable]['ctrl']['languageField'];
-                    $tca['config']['foreign_table_where'] = ($tca['config']['foreign_table_where']??'');
+                    $tca['config']['foreign_table_where'] = ($tca['config']['foreign_table_where'] ?? '');
                     $tca['config']['foreign_table_where'] .= " AND {$foreignTable}.{$languageField} IN (-1, 0) ";
                 }
 
@@ -134,12 +134,12 @@ class Select extends Tca\AbstractField implements Tca\FieldInterface
                     $standaloneView->assign('fieldtype', $this);
                     $standaloneView->setTemplateSource($foreignTableWhere);
                     $foreignTableWhereRendered = $standaloneView->render();
-                    $tca['config']['foreign_table_where'] = ($tca['config']['foreign_table_where']??'');
+                    $tca['config']['foreign_table_where'] = ($tca['config']['foreign_table_where'] ?? '');
                     $tca['config']['foreign_table_where'] .= " {$foreignTableWhereRendered} ";
 
                     if ($sortField = $this->getField()->getConfig('sort_field')) {
-                      $sortOrder = ($this->getField()->getConfig('sort_order') == 'ASC') ? 'ASC' : 'DESC';
-                      $tca['config']['foreign_table_where'] .= " ORDER BY {$foreignTable}.{$sortField}  {$sortOrder}";
+                        $sortOrder = ($this->getField()->getConfig('sort_order') == 'ASC') ? 'ASC' : 'DESC';
+                        $tca['config']['foreign_table_where'] .= " ORDER BY {$foreignTable}.{$sortField}  {$sortOrder}";
                     }
                 }
             }
@@ -166,7 +166,7 @@ class Select extends Tca\AbstractField implements Tca\FieldInterface
     public function getDefaultValue()
     {
         $values = parent::getDefaultValue();
-        if(is_array($values)) {
+        if (is_array($values)) {
             return (string)reset($values);
         }
         return '';

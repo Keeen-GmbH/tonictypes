@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -46,25 +47,25 @@ class Record
         $this->backendSessionService = $backendSessionService;
     }
 
-	/**
-	 * UserFunc for Field Label
-	 *
-	 * @param array $pObj Object Information
-	 * @return void
-	 */
-	public function displayLabel(&$pObj): void
-	{
+    /**
+     * UserFunc for Field Label
+     *
+     * @param array $pObj Object Information
+     * @return void
+     */
+    public function displayLabel(&$pObj): void
+    {
         $mainRequest = $GLOBALS['TYPO3_REQUEST'];
         if (ApplicationType::fromRequest($mainRequest)->isBackend()) {
             return;
         }
 
-		if($pObj['row']['sys_language_uid'] > 0) {
-            $row = 	BackendUtility::getRecord($pObj['table'], $pObj['row']['uid'],'*');
+        if ($pObj['row']['sys_language_uid'] > 0) {
+            $row = 	BackendUtility::getRecord($pObj['table'], $pObj['row']['uid'], '*');
             $pObj['row'] = $row;
         }
 
         $pObj['title'] = $pObj['row']['title'];
-	}
+    }
 
 }
