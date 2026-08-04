@@ -483,7 +483,10 @@ class DatatypeTransferImportService
             $record['fieldValues'],
             $record['field_values'],
             $record['values'],
-            $record['uid']
+            $record['uid'],
+            $record['exportIndex'],
+            $record['show_title'], // not a persisted TCA column in all versions
+            $record['l10n_state'],
         );
         $record['pid'] = $targetPid;
         $record['id'] = $stableId;

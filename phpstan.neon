@@ -11,6 +11,8 @@ parameters:
     - Classes/Domain/Repository/Record/*
     # Optional typo3/cms-dashboard (not always installed in CI matrix).
     - Classes/Widgets/*
+    # Version-specific XCLASSes live under Resources/Private/Php/Schema/ (not analysed).
+    # Shared logic: Classes/Database/Schema/TonictypesSchemaDiffFilterTrait.php
   parallel:
     maximumNumberOfProcesses: 4
   tmpDir: .Build/phpstan

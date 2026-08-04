@@ -119,9 +119,22 @@ $boot = static function (): void {
      * Ignore Tonictypes dynamic record tables
      * from Install Tool schema create/alter,
      * while allowing orphan drop suggestions.
+     *
+     * TYPO3 12 returns Doctrine SchemaDiff; 13+ returns Core SchemaDiff.
+     * Version-specific XCLASS files live outside Classes/ and are require_once'd
+     * only for the running major version (avoids fatal signature mismatches).
      ***********************************/
+    $tonictypesSchemaDir = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('tonictypes')
+        . 'Resources/Private/Php/Schema/';
+    if ((new \TYPO3\CMS\Core\Information\Typo3Version())->getMajorVersion() >= 13) {
+        require_once $tonictypesSchemaDir . 'ConnectionMigrator.php';
+        $connectionMigratorClass = \K3n\Tonictypes\Database\Schema\ConnectionMigrator::class;
+    } else {
+        require_once $tonictypesSchemaDir . 'LegacyConnectionMigrator.php';
+        $connectionMigratorClass = \K3n\Tonictypes\Database\Schema\LegacyConnectionMigrator::class;
+    }
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Core\Database\Schema\ConnectionMigrator::class] = [
-        'className' => \K3n\Tonictypes\Database\Schema\ConnectionMigrator::class,
+        'className' => $connectionMigratorClass,
     ];
 
     /***********************************

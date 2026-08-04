@@ -22,15 +22,42 @@ final class PredefinedDatatypeImportController
     public function importAction(ServerRequestInterface $request): ResponseInterface
     {
         try {
-            $parsedBody = $request->getParsedBody();
-            $storagePid = (int)($parsedBody['storagePid'] ?? 0);
+            $storagePid = $this->resolveStoragePid($request);
+            $result = $this->importService->importPredefinedArchive($storagePid);
 
-            return new JsonResponse($this->importService->importPredefinedArchive($storagePid));
+            // Always 200 so the dashboard widget can read JSON (AjaxRequest throws on 4xx).
+            return new JsonResponse($result);
         } catch (\Throwable $exception) {
             return new JsonResponse([
                 'success' => false,
-                'message' => $exception->getMessage(),
-            ], 400);
+                'message' => $exception->getMessage() !== ''
+                    ? $exception->getMessage()
+                    : 'Import failed.',
+            ]);
         }
+    }
+
+    private function resolveStoragePid(ServerRequestInterface $request): int
+    {
+        $parsedBody = $request->getParsedBody();
+        if (is_array($parsedBody) && isset($parsedBody['storagePid'])) {
+            return (int)$parsedBody['storagePid'];
+        }
+
+        $queryParams = $request->getQueryParams();
+        if (isset($queryParams['storagePid'])) {
+            return (int)$queryParams['storagePid'];
+        }
+
+        // Fallback for clients that send raw body / multipart edge cases.
+        $body = (string)$request->getBody();
+        if ($body !== '') {
+            parse_str($body, $parsed);
+            if (isset($parsed['storagePid'])) {
+                return (int)$parsed['storagePid'];
+            }
+        }
+
+        return 0;
     }
 }

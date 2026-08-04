@@ -18,44 +18,44 @@ use Doctrine\DBAL\Schema\Table;
 use K3n\Tonictypes\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Schema\ConnectionMigrator as CoreConnectionMigrator;
-use TYPO3\CMS\Core\Database\Schema\SchemaDiff as Typo3SchemaDiff;
-use TYPO3\CMS\Core\Database\Schema\TableDiff as Typo3TableDiff;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Filters Tonictypes dynamic record tables out of Install Tool schema *suggestions*.
+ * Shared Analyze-DB filtering for Tonictypes dynamic record tables.
  *
- * Important: filtering must NOT run during SchemaMigrator::install()/publish, otherwise
- * CREATE TABLE for tx_tonictypes_domain_model_record_* is suppressed and tables never appear.
+ * TYPO3 12 SchemaDiff: newTables / changedTables / removedTables
+ * TYPO3 13+ SchemaDiff: createdTables / alteredTables / droppedTables
  *
- * - Analyze (renameUnused=true): hide create/alter for record tables; protect active drops;
- *   surface orphan drops.
- * - Install/publish (renameUnused=false): leave diff untouched so Tonictypes can create/alter.
+ * @internal
  */
-class ConnectionMigrator extends CoreConnectionMigrator
+trait TonictypesSchemaDiffFilterTrait
 {
     private const RECORD_TABLE_PREFIX = 'tx_tonictypes_domain_model_record_';
 
-    protected function buildSchemaDiff(bool $renameUnused = true): Typo3SchemaDiff
+    /**
+     * @param object $schemaDiff Doctrine or TYPO3 SchemaDiff
+     * @return object
+     */
+    private function applyTonictypesAnalyzeFilters(object $schemaDiff, bool $renameUnused): object
     {
-        $schemaDiff = parent::buildSchemaDiff($renameUnused);
-
         // install()/publish uses renameUnused=false — never filter in that path.
         if (!$renameUnused) {
             return $schemaDiff;
         }
 
         $activeTablenames = $this->resolveActiveDatatypeTablenames();
+        $createdKey = property_exists($schemaDiff, 'createdTables') ? 'createdTables' : 'newTables';
+        $alteredKey = property_exists($schemaDiff, 'alteredTables') ? 'alteredTables' : 'changedTables';
+        $droppedKey = property_exists($schemaDiff, 'droppedTables') ? 'droppedTables' : 'removedTables';
 
-        $schemaDiff->createdTables = $this->removeTonictypesRecordTables($schemaDiff->createdTables);
-        $schemaDiff->alteredTables = $this->removeTonictypesRecordTables($schemaDiff->alteredTables);
-        $schemaDiff->droppedTables = $this->removeActiveTonictypesRecordTables(
-            $schemaDiff->droppedTables,
+        $schemaDiff->{$createdKey} = $this->removeTonictypesRecordTables((array)$schemaDiff->{$createdKey});
+        $schemaDiff->{$alteredKey} = $this->removeTonictypesRecordTables((array)$schemaDiff->{$alteredKey});
+        $schemaDiff->{$droppedKey} = $this->removeActiveTonictypesRecordTables(
+            (array)$schemaDiff->{$droppedKey},
             $activeTablenames
         );
-        $schemaDiff->droppedTables = $this->appendOrphanTonictypesRecordTables(
-            $schemaDiff->droppedTables,
+        $schemaDiff->{$droppedKey} = $this->appendOrphanTonictypesRecordTables(
+            (array)$schemaDiff->{$droppedKey},
             $activeTablenames
         );
 
@@ -63,12 +63,9 @@ class ConnectionMigrator extends CoreConnectionMigrator
     }
 
     /**
-     * Force-suggest DROP for orphan record tables even when leftover TCA still
-     * keeps them in the expected schema (common after rename without cleanup).
-     *
-     * @param array<string, Typo3TableDiff|Table> $droppedTables
+     * @param array<int|string, object> $droppedTables
      * @param array<string, true> $activeTablenames
-     * @return array<string, Typo3TableDiff|Table>
+     * @return array<int|string, object>
      */
     private function appendOrphanTonictypesRecordTables(array $droppedTables, array $activeTablenames): array
     {
@@ -89,7 +86,7 @@ class ConnectionMigrator extends CoreConnectionMigrator
             if (isset($activeTablenames[$tableName])) {
                 continue;
             }
-            if (isset($droppedTables[$tableName])) {
+            if ($this->collectionContainsTableName($droppedTables, $tableName)) {
                 continue;
             }
 
@@ -104,53 +101,72 @@ class ConnectionMigrator extends CoreConnectionMigrator
     }
 
     /**
-     * @param array<string, Typo3TableDiff|Table> $tables
-     * @return array<string, Typo3TableDiff|Table>
+     * @param array<int|string, object> $tables
+     * @return array<int|string, object>
      */
     private function removeTonictypesRecordTables(array $tables): array
     {
         return array_filter(
             $tables,
-            fn (Typo3TableDiff|Table $table): bool => !$this->isTonictypesRecordTable($this->resolveTableName($table))
+            fn (object $table): bool => !$this->isTonictypesRecordTable($this->resolveTableName($table))
         );
     }
 
     /**
-     * @param array<string, Typo3TableDiff|Table> $tables
+     * @param array<int|string, object> $tables
      * @param array<string, true> $activeTablenames
-     * @return array<string, Typo3TableDiff|Table>
+     * @return array<int|string, object>
      */
     private function removeActiveTonictypesRecordTables(array $tables, array $activeTablenames): array
     {
         return array_filter(
             $tables,
-            function (Typo3TableDiff|Table $table) use ($activeTablenames): bool {
+            function (object $table) use ($activeTablenames): bool {
                 $tableName = $this->resolveTableName($table);
                 $normalized = $this->stripDeletedPrefix($tableName);
 
-                // Non-tonictypes tables stay untouched.
                 if (!$this->isTonictypesRecordTable($normalized)) {
                     return true;
                 }
 
-                // Active datatype tables must never be dropped via Analyze.
                 if (isset($activeTablenames[$normalized])) {
                     return false;
                 }
 
-                // Orphans remain visible as drop candidates.
                 return true;
             }
         );
     }
 
-    private function resolveTableName(Typo3TableDiff|Table $table): string
+    private function resolveTableName(object $table): string
     {
         if ($table instanceof Table) {
             return $table->getName();
         }
 
-        return $table->getNewName() ?? $table->getOldTable()->getName();
+        if (method_exists($table, 'getOldTable')) {
+            $newName = method_exists($table, 'getNewName') ? $table->getNewName() : null;
+            // TYPO3 13+: ?string. TYPO3 12 / DBAL 3: Identifier|false.
+            if (is_string($newName) && $newName !== '') {
+                return $newName;
+            }
+            if (is_object($newName) && method_exists($newName, 'getName')) {
+                $identifierName = trim((string)$newName->getName());
+                if ($identifierName !== '') {
+                    return $identifierName;
+                }
+            }
+            $oldTable = $table->getOldTable();
+            if ($oldTable instanceof Table) {
+                return $oldTable->getName();
+            }
+        }
+
+        if (isset($table->name) && is_string($table->name) && $table->name !== '') {
+            return $table->name;
+        }
+
+        return '';
     }
 
     private function stripDeletedPrefix(string $tableName): string
@@ -215,5 +231,23 @@ class ConnectionMigrator extends CoreConnectionMigrator
     private function trimIdentifierQuotes(string $identifier): string
     {
         return str_replace(['`', '"', '[', ']'], '', $identifier);
+    }
+
+    /**
+     * @param array<int|string, object> $tables
+     */
+    private function collectionContainsTableName(array $tables, string $tableName): bool
+    {
+        if (isset($tables[$tableName])) {
+            return true;
+        }
+
+        foreach ($tables as $table) {
+            if ($this->resolveTableName($table) === $tableName) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

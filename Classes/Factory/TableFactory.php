@@ -221,6 +221,7 @@ class TableFactory implements SingletonInterface
             'path_segment',
             'tstamp',
             'crdate',
+            // Legacy columns kept so publish cleanup does not drop them from existing tables.
             'cruser_id',
             'deleted',
             'hidden',
@@ -333,6 +334,11 @@ class TableFactory implements SingletonInterface
                 continue;
             }
 
+            // MODIFY is MySQL/MariaDB-specific; skip quietly on other platforms.
+            if (!$this->connectionSupportsMysqlModify($connection)) {
+                continue;
+            }
+
             try {
                 $connection->executeStatement(sprintf(
                     'ALTER TABLE %s MODIFY %s %s',
@@ -372,6 +378,17 @@ class TableFactory implements SingletonInterface
             'boolean',
             'bool',
         ], true);
+    }
+
+    /**
+     * ALTER … MODIFY is MySQL/MariaDB only (TYPO3 12–14 production target).
+     */
+    private function connectionSupportsMysqlModify(Connection $connection): bool
+    {
+        $platformClass = strtolower($connection->getDatabasePlatform()::class);
+
+        return str_contains($platformClass, 'mysql')
+            || str_contains($platformClass, 'mariadb');
     }
 
     /**

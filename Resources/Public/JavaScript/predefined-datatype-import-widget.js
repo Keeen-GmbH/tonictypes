@@ -3,6 +3,20 @@ import Notification from "@typo3/backend/notification.js";
 
 const ROUTE = "tonictypes_predefined_datatype_import";
 
+const getErrorMessage = async (error, fallback) => {
+    if (typeof error?.resolve === "function") {
+        try {
+            const payload = await error.resolve("json");
+            if (payload?.message) {
+                return payload.message;
+            }
+        } catch (e) {
+            // keep fallback
+        }
+    }
+    return error?.message || fallback;
+};
+
 if (!document.body.dataset.tonictypesImportWidgetBound) {
     document.body.dataset.tonictypesImportWidgetBound = "1";
     document.addEventListener("click", async (event) => {
@@ -31,6 +45,8 @@ if (!document.body.dataset.tonictypesImportWidgetBound) {
 
         const url = TYPO3.settings?.ajaxUrls?.[ROUTE];
         if (!url) {
+            show("danger", "Import route is not available. Reload the backend and try again.");
+            Notification.error("Tonictypes", "Import route is not available.");
             return;
         }
 
@@ -42,13 +58,15 @@ if (!document.body.dataset.tonictypesImportWidgetBound) {
             const formData = new FormData();
             formData.append("storagePid", select.value);
             const payload = await (await new AjaxRequest(url).post(formData)).resolve("json");
-            const ok = payload.success && !payload.alreadyImported;
+            const ok = Boolean(payload.success) && !payload.alreadyImported;
             const type = ok ? "success" : payload.alreadyImported ? "info" : "danger";
-            show(type, payload.message);
-            Notification[type === "danger" ? "error" : type]("Tonictypes", payload.message);
+            const message = payload.message || (ok ? "Import finished." : "Import failed.");
+            show(type, message);
+            Notification[type === "danger" ? "error" : type]("Tonictypes", message);
         } catch (error) {
-            show("danger", "Import failed.");
-            Notification.error("Tonictypes", "Import failed.");
+            const message = await getErrorMessage(error, "Import failed.");
+            show("danger", message);
+            Notification.error("Tonictypes", message);
         } finally {
             button.disabled = false;
             select.disabled = false;

@@ -66,15 +66,41 @@ final class TonictypesDynamicTableSchemaListener implements LoggerAwareInterface
             }
 
             try {
-                $result = $connection->executeQuery('SHOW CREATE TABLE `' . $tableName . '`')->fetchAssociative();
-                $createStatement = (string)($result['Create Table'] ?? '');
+                $createStatement = $this->resolveCreateTableStatement($connection, $tableName);
                 if ($createStatement !== '') {
-                    $event->addSqlData($this->normalizeCreateStatement($createStatement));
+                    $event->addSqlData($createStatement);
                 }
             } catch (\Throwable $exception) {
                 $this->logger?->warning($exception->getMessage(), ['exception' => $exception]);
             }
         }
+    }
+
+    /**
+     * Prefer MySQL SHOW CREATE TABLE (best fidelity for Analyze mirroring).
+     * Fall back to DBAL platform SQL for PostgreSQL/SQLite (TYPO3 12–14 CI).
+     */
+    private function resolveCreateTableStatement(Connection $connection, string $tableName): string
+    {
+        try {
+            $result = $connection->executeQuery(
+                'SHOW CREATE TABLE ' . $connection->quoteIdentifier($tableName)
+            )->fetchAssociative();
+            $createStatement = (string)($result['Create Table'] ?? '');
+            if ($createStatement !== '') {
+                return $this->normalizeCreateStatement($createStatement);
+            }
+        } catch (\Throwable) {
+            // Non-MySQL platforms (or restricted grants) — use DBAL introspection.
+        }
+
+        $table = $connection->createSchemaManager()->introspectTable($tableName);
+        $sql = $connection->getDatabasePlatform()->getCreateTableSQL($table);
+        if (is_array($sql)) {
+            $sql = implode(";\n", $sql);
+        }
+
+        return $this->normalizeCreateStatement((string)$sql);
     }
 
     /**

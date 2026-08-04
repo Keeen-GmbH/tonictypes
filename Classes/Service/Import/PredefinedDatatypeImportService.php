@@ -87,13 +87,26 @@ final class PredefinedDatatypeImportService
         $pidMapping = array_fill_keys(array_map('strval', array_keys($bundle['datatypes'])), $storagePid);
         $result = $this->transferImportService->importBundle($bundle['datatypes'], $pidMapping);
 
+        $message = sprintf(
+            'Predefined datatype import finished: %d created, %d updated, %d error(s).',
+            $result['imported'],
+            $result['updated'],
+            $result['errors']
+        );
+        if (($result['errors'] ?? 0) > 0 && is_array($result['log'] ?? null)) {
+            $errorMessages = [];
+            foreach ($result['log'] as $entry) {
+                if (($entry['status'] ?? '') === 'error' && !empty($entry['message'])) {
+                    $errorMessages[] = (string)$entry['message'];
+                }
+            }
+            if ($errorMessages !== []) {
+                $message .= ' ' . implode(' ', array_slice($errorMessages, 0, 3));
+            }
+        }
+
         return [
-            'message' => sprintf(
-                'Predefined datatype import finished: %d created, %d updated, %d error(s).',
-                $result['imported'],
-                $result['updated'],
-                $result['errors']
-            ),
+            'message' => $message,
         ] + $result;
     }
 }
