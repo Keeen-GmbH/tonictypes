@@ -14,15 +14,29 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Database\EventListener;
 
+use K3n\Tonictypes\Configuration\ExtensionConfiguration;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Registers CREATE TABLE statements for *active* Tonictypes record tables only.
+ *
+ * Purpose for Analyze Database Structure:
+ * - Active datatype tables are mirrored from the live DB so the Install Tool does not
+ *   propose create/alter/drop for schema that Tonictypes publish owns.
+ * - Orphan tables (prefix still matches, but no non-deleted datatype points at them
+ *   after a rename/delete) are intentionally NOT registered here, so they can surface
+ *   as drop candidates when they are also absent from TCA.
+ */
 final class TonictypesDynamicTableSchemaListener implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
+
+    private const RECORD_TABLE_PREFIX = 'tx_tonictypes_domain_model_record_';
 
     public function __invoke(AlterTableDefinitionStatementsEvent $event): void
     {
@@ -32,12 +46,22 @@ final class TonictypesDynamicTableSchemaListener implements LoggerAwareInterface
             $schemaManager = $connection->createSchemaManager();
             $tableNames = $schemaManager->listTableNames();
         } catch (\Throwable $exception) {
-            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+            $this->logger?->warning($exception->getMessage(), ['exception' => $exception]);
+            return;
+        }
+
+        $activeTablenames = $this->resolveActiveDatatypeTablenames($connection);
+        if ($activeTablenames === []) {
             return;
         }
 
         foreach ($tableNames as $tableName) {
-            if (!str_starts_with((string)$tableName, 'tx_tonictypes_domain_model_record_')) {
+            $tableName = (string)$tableName;
+            if (!$this->isTonictypesRecordTable($tableName)) {
+                continue;
+            }
+            // Ignore orphans from schema registration — leave them visible to Analyze.
+            if (!isset($activeTablenames[$tableName])) {
                 continue;
             }
 
@@ -48,9 +72,60 @@ final class TonictypesDynamicTableSchemaListener implements LoggerAwareInterface
                     $event->addSqlData($this->normalizeCreateStatement($createStatement));
                 }
             } catch (\Throwable $exception) {
-                $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+                $this->logger?->warning($exception->getMessage(), ['exception' => $exception]);
             }
         }
+    }
+
+    /**
+     * @return array<string, true> tablename => true
+     */
+    private function resolveActiveDatatypeTablenames(Connection $connection): array
+    {
+        $datatypeTable = ExtensionConfiguration::EXTENSION_DATATYPE_TABLE;
+        try {
+            if (!$connection->createSchemaManager()->tablesExist([$datatypeTable])) {
+                return [];
+            }
+        } catch (\Throwable) {
+            return [];
+        }
+
+        try {
+            $queryBuilder = $connection->createQueryBuilder();
+            $rows = $queryBuilder
+                ->select('tablename')
+                ->from($datatypeTable)
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'deleted',
+                        $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                    ),
+                    $queryBuilder->expr()->neq('tablename', $queryBuilder->createNamedParameter(''))
+                )
+                ->executeQuery()
+                ->fetchFirstColumn();
+        } catch (\Throwable $exception) {
+            $this->logger?->warning($exception->getMessage(), ['exception' => $exception]);
+            return [];
+        }
+
+        $active = [];
+        foreach ($rows as $tablename) {
+            $tablename = trim((string)$tablename);
+            if ($this->isTonictypesRecordTable($tablename)) {
+                $active[$tablename] = true;
+            }
+        }
+
+        return $active;
+    }
+
+    private function isTonictypesRecordTable(string $tableName): bool
+    {
+        return $tableName !== ''
+            && str_starts_with($tableName, self::RECORD_TABLE_PREFIX)
+            && (bool)preg_match('/^[a-z0-9_]+$/', $tableName);
     }
 
     protected function normalizeCreateStatement(string $statement): string

@@ -18,6 +18,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\SchemaException;
+use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
 use K3n\Tonictypes\Configuration\ExtensionConfiguration;
 use K3n\Tonictypes\Domain\Model\Datatype;
@@ -321,7 +322,13 @@ class TableFactory implements SingletonInterface
                 continue;
             }
 
-            $currentType = strtolower((string)$column->getType()->getName());
+            // DBAL 3 (TYPO3 12): Type::getName(); DBAL 4 (TYPO3 13/14): Type::lookupName().
+            $type = $column->getType();
+            $currentType = strtolower(
+                method_exists($type, 'getName')
+                    ? (string)$type->getName()
+                    : Type::lookupName($type)
+            );
             if (!$this->isNumericColumnType($currentType)) {
                 continue;
             }
@@ -528,8 +535,24 @@ class TableFactory implements SingletonInterface
         $templateFile = 'EXT:tonictypes/Resources/Private/Init/CREATE_STATEMENT.sql';
         $templateFile = GeneralUtility::getFileAbsFileName($templateFile);
         $standaloneView->setTemplatePathAndFilename($templateFile);
+
+        $systemColumns = [];
+        foreach ($this->getSystemColumnNames() as $columnName) {
+            $systemColumns[strtolower($columnName)] = true;
+        }
+
+        $sqlFields = [];
+        foreach ($datatype->getFields() as $field) {
+            $code = strtolower(trim((string)$field->getCode()));
+            if ($code === '' || isset($systemColumns[$code])) {
+                continue;
+            }
+            $sqlFields[] = $field;
+        }
+
         $standaloneView->assign('datatype', $datatype);
         $standaloneView->assign('tableName', $tableName);
+        $standaloneView->assign('sqlFields', $sqlFields);
         return $standaloneView->render();
     }
 

@@ -16,6 +16,7 @@ use K3n\Tonictypes\Factory\ClassFactory;
 use K3n\Tonictypes\Factory\TableFactory;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Icon\TonictypesIconRegistry;
+use K3n\Tonictypes\Service\Tca\DatatypeTcaFileService;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -37,6 +38,7 @@ class DatatypeRecordTableMigrationService
         private readonly FieldRepository $fieldRepository,
         private readonly TableFactory $tableFactory,
         private readonly ClassFactory $classFactory,
+        private readonly DatatypeTcaFileService $datatypeTcaFileService,
         private readonly ClearCacheService $clearCacheService,
         private readonly PersistenceManager $persistenceManager,
     ) {
@@ -154,6 +156,7 @@ class DatatypeRecordTableMigrationService
         }
 
         $tcaStatus = $this->writeTcaPhpFile($datatype, $tableName);
+        $this->cleanupOrphanGeneratedArtifacts($tableName, $notes);
         $this->clearAutoloadAndCache();
 
         return [
@@ -164,6 +167,113 @@ class DatatypeRecordTableMigrationService
             'notes' => $notes,
             'droppedOrphanColumns' => $droppedOrphanColumns,
         ];
+    }
+
+    /**
+     * After rename/republish, remove leftover TCA/classes/empty DB tables that no longer
+     * belong to any active datatype (e.g. …_job after switching to …_job2).
+     *
+     * @param list<string> $notes
+     */
+    private function cleanupOrphanGeneratedArtifacts(string $currentTableName, array &$notes): void
+    {
+        $activeTablenames = $this->fetchActiveDatatypeTablenames();
+        if ($currentTableName !== '' && !in_array($currentTableName, $activeTablenames, true)) {
+            $activeTablenames[] = $currentTableName;
+        }
+
+        $removedTca = $this->datatypeTcaFileService->cleanupOrphanGeneratedTcaFiles($activeTablenames);
+        if ($removedTca !== []) {
+            $notes[] = sprintf(
+                'Removed orphan TCA file(s) after publish: %s.',
+                implode(', ', $removedTca)
+            );
+        }
+
+        $removedClasses = $this->classFactory->cleanupOrphanGeneratedClassFiles($activeTablenames);
+        if ($removedClasses !== []) {
+            $notes[] = sprintf(
+                'Removed orphan class file(s) after publish: %s.',
+                implode(', ', array_map('basename', $removedClasses))
+            );
+        }
+
+        $droppedTables = $this->dropEmptyOrphanRecordTables($activeTablenames);
+        if ($droppedTables !== []) {
+            $notes[] = sprintf(
+                'Dropped empty orphan record table(s) after publish: %s.',
+                implode(', ', $droppedTables)
+            );
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function fetchActiveDatatypeTablenames(): array
+    {
+        $datatypeTable = ExtensionConfiguration::EXTENSION_DATATYPE_TABLE;
+        try {
+            $queryBuilder = $this->connectionPool->getQueryBuilderForTable($datatypeTable);
+            $rows = $queryBuilder
+                ->select('tablename')
+                ->from($datatypeTable)
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'deleted',
+                        $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                    ),
+                    $queryBuilder->expr()->neq('tablename', $queryBuilder->createNamedParameter(''))
+                )
+                ->executeQuery()
+                ->fetchFirstColumn();
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $tablenames = [];
+        foreach ($rows as $tablename) {
+            $tablename = trim((string)$tablename);
+            if ($tablename !== '' && str_starts_with($tablename, 'tx_tonictypes_domain_model_record_')) {
+                $tablenames[] = $tablename;
+            }
+        }
+
+        return array_values(array_unique($tablenames));
+    }
+
+    /**
+     * @param list<string> $activeTablenames
+     * @return list<string>
+     */
+    private function dropEmptyOrphanRecordTables(array $activeTablenames): array
+    {
+        $keep = array_fill_keys($activeTablenames, true);
+        $dropped = [];
+
+        try {
+            $connection = $this->connectionPool->getConnectionByName(ConnectionPool::DEFAULT_CONNECTION_NAME);
+            $tableNames = $connection->createSchemaManager()->listTableNames();
+        } catch (\Throwable) {
+            return [];
+        }
+
+        foreach ($tableNames as $tableName) {
+            $tableName = (string)$tableName;
+            if (!str_starts_with($tableName, 'tx_tonictypes_domain_model_record_')) {
+                continue;
+            }
+            if (isset($keep[$tableName])) {
+                continue;
+            }
+            if ($this->countTableRows($tableName) > 0) {
+                continue;
+            }
+            $this->dropTableSilently($tableName);
+            $dropped[] = $tableName;
+        }
+
+        return $dropped;
     }
 
     /**

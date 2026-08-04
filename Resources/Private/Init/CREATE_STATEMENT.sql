@@ -8,7 +8,7 @@ CREATE TABLE {tableName} (
     title varchar(255) DEFAULT '' NOT NULL,
     datatype int(11) unsigned DEFAULT '0',
 
-<f:for each="{datatype.fields}" as="field" iteration="i">
+<f:for each="{sqlFields}" as="field" iteration="i">
     `{field.code}` {field.tca.sqlCreateStatement->f:format.raw()},
 </f:for>
 
@@ -45,7 +45,7 @@ CREATE TABLE {tableName} (
     PRIMARY KEY (uid),
     KEY parent (pid),
     KEY datatype (datatype),
-<f:for each="{datatype.fields}" as="field"><f:if condition="{field.isIndex}">
+<f:for each="{sqlFields}" as="field"><f:if condition="{field.isIndex}">
     KEY {field.code} ({field.code}),
 </f:if></f:for>
     KEY t3ver_oid (t3ver_oid,t3ver_wsid),

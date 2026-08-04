@@ -44,6 +44,46 @@ final class DatatypeTcaFileService
         return @unlink($tcaFile);
     }
 
+    /**
+     * Remove generated TCA files for record tables that are no longer referenced
+     * by any active datatype (typical after a tablename rename + republish).
+     *
+     * @param list<string> $activeTablenames
+     * @return list<string> Removed table names
+     */
+    public function cleanupOrphanGeneratedTcaFiles(array $activeTablenames): array
+    {
+        $keep = [];
+        foreach ($activeTablenames as $tablename) {
+            $tablename = trim((string)$tablename);
+            if ($this->isGeneratedRecordTable($tablename)) {
+                $keep[$tablename] = true;
+            }
+        }
+
+        $tcaDir = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Configuration/TCA');
+        if (!is_string($tcaDir) || $tcaDir === '' || !is_dir($tcaDir)) {
+            return [];
+        }
+
+        $removed = [];
+        $pattern = $tcaDir . '/' . self::RECORD_TABLE_PREFIX . '*.php';
+        foreach (glob($pattern) ?: [] as $tcaFile) {
+            $basename = basename((string)$tcaFile, '.php');
+            if (!$this->isGeneratedRecordTable($basename)) {
+                continue;
+            }
+            if (isset($keep[$basename])) {
+                continue;
+            }
+            if ($this->backupAndDelete($basename)) {
+                $removed[] = $basename;
+            }
+        }
+
+        return $removed;
+    }
+
     public function resolveGeneratedTcaFile(string $tableName): ?string
     {
         if (!$this->isGeneratedRecordTable($tableName)) {

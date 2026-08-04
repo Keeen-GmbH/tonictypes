@@ -116,6 +116,15 @@ $boot = static function (): void {
     ];
 
     /***********************************
+     * Ignore Tonictypes dynamic record tables
+     * from Install Tool schema create/alter,
+     * while allowing orphan drop suggestions.
+     ***********************************/
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Core\Database\Schema\ConnectionMigrator::class] = [
+        'className' => \K3n\Tonictypes\Database\Schema\ConnectionMigrator::class,
+    ];
+
+    /***********************************
      * Tonictypes Plugins
      ***********************************/
     // #1 - List Records
