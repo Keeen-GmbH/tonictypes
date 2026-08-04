@@ -111,7 +111,7 @@ class ConnectionMigrator extends CoreConnectionMigrator
     {
         return array_filter(
             $tables,
-            fn(Typo3TableDiff|Table $table): bool => !$this->isTonictypesRecordTable($this->resolveTableName($table))
+            fn (Typo3TableDiff|Table $table): bool => !$this->isTonictypesRecordTable($this->resolveTableName($table))
         );
     }
 
