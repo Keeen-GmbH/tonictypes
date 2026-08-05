@@ -204,6 +204,7 @@ class DataHandling
 
         GeneralUtility::makeInstance(DatatypeTcaFileService::class)->backupAndDelete($tableName);
         $this->tcaCacheService->remove('Tca_Datatype_' . $id);
+        $this->tcaCacheService->remove('Tca_Complete_' . $id);
     }
 
     /**
@@ -248,8 +249,15 @@ class DataHandling
                     }
                 }
 
-                // Clear datatype tca cache
+                // Clear datatype tca cache (base + complete so options like default_hidden take effect)
                 $this->tcaCacheService->remove("Tca_Datatype_{$datatype['uid']}");
+                $this->tcaCacheService->remove("Tca_Complete_{$datatype['uid']}");
+
+                $datatypeModel = $this->datatypeRepository->findByUid((int)$datatype['uid'], false);
+                if ($datatypeModel instanceof Datatype) {
+                    GeneralUtility::makeInstance(DatatypeTcaFileService::class)
+                        ->writeFromDatatype($datatypeModel);
+                }
             }
 
         }

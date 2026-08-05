@@ -53,7 +53,7 @@ return [
         'iconfile' => 'EXT:tonictypes/Resources/Public/Icons/Domain/Model/datatype.svg',
     ],
     'interface' => [
-        'showRecordFieldList' => 'logo, hidden,name,tablename,class,description,icon,color,title_divider,hide_records,hide_add,fields,tab_config,disable_general_tab,enable_seo,cache_tca',
+        'showRecordFieldList' => 'logo, hidden,name,tablename,class,description,icon,color,title_divider,hide_records,hide_add,default_hidden,fields,tab_config,disable_general_tab,enable_seo,cache_tca',
     ],
     'types' => [
         '1' => [
@@ -65,7 +65,7 @@ return [
                 --div--;LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:tx_tonictypes_domain_model_datatype.tab_config,
                     disable_general_tab, tab_config,
                 --div--;LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:appearance,
-                  	icon, color, title_divider, thumbnail_field, hide_records, hide_add, enable_seo,
+                  	icon, color, title_divider, thumbnail_field, hide_records, hide_add, default_hidden, enable_seo,
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access,
                     hidden,--palette--;;timeRestriction,
                 --div--;LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:advanced_settings,
@@ -301,6 +301,15 @@ return [
             'label'   => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.hide_add',
             'config'  => [
                 'type'    => 'check',
+                'default' => 0,
+            ],
+        ],
+        'default_hidden' => [
+            'exclude' => true,
+            'label' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.default_hidden',
+            'description' => 'LLL:EXT:tonictypes/Resources/Private/Language/locallang_db.xlf:tx_tonictypes_domain_model_datatype.default_hidden.description',
+            'config' => [
+                'type' => 'check',
                 'default' => 0,
             ],
         ],

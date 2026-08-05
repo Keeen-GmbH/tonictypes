@@ -102,6 +102,7 @@ columns:
         config:
             type: check
             renderType: checkboxToggle
+            default: {f:if(condition: '{datatype.defaultHidden}', then: '1', else: '0')}
             items:
                 -
                     label: ''

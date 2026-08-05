@@ -15,6 +15,11 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Service\Tca;
 
+use K3n\Tonictypes\Domain\Model\Datatype;
+use K3n\Tonictypes\Domain\Model\Field;
+use K3n\Tonictypes\Fluid\View\StandaloneView;
+use K3n\Tonictypes\Icon\TonictypesIconRegistry;
+use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -25,6 +30,46 @@ final class DatatypeTcaFileService
 {
     private const RECORD_TABLE_PREFIX = 'tx_tonictypes_domain_model_record_';
     private const BACKUP_DIR = 'uploads/tx_tonictypes/tca_backup';
+
+    /**
+     * @return string One of: skipped, failed, unchanged, updated, created
+     */
+    public function writeFromDatatype(Datatype $datatype): string
+    {
+        $tableName = trim((string)$datatype->getTablename());
+        if ($tableName === '' || !$this->isGeneratedRecordTable($tableName)) {
+            return 'skipped';
+        }
+
+        $tca = $this->buildDatatypeTcaFromDefaultYaml($datatype, $tableName);
+        if ($tca === []) {
+            return 'failed';
+        }
+
+        $relative = 'EXT:tonictypes/Configuration/TCA/' . $tableName . '.php';
+        $absFile = GeneralUtility::getFileAbsFileName($relative);
+        $fileExisted = is_file($absFile);
+        $absDir = dirname($absFile);
+        if (!is_dir($absDir)) {
+            @mkdir($absDir, 0777, true);
+        }
+
+        $contents = "<?php\n"
+            . "declare(strict_types=1);\n"
+            . "defined('TYPO3') or die();\n\n"
+            . 'return ' . var_export($tca, true) . ";\n";
+
+        $old = @file_get_contents($absFile);
+        if (is_string($old) && md5($old) === md5($contents)) {
+            return 'unchanged';
+        }
+
+        if (GeneralUtility::writeFile($absFile, $contents) !== true) {
+            return 'failed';
+        }
+
+        return $fileExisted ? 'updated' : 'created';
+    }
 
     /**
      * Copy the generated TCA file to uploads/tx_tonictypes/tca_backup/, then delete the original.
@@ -103,6 +148,64 @@ final class DatatypeTcaFileService
         return $tableName !== ''
             && str_starts_with($tableName, self::RECORD_TABLE_PREFIX)
             && (bool)preg_match('/^[a-z0-9_]+$/', $tableName);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildDatatypeTcaFromDefaultYaml(Datatype $datatype, string $tableName): array
+    {
+        $tcaDefaultFile = GeneralUtility::getFileAbsFileName(
+            'EXT:tonictypes/Resources/Private/Init/tx_tonictypes_domain_model_default.yaml'
+        );
+        $tcaDefaultYaml = @file_get_contents($tcaDefaultFile) ?: '';
+        if ($tcaDefaultYaml === '') {
+            return [];
+        }
+
+        $standaloneView = GeneralUtility::makeInstance(StandaloneView::class);
+        $standaloneView->setTemplateSource($tcaDefaultYaml);
+
+        $iconRegistry = GeneralUtility::makeInstance(TonictypesIconRegistry::class);
+        $typeiconClasses = $iconRegistry->getIcons(
+            ['EXT:tonictypes/Resources/Public/Icons/Datatype'],
+            'extensions-tonictypes-',
+            true,
+            false
+        );
+        $keys = array_keys($typeiconClasses);
+        $values = array_map(
+            static fn (string $value): string => 'extensions-tonictypes-' . $value,
+            $keys
+        );
+        $icons = array_combine($keys, $values) ?: [];
+        $icons['default'] = 'extensions-tonictypes-' . $datatype->getIcon();
+
+        $standaloneView->assignMultiple([
+            'datatype' => $datatype,
+            'tableName' => $tableName,
+            'typeiconClasses' => $icons,
+            'fields' => implode(',', array_keys($datatype->getApproachableFields())),
+            'iconFile' => $typeiconClasses['extensions-tonictypes-' . $datatype->getIcon()] ?? '',
+        ]);
+
+        $tca = Yaml::parse($standaloneView->render());
+        if (!is_array($tca)) {
+            return [];
+        }
+
+        foreach ($datatype->getFields() as $field) {
+            if (!$field instanceof Field) {
+                continue;
+            }
+            $tcaModel = $field->getTca();
+            if (is_object($tcaModel) && method_exists($tcaModel, 'setDatatype') && method_exists($tcaModel, 'getTca')) {
+                $tcaModel->setDatatype($datatype);
+                $tca['columns'][$field->getCode()] = $tcaModel->getTca();
+            }
+        }
+
+        return $tca;
     }
 
     private function backupFile(string $tcaFile, string $tableName): bool

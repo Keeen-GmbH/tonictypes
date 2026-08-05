@@ -42,6 +42,12 @@
       <trans-unit id="tx_tonictypes_domain_model_datatype.hide_add">
         <source>Hide Button to Add new Record</source>
       </trans-unit>
+      <trans-unit id="tx_tonictypes_domain_model_datatype.default_hidden">
+        <source>New records are disabled by default</source>
+      </trans-unit>
+      <trans-unit id="tx_tonictypes_domain_model_datatype.default_hidden.description">
+        <source>When enabled, newly created records of this datatype start hidden and must be activated manually.</source>
+      </trans-unit>
       <trans-unit id="tx_tonictypes_domain_model_datatype.title_divider">
         <source>Title Divider Character</source>
       </trans-unit>

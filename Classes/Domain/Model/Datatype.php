@@ -75,6 +75,11 @@ class Datatype extends AbstractModel
     protected $hideAdd = false;
 
     /**
+     * @var bool
+     */
+    protected $defaultHidden = false;
+
+    /**
      * Datatype - Field Relations
      *
      * @var \TYPO3\CMS\Extbase\Persistence\ObjectStorage<\K3n\Tonictypes\Domain\Model\Field>
@@ -455,6 +460,16 @@ class Datatype extends AbstractModel
     public function setHideAdd(bool $hideAdd = true): void
     {
         $this->hideAdd = $hideAdd;
+    }
+
+    public function getDefaultHidden(): bool
+    {
+        return $this->defaultHidden;
+    }
+
+    public function setDefaultHidden(bool $defaultHidden = true): void
+    {
+        $this->defaultHidden = $defaultHidden;
     }
 
     /**
