@@ -16,10 +16,12 @@ namespace K3n\Tonictypes\Middleware;
 
 use K3n\Tonictypes\Configuration\ExtensionConfiguration;
 use K3n\Tonictypes\Service\Settings\FieldSettingsService;
+use K3n\Tonictypes\Tca\TcaSchemaSynchronizer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * TYPO3 v12/v13: merge field-type FlexForm DS into TCA via ds_pointerField map.
@@ -51,10 +53,15 @@ class FieldtypeConfigurationMiddleware implements MiddlewareInterface
             $mergedDs['default'] = 'FILE:EXT:tonictypes/Configuration/FlexForms/Field/Empty.xml';
         }
 
-        // Keep array + ds_pointerField behavior required on v12/v13.
         $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds'] = $mergedDs;
         $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds_pointerField'] =
             $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds_pointerField'] ?? 'type';
+
+        $tcaSchemaFactoryClass = 'TYPO3\\CMS\\Core\\Schema\\TcaSchemaFactory';
+        if (class_exists($tcaSchemaFactoryClass)) {
+            GeneralUtility::makeInstance(TcaSchemaSynchronizer::class)
+                ->synchronize(GeneralUtility::makeInstance($tcaSchemaFactoryClass));
+        }
 
         return $handler->handle($request);
     }

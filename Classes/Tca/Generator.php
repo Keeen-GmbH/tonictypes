@@ -32,6 +32,7 @@ use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
 use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Schema\TcaSchemaFactory;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
@@ -92,6 +93,16 @@ class Generator implements MiddlewareInterface
      * @var FlashMessageService
      */
     protected $backendFlashMessageService;
+
+    /**
+     * @var TcaSchemaFactory|null
+     */
+    protected $tcaSchemaFactory = null;
+
+    /**
+     * @var TcaSchemaSynchronizer|null
+     */
+    protected $tcaSchemaSynchronizer = null;
 
     /**
      * @param DatatypeRepository $datatypeRepository
@@ -158,6 +169,19 @@ class Generator implements MiddlewareInterface
     public function injectBackendFlashMessageService(FlashMessageService $backendFlashMessageService)
     {
         $this->backendFlashMessageService = $backendFlashMessageService;
+    }
+
+    /**
+     * Optional: only available on TYPO3 v13+ (TcaSchemaFactory does not exist on v12).
+     */
+    public function injectTcaSchemaFactory(?TcaSchemaFactory $tcaSchemaFactory = null): void
+    {
+        $this->tcaSchemaFactory = $tcaSchemaFactory;
+    }
+
+    public function injectTcaSchemaSynchronizer(TcaSchemaSynchronizer $tcaSchemaSynchronizer): void
+    {
+        $this->tcaSchemaSynchronizer = $tcaSchemaSynchronizer;
     }
 
     /**
@@ -324,9 +348,8 @@ class Generator implements MiddlewareInterface
     {
         try {
             $this->processTca();
-            $tcaSchemaFactoryClass = 'TYPO3\CMS\Core\Schema\TcaSchemaFactory';
-            if (class_exists($tcaSchemaFactoryClass)) {
-                GeneralUtility::makeInstance($tcaSchemaFactoryClass)->rebuild($GLOBALS['TCA']);
+            if ($this->tcaSchemaFactory !== null && $this->tcaSchemaSynchronizer !== null) {
+                $this->tcaSchemaSynchronizer->synchronize($this->tcaSchemaFactory);
             }
         } catch (TcaGeneratorException $e) {
             $message = 'Message: ' . $e->getMessage() . "\r\n" . 'in File ' . $e->getFile() . ':' . $e->getLine();

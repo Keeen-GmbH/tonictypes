@@ -400,7 +400,49 @@ class TableController extends AbstractBackendController implements LoggerAwareIn
         // MIGRATION ROUTINE
         ////////////////////////////////////////////////////////////
         try {
-            $result = $this->tableFactory->migrate($sqlStatements, $selectedStatements);
+            $tableExists = $this->tableFactory->tableExists($tableName);
+            $result = [];
+
+            if (!$tableExists) {
+                // install(..., true) uses renameUnused=false so ConnectionMigrator does not strip record tables.
+                $result = $this->tableFactory->install($sqlStatements, true);
+            } else {
+                if ($selectedStatements !== []) {
+                    $result = $this->tableFactory->migrate($sqlStatements, $selectedStatements);
+                }
+
+                // getUpdateSuggestions() runs with renameUnused=true and our XCLASS filters out
+                // ADD/ALTER for tx_tonictypes_domain_model_record_* — so migrate often gets zero SQL.
+                // Fall back to install(createOnly), which builds the diff without that Analyze filter.
+                if ($this->tableFactory->tableNeedsUpdate($tableName, $datatype)) {
+                    $installErrors = $this->tableFactory->install($sqlStatements, true);
+                    $result = array_merge($result, $installErrors);
+                }
+
+                if ($this->tableFactory->tableNeedsUpdate($tableName, $datatype)) {
+                    $missing = array_map(
+                        static fn ($field) => (string)$field->getCode(),
+                        $this->tableFactory->getMissingColumns($tableName, $datatype)
+                    );
+                    throw new \RuntimeException(sprintf(
+                        'Table "%s" still misses column(s): %s',
+                        $tableName,
+                        implode(', ', $missing)
+                    ));
+                }
+            }
+
+            if (is_array($result) && $result !== []) {
+                $errorMessages = [];
+                foreach ($result as $error) {
+                    if (is_string($error) && $error !== '') {
+                        $errorMessages[] = $error;
+                    }
+                }
+                if ($errorMessages !== []) {
+                    throw new \RuntimeException(implode('; ', $errorMessages));
+                }
+            }
         } catch (\Exception $e) {
             $response = GeneralUtility::makeInstance(Response::class);
             $response->getBody()->write(json_encode(['success' => false, 'html' => $e->getMessage()]));

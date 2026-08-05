@@ -17,12 +17,12 @@ namespace K3n\Tonictypes\Middleware;
 
 use K3n\Tonictypes\Service\Settings\FieldSettingsService;
 use K3n\Tonictypes\Tca\FieldtypeFlexformTcaApplicator;
+use K3n\Tonictypes\Tca\TcaSchemaSynchronizer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Schema\TcaSchemaFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Injects field-type flexform TCA once TypoScript is available (TYPO3 v14).
@@ -34,6 +34,8 @@ class FieldtypeConfigurationMiddlewareV14 implements MiddlewareInterface
     public function __construct(
         private readonly FieldSettingsService $fieldSettingsService,
         private readonly FieldtypeFlexformTcaApplicator $fieldtypeFlexformTcaApplicator,
+        private readonly TcaSchemaFactory $tcaSchemaFactory,
+        private readonly TcaSchemaSynchronizer $tcaSchemaSynchronizer,
     ) {
     }
 
@@ -43,7 +45,7 @@ class FieldtypeConfigurationMiddlewareV14 implements MiddlewareInterface
         $this->fieldtypeFlexformTcaApplicator->apply(
             $this->fieldSettingsService->getTcaFlexFormConfiguration($pid)
         );
-        GeneralUtility::makeInstance(TcaSchemaFactory::class)->rebuild($GLOBALS['TCA']);
+        $this->tcaSchemaSynchronizer->synchronize($this->tcaSchemaFactory);
 
         return $handler->handle($request);
     }

@@ -193,12 +193,14 @@ class TableFactory implements SingletonInterface
      */
     public function getMissingColumns(string $tableName, Datatype $datatype): array
     {
-        $columns = $this->getTableColumns($tableName);
+        $columns = array_map('strtolower', $this->getTableColumns($tableName));
         $missingColumns = [];
         foreach ($datatype->getFields() as $_field) {
-            if (!in_array($_field->getCode(), $columns)) {
-                $missingColumns[] = $_field;
+            $code = strtolower(trim((string)$_field->getCode()));
+            if ($code === '' || in_array($code, $columns, true)) {
+                continue;
             }
+            $missingColumns[] = $_field;
         }
 
         return $missingColumns;
