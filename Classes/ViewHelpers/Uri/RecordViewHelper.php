@@ -17,6 +17,7 @@ namespace K3n\Tonictypes\ViewHelpers\Uri;
 use K3n\Tonictypes\Domain\Model\AbstractRecordModel;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\ApplicationType;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface as ExtbaseRequestInterface;
@@ -67,7 +68,18 @@ class RecordViewHelper extends AbstractViewHelper
     public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext): string
     {
         /** @var RenderingContext $renderingContext */
-        $request = $renderingContext->getRequest();
+        $request = null;
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 14) {
+            $request = $renderingContext->getRequest();
+        } else {
+            if (method_exists($renderingContext, 'getAttribute')) {
+                $request = $renderingContext->getAttribute(ServerRequestInterface::class);
+            }
+            if (!$request instanceof ServerRequestInterface && isset($GLOBALS['TYPO3_REQUEST']) && $GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
+                $request = $GLOBALS['TYPO3_REQUEST'];
+            }
+        }
+
         if ($request instanceof ExtbaseRequestInterface) {
             return self::renderWithExtbaseContext($request, $arguments);
         }
