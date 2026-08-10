@@ -19,6 +19,8 @@ The documentation is available here:
 
 [https://docs.typo3.org/p/k3n/tonictypes/master/en-us/](https://docs.typo3.org/p/k3n/tonictypes/master/en-us/)
 
+Release notes: see [CHANGELOG.md](CHANGELOG.md)
+
 ## Installation
 
 We recommend installing the extension using [Composer](https://getcomposer.org):
@@ -27,7 +29,8 @@ We recommend installing the extension using [Composer](https://getcomposer.org):
 
 ## Compatibility
 
-+ TYPO3 CMS 14.3.X
++ TYPO3 CMS 12.4 – 14.9
++ PHP 8.2 – 8.5
 
 ## Professional
 
@@ -35,11 +38,12 @@ We are also creating a Tonictypes Professional Version, which helps us to provid
 supporting our development. The Tonictypes Professional Extension is in a continuous process of getting
 new features such as plugins and more configuration options, to improve your workflows even more.
 
-Addional fields and components are also available for specific usage like
+Additional fields and components are also available for specific usage like
 
 - API Building
 - Creating Blog-like Content within your records
 - Combining information and building html fields in the TYPO3 Backend
+- Advanced field types (DynamicInput, Inline, Flex, PassThrough, and more)
 - and many more
 
 Please refer to this url:
@@ -55,6 +59,8 @@ Please refer to this url:
 + Inject dynamic variables of different types to your fluid templates
 + Easy fluid templating with intuitive customizable variable naming
 + Export and import datatype structures (fields, variables, table schema)
++ Predefined datatype import via dashboard widget
++ Optional default-hidden setting for new datatype records
 + Backend Toolbar Item for easy record management (Professional)
 + Language support
 
@@ -65,6 +71,11 @@ Please refer to this url:
 3. Create your records
 4. Create fluid templates for the records. You can create lists or single views.
 5. Insert Record-Plugin to your site to display record(s)
+
+Optional helpers:
+
+- Use **Dashboard > Predefined Datatype Import** to load the bundled sample datatype
+- Use **System > Export / Import** to export or import datatype structures between instances
 
 ## Configuration
 
@@ -142,9 +153,14 @@ config.tx_extbase{
 }
 ```
 
+## Upgrade notes (2.1.0)
+
++ Requires PHP 8.2 or higher
++ After upgrade, run **Analyze Database Structure** and clear all caches
++ Professional-only field types require `k3n/tonictypes_pro`
+
 ## Future Roadmap
 
 + Provide Plugins for Search, Filter, Sorting and Pagination (Professional)
 + Add additional ViewHelpers to customize fluid templating
 + Add possibilities to customize value types
-+ Build predefined plugins for your customers
