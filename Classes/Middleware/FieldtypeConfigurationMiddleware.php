@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -15,44 +16,52 @@ namespace K3n\Tonictypes\Middleware;
 
 use K3n\Tonictypes\Configuration\ExtensionConfiguration;
 use K3n\Tonictypes\Service\Settings\FieldSettingsService;
+use K3n\Tonictypes\Tca\TcaSchemaSynchronizer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 
+/**
+ * TYPO3 v12/v13: merge field-type FlexForm DS into TCA via ds_pointerField map.
+ */
 class FieldtypeConfigurationMiddleware implements MiddlewareInterface
 {
-    /**
-     * TCA Cache Service
-     *
-     * @var FieldSettingsService
-     */
-    protected $fieldSettingsService;
+    use ResolvesBackendPageIdFromRequest;
 
-    /**
-     * @param FieldSettingsService $fieldSettingsService
-     */
-    public function injectFieldSettingsService(FieldSettingsService $fieldSettingsService)
-    {
-        $this->fieldSettingsService = $fieldSettingsService;
+    public function __construct(
+        private readonly FieldSettingsService $fieldSettingsService,
+    ) {
     }
 
-    /**
-     * Middleware to inject field configuration into globals
-     *
-     * @param ServerRequestInterface $request
-     * @param RequestHandlerInterface $handler
-     * @return ResponseInterface
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $fieldFlexformConfig = $this->fieldSettingsService->getTcaFlexFormConfiguration();
+        $pid = $this->resolvePidFromRequest($request);
+        $fieldFlexformConfig = $this->fieldSettingsService->getTcaFlexFormConfiguration($pid);
+        $fieldTable = ExtensionConfiguration::EXTENSION_FIELD_TABLE;
 
-        $GLOBALS["TCA"][ExtensionConfiguration::EXTENSION_FIELD_TABLE]['columns']['field_conf']['config']['ds'] =
-            array_merge($GLOBALS["TCA"][ExtensionConfiguration::EXTENSION_FIELD_TABLE]['columns']['field_conf']['config']['ds'], $fieldFlexformConfig);
+        $existingDs = $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds'] ?? [];
+        if (is_string($existingDs)) {
+            $existingDs = $existingDs !== '' ? ['default' => $existingDs] : [];
+        } elseif (!is_array($existingDs)) {
+            $existingDs = [];
+        }
+
+        $mergedDs = array_merge($existingDs, $fieldFlexformConfig);
+        if (!isset($mergedDs['default']) || $mergedDs['default'] === '') {
+            $mergedDs['default'] = 'FILE:EXT:tonictypes/Configuration/FlexForms/Field/Empty.xml';
+        }
+
+        $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds'] = $mergedDs;
+        $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds_pointerField'] =
+            $GLOBALS['TCA'][$fieldTable]['columns']['field_conf']['config']['ds_pointerField'] ?? 'type';
+
+        $tcaSchemaFactoryClass = 'TYPO3\\CMS\\Core\\Schema\\TcaSchemaFactory';
+        if (class_exists($tcaSchemaFactoryClass)) {
+            GeneralUtility::makeInstance(TcaSchemaSynchronizer::class)
+                ->synchronize(GeneralUtility::makeInstance($tcaSchemaFactoryClass));
+        }
 
         return $handler->handle($request);
     }

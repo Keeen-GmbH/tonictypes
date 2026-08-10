@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,13 +14,15 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Factory;
 
-use K3n\Tonictypes\Domain\Model\Datatype;
-use K3n\Tonictypes\Fluid\View\StandaloneView;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\SchemaException;
+use Doctrine\DBAL\Types\Type;
 use InvalidArgumentException;
+use K3n\Tonictypes\Configuration\ExtensionConfiguration;
+use K3n\Tonictypes\Domain\Model\Datatype;
+use K3n\Tonictypes\Fluid\View\StandaloneView;
 use RuntimeException;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -29,7 +32,6 @@ use TYPO3\CMS\Core\Database\Schema\SchemaMigrator;
 use TYPO3\CMS\Core\Database\Schema\SqlReader;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use K3n\Tonictypes\Configuration\ExtensionConfiguration;
 
 class TableFactory implements SingletonInterface
 {
@@ -107,9 +109,43 @@ class TableFactory implements SingletonInterface
      */
     public function suggestTableNameByDatatypeName(string $datatypeName): string
     {
-        $parts = GeneralUtility::trimExplode(' ', $datatypeName, true);
-        $parts = array_map('strtolower', $parts);
-        return 'tx_tonictypes_domain_model_record_'.implode('_',$parts);
+        $normalized = strtolower(trim($datatypeName));
+        // Keep only safe SQL identifier characters derived from the human name.
+        $normalized = preg_replace('/[^a-z0-9]+/', '_', $normalized) ?? '';
+        $normalized = trim($normalized, '_');
+        $normalized = preg_replace('/_+/', '_', $normalized) ?? '';
+
+        if ($normalized === '') {
+            $normalized = 'record';
+        }
+
+        $tableName = 'tx_tonictypes_domain_model_record_' . $normalized;
+        // MySQL identifier limit is 64 characters.
+        if (strlen($tableName) > 64) {
+            $tableName = substr($tableName, 0, 64);
+            $tableName = rtrim($tableName, '_');
+        }
+
+        return $tableName;
+    }
+
+    /**
+     * Checks if a tablename is allowed for a Tonictypes record table.
+     *
+     * @param string $tableName
+     * @return bool
+     */
+    public function isAllowedTablename(string $tableName): bool
+    {
+        if ($tableName === '' || strlen($tableName) > 64) {
+            return false;
+        }
+
+        // Must be a Tonictypes record table with a safe SQL identifier suffix.
+        return (bool)preg_match(
+            '/^tx_tonictypes_domain_model_record_[a-z][a-z0-9_]*$/',
+            $tableName
+        );
     }
 
     /**
@@ -123,7 +159,7 @@ class TableFactory implements SingletonInterface
     public function isRecordTable(string $tableName): bool
     {
         // We need to check all datatypes, if the according tablename is set somewhere
-        return ($this->getConnection()->select(["uid"],ExtensionConfiguration::EXTENSION_DATATYPE_TABLE,["tablename"=>$tableName])->rowCount() > 0);
+        return ($this->getConnection()->select(['uid'], ExtensionConfiguration::EXTENSION_DATATYPE_TABLE, ['tablename' => $tableName])->rowCount() > 0);
     }
 
     /**
@@ -157,15 +193,247 @@ class TableFactory implements SingletonInterface
      */
     public function getMissingColumns(string $tableName, Datatype $datatype): array
     {
-        $columns = $this->getTableColumns($tableName);
+        $columns = array_map('strtolower', $this->getTableColumns($tableName));
         $missingColumns = [];
         foreach ($datatype->getFields() as $_field) {
-            if (!in_array($_field->getCode(),$columns)) {
-                $missingColumns[] = $_field;
+            $code = strtolower(trim((string)$_field->getCode()));
+            if ($code === '' || in_array($code, $columns, true)) {
+                continue;
             }
+            $missingColumns[] = $_field;
         }
 
         return $missingColumns;
+    }
+
+    /**
+     * System / reserved columns that belong to every tonictypes record table.
+     *
+     * @return list<string>
+     */
+    public function getSystemColumnNames(): array
+    {
+        return [
+            'uid',
+            'pid',
+            'title',
+            'datatype',
+            'icon',
+            'parent',
+            'path_segment',
+            'tstamp',
+            'crdate',
+            // Legacy columns kept so publish cleanup does not drop them from existing tables.
+            'cruser_id',
+            'deleted',
+            'hidden',
+            'starttime',
+            'endtime',
+            't3ver_oid',
+            't3ver_id',
+            't3ver_wsid',
+            't3ver_label',
+            't3ver_state',
+            't3ver_stage',
+            't3ver_count',
+            't3ver_tstamp',
+            't3ver_move_id',
+            't3_origuid',
+            'sorting',
+            'sys_language_uid',
+            'l10n_parent',
+            'l10n_source',
+            'l10n_state',
+            'l10n_diffsource',
+        ];
+    }
+
+    /**
+     * Columns that exist in the DB table but are no longer mapped to a field on the datatype.
+     *
+     * @return list<string>
+     */
+    public function getOrphanColumns(string $tableName, Datatype $datatype): array
+    {
+        if (!$this->tableExists($tableName)) {
+            return [];
+        }
+
+        $expected = [];
+        foreach ($this->getSystemColumnNames() as $systemColumn) {
+            $expected[strtolower($systemColumn)] = true;
+        }
+        foreach ($datatype->getFields() as $field) {
+            $code = trim((string)$field->getCode());
+            if ($code !== '') {
+                $expected[strtolower($code)] = true;
+            }
+        }
+
+        $orphans = [];
+        foreach ($this->getTableColumns($tableName) as $columnName) {
+            $name = (string)$columnName;
+            if ($name === '') {
+                continue;
+            }
+            if (isset($expected[strtolower($name)])) {
+                continue;
+            }
+            $orphans[] = $name;
+        }
+
+        sort($orphans);
+
+        return $orphans;
+    }
+
+    /**
+     * Widen numeric leftover columns to text when a field type was changed
+     * (e.g. passthrough int → editor/text). Safe for existing data.
+     *
+     * @return list<string> Altered column names
+     */
+    public function widenTextColumns(string $tableName, Datatype $datatype): array
+    {
+        if ($tableName === '' || !$this->tableExists($tableName)) {
+            return [];
+        }
+
+        $altered = [];
+        $connection = $this->getConnection();
+        $schemaManager = $connection->createSchemaManager();
+        $existingColumns = $schemaManager->listTableColumns($tableName);
+
+        foreach ($datatype->getFields() as $field) {
+            $code = trim((string)$field->getCode());
+            if ($code === '' || (!isset($existingColumns[$code]) && !isset($existingColumns[strtolower($code)]))) {
+                continue;
+            }
+
+            $column = $existingColumns[$code] ?? $existingColumns[strtolower($code)] ?? null;
+            if ($column === null) {
+                continue;
+            }
+
+            $tcaModel = $field->getTca();
+            if (!is_object($tcaModel) || !method_exists($tcaModel, 'getSqlCreateStatement')) {
+                continue;
+            }
+
+            $targetSql = trim((string)$tcaModel->getSqlCreateStatement());
+            if ($targetSql === '' || !$this->isTextLikeSqlDefinition($targetSql)) {
+                continue;
+            }
+
+            // DBAL 3 (TYPO3 12): Type::getName(); DBAL 4 (TYPO3 13/14): Type::lookupName().
+            $type = $column->getType();
+            $currentType = strtolower(
+                method_exists($type, 'getName')
+                    ? (string)$type->getName()
+                    : Type::lookupName($type)
+            );
+            if (!$this->isNumericColumnType($currentType)) {
+                continue;
+            }
+
+            // MODIFY is MySQL/MariaDB-specific; skip quietly on other platforms.
+            if (!$this->connectionSupportsMysqlModify($connection)) {
+                continue;
+            }
+
+            try {
+                $connection->executeStatement(sprintf(
+                    'ALTER TABLE %s MODIFY %s %s',
+                    $connection->quoteIdentifier($tableName),
+                    $connection->quoteIdentifier($code),
+                    $targetSql
+                ));
+                $altered[] = $code;
+            } catch (\Throwable) {
+                // Leave column as-is; FormDataProvider still protects FormEngine.
+            }
+        }
+
+        return $altered;
+    }
+
+    private function isTextLikeSqlDefinition(string $sql): bool
+    {
+        $normalized = strtolower($sql);
+        return str_contains($normalized, 'text')
+            || str_contains($normalized, 'varchar')
+            || str_contains($normalized, 'char(')
+            || str_contains($normalized, 'blob');
+    }
+
+    private function isNumericColumnType(string $typeName): bool
+    {
+        return in_array($typeName, [
+            'integer',
+            'bigint',
+            'smallint',
+            'tinyint',
+            'int',
+            'float',
+            'double',
+            'decimal',
+            'boolean',
+            'bool',
+        ], true);
+    }
+
+    /**
+     * ALTER … MODIFY is MySQL/MariaDB only (TYPO3 12–14 production target).
+     */
+    private function connectionSupportsMysqlModify(Connection $connection): bool
+    {
+        $platformClass = strtolower($connection->getDatabasePlatform()::class);
+
+        return str_contains($platformClass, 'mysql')
+            || str_contains($platformClass, 'mariadb');
+    }
+
+    /**
+     * Drop unused (orphan) columns from a record table.
+     *
+     * @param list<string> $columnNames
+     * @return array{dropped: list<string>, errors: array<string, string>}
+     */
+    public function dropColumns(string $tableName, array $columnNames): array
+    {
+        $dropped = [];
+        $errors = [];
+        if ($tableName === '' || $columnNames === [] || !$this->tableExists($tableName)) {
+            return ['dropped' => $dropped, 'errors' => $errors];
+        }
+
+        $connection = $this->getConnection();
+        $quotedTable = $connection->quoteIdentifier($tableName);
+        foreach ($columnNames as $columnName) {
+            $columnName = trim((string)$columnName);
+            if ($columnName === '') {
+                continue;
+            }
+            // Never allow dropping reserved system columns.
+            if (in_array(strtolower($columnName), array_map('strtolower', $this->getSystemColumnNames()), true)) {
+                $errors[$columnName] = 'System column cannot be dropped.';
+                continue;
+            }
+            try {
+                $connection->executeStatement(
+                    sprintf(
+                        'ALTER TABLE %s DROP COLUMN %s',
+                        $quotedTable,
+                        $connection->quoteIdentifier($columnName)
+                    )
+                );
+                $dropped[] = $columnName;
+            } catch (\Throwable $exception) {
+                $errors[$columnName] = $exception->getMessage();
+            }
+        }
+
+        return ['dropped' => $dropped, 'errors' => $errors];
     }
 
     /**
@@ -179,22 +447,7 @@ class TableFactory implements SingletonInterface
     public function tableNeedsUpdate(string $tableName, Datatype $datatype): bool
     {
         $missingColumns = $this->getMissingColumns($tableName, $datatype);
-        return (count($missingColumns)>0);
-    }
-
-    /**
-     * Checks if a tablename is allowed
-     *
-     * @param string $tableName
-     * @return bool
-     */
-    public function isAllowedTablename(string $tableName): bool
-    {
-        if ($tableName == '') {
-            return false;
-        }
-
-        return true;
+        return (count($missingColumns) > 0);
     }
 
     /**
@@ -256,7 +509,7 @@ class TableFactory implements SingletonInterface
             }
             $updateSuggestions[$operation] = array_filter(
                 $statements,
-                static fn($sql): bool => is_string($sql) && str_contains($sql, $needle)
+                static fn ($sql): bool => is_string($sql) && str_contains($sql, $needle)
             );
         }
 
@@ -298,11 +551,27 @@ class TableFactory implements SingletonInterface
     {
         /* @var StandaloneView $standaloneView */
         $standaloneView = GeneralUtility::makeInstance(StandaloneView::class);
-        $templateFile = "EXT:tonictypes/Resources/Private/Init/CREATE_STATEMENT.sql";
+        $templateFile = 'EXT:tonictypes/Resources/Private/Init/CREATE_STATEMENT.sql';
         $templateFile = GeneralUtility::getFileAbsFileName($templateFile);
         $standaloneView->setTemplatePathAndFilename($templateFile);
-        $standaloneView->assign("datatype", $datatype);
-        $standaloneView->assign("tableName", $tableName);
+
+        $systemColumns = [];
+        foreach ($this->getSystemColumnNames() as $columnName) {
+            $systemColumns[strtolower($columnName)] = true;
+        }
+
+        $sqlFields = [];
+        foreach ($datatype->getFields() as $field) {
+            $code = strtolower(trim((string)$field->getCode()));
+            if ($code === '' || isset($systemColumns[$code])) {
+                continue;
+            }
+            $sqlFields[] = $field;
+        }
+
+        $standaloneView->assign('datatype', $datatype);
+        $standaloneView->assign('tableName', $tableName);
+        $standaloneView->assign('sqlFields', $sqlFields);
         return $standaloneView->render();
     }
 

@@ -1,0 +1,154 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Transfer"/>
+
+<f:section name="Content">
+    <div class="container">
+        <div class="tonictypes-transfer"
+             data-export-uri="{exportUri}"
+             data-import-preview-uri="{importPreviewUri}"
+             data-import-execute-uri="{importExecuteUri}"
+             data-storage-pages="{storagePages -> f:format.json()}"
+             data-loader-icon="{loaderIconUri}">
+
+            <ul class="nav nav-tabs mb-3" role="tablist">
+                <li class="nav-item">
+                    <button type="button" class="nav-link border active" data-tab="export" role="tab">
+                        <core:icon identifier="actions-download" size="small"/>
+                        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:tab.export"/>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link border" data-tab="import" role="tab">
+                        <core:icon identifier="actions-upload" size="small"/>
+                        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:tab.import"/>
+                    </button>
+                </li>
+            </ul>
+
+            <div data-tab-panel="export">
+                <p class="text-muted">
+                    <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:export.description"/>
+                </p>
+
+                <f:if condition="{datatypes}">
+                    <f:then>
+                        <div class="table-responsive mb-3">
+                            <table class="table table-striped align-middle border">
+                                <thead>
+                                    <tr>
+                                        <th style="width:3rem;">
+                                            <div class="form-check form-check-type-icon-toggle mb-0">
+                                                <input type="checkbox" class="form-check-input" id="tonictypes-transfer-select-all">
+                                                <label class="form-check-label" for="tonictypes-transfer-select-all">
+                                                    <span class="form-check-label-icon">
+                                                        <span class="form-check-label-icon-checked">
+                                                            <core:icon identifier="actions-check" size="small" alternativeMarkupIdentifier="inline"/>
+                                                        </span>
+                                                        <span class="form-check-label-icon-unchecked">
+                                                            <core:icon identifier="miscellaneous-placeholder" size="small" alternativeMarkupIdentifier="inline"/>
+                                                        </span>
+                                                    </span>
+                                                    <span class="visually-hidden">
+                                                        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:export.select_all"/>
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </th>
+                                        <th>Datatype</th>
+                                        <th>Tablename</th>
+                                        <th style="width:6rem;">Fields</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <f:for each="{datatypes}" as="datatype">
+                                        <tr>
+                                            <td>
+                                                <div class="form-check form-check-type-icon-toggle mb-0">
+                                                    <input type="checkbox"
+                                                           class="form-check-input tonictypes-transfer-export-checkbox"
+                                                           id="tonictypes-transfer-export-{datatype.uid}"
+                                                           value="{datatype.uid}">
+                                                    <label class="form-check-label" for="tonictypes-transfer-export-{datatype.uid}">
+                                                        <span class="form-check-label-icon">
+                                                            <span class="form-check-label-icon-checked">
+                                                                <core:icon identifier="actions-check" size="small" alternativeMarkupIdentifier="inline"/>
+                                                            </span>
+                                                            <span class="form-check-label-icon-unchecked">
+                                                                <core:icon identifier="miscellaneous-placeholder" size="small" alternativeMarkupIdentifier="inline"/>
+                                                            </span>
+                                                        </span>
+                                                        <span class="visually-hidden">{datatype.name}</span>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td><strong>{datatype.name}</strong></td>
+                                            <td><code>{datatype.tablename}</code></td>
+                                            <td>{datatype.fieldCount}</td>
+                                        </tr>
+                                    </f:for>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <button type="button" class="btn btn-default" id="tonictypes-transfer-export-button">
+                            <core:icon identifier="actions-download" size="small"/>
+                            <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:export.button"/>
+                        </button>
+                    </f:then>
+                    <f:else>
+                        <div class="alert alert-info">
+                            <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:export.no_datatypes"/>
+                        </div>
+                    </f:else>
+                </f:if>
+            </div>
+
+            <div class="d-none" data-tab-panel="import">
+                <p class="text-muted">
+                    <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:import.description"/>
+                </p>
+
+                <div class="mb-3">
+                    <label class="form-label" for="tonictypes-transfer-import-file">
+                        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:import.file"/>
+                    </label>
+                    <input type="file" class="form-control" id="tonictypes-transfer-import-file" accept=".zip,.t3tt,.t3tt.zip">
+                </div>
+
+                <div id="tonictypes-transfer-import-preview" class="d-none mb-3">
+                    <h3 class="h5 mb-2">
+                        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:import.mapping_title"/>
+                    </h3>
+                    <div class="table-responsive mb-3">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Tablename</th>
+                                <th>Fields</th>
+                                <th>Status</th>
+                                <th>
+                                    <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:import.storage_page"/>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tonictypes-transfer-import-preview-body"></tbody>
+                    </table>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" id="tonictypes-transfer-import-execute-button">
+                        <core:icon identifier="actions-upload" size="small"/>
+                        <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang_mod_transfer.xlf:import.execute"/>
+                    </button>
+                </div>
+
+                <div id="tonictypes-transfer-import-result" class="d-none alert mb-0"></div>
+            </div>
+        </div>
+    </div>
+</f:section>
+
+</html>

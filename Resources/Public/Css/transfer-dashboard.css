@@ -1,0 +1,64 @@
+.module.tonictypes-transfer-module {
+    --module-docheader-height: auto;
+}
+
+.tonictypes-transfer--busy {
+    pointer-events: none;
+    user-select: none;
+}
+
+body.tonictypes-transfer-page-busy {
+    overflow: hidden;
+}
+
+.tonictypes-transfer-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: light-dark(rgba(255, 255, 255, 0.72), rgba(20, 20, 20, 0.72));
+    backdrop-filter: blur(2px);
+}
+
+.tonictypes-transfer-loader.is-visible {
+    display: flex;
+}
+
+.tonictypes-transfer-loader__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.tonictypes-transfer-loader__icon {
+    width: 3rem;
+    height: 3rem;
+    animation: tonictypes-transfer-zoom 1.4s ease-in-out infinite;
+    transform-origin: center center;
+}
+
+.tonictypes-transfer-loader__text {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: light-dark(#333, #eee);
+}
+
+@keyframes tonictypes-transfer-zoom {
+    0%,
+    100% {
+        transform: scale(0.82);
+        opacity: 0.75;
+    }
+
+    50% {
+        transform: scale(1.12);
+        opacity: 1; 
+    }
+}

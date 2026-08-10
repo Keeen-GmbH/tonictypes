@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -57,7 +58,7 @@ class TonictypesEnhancer extends ExtbasePluginEnhancer
     protected function verifyRequiredParameters(Route $route, array $parameters): bool
     {
         // We modify this method a bit to validate, if the requested page id matches the targetPages setting
-        if(array_key_exists('targetPages', $this->configuration) && is_array($this->configuration['targetPages']) && in_array($this->pageId, $this->configuration['targetPages'])) {
+        if (array_key_exists('targetPages', $this->configuration) && is_array($this->configuration['targetPages']) && in_array($this->pageId, $this->configuration['targetPages'])) {
             return parent::verifyRequiredParameters($route, $parameters);
         }
 

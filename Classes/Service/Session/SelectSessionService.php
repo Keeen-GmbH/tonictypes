@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -19,13 +20,13 @@ class SelectSessionService extends SessionService
      * Session Prefix Key
      * @var string
      */
-    const SESSION_PREFIX_KEY = "tx-tonictypes-select";
+    public const SESSION_PREFIX_KEY = 'tx-tonictypes-select';
 
     /**
      * Session Keys for Selection
      * @var string
      */
-    const SESSION_KEY_SELECT_RECORDS = "tx-tonictypes-select-records";
+    public const SESSION_KEY_SELECT_RECORDS = 'tx-tonictypes-select-records';
 
     /**
      * Set selected records to the session

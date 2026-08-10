@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -180,8 +181,7 @@ abstract class AbstractController extends ActionController
      */
     public function getCacheIdentifier(array $additionalCacheParameters = [])
     {
-        if(!$this->cacheIdentifier)
-        {
+        if (!$this->cacheIdentifier) {
             $cacheData = [
                 $this->settings,
                 $_GET,

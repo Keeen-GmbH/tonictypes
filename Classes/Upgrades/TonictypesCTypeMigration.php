@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace K3n\Tonictypes\Upgrades;
@@ -124,4 +125,3 @@ final class TonictypesCTypeMigration implements UpgradeWizardInterface
             );
     }
 }
-

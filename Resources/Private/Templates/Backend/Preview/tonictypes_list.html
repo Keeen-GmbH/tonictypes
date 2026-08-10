@@ -118,7 +118,14 @@
     <f:switch expression="{pi_flexform_transformed.settings.template_selection}">
       <f:case value="CUSTOM">
         <f:if condition="{pi_flexform_transformed.settings.template_override} > 0">
-          <dv:backend.render.file table="tt_content" field="settings.template_override" uid="{uid}"/>
+          <f:if condition="{dv:typo3.isVersion(major:12)}">
+            <f:then>
+              <dv:backend.render.file table="tt_content" field="settings.template_override" uid="{uid}"/>
+            </f:then>
+            <f:else>
+              <dv:backend.render.file table="tt_content" field="template_override" uid="{uid}"/>
+            </f:else>
+          </f:if>
         </f:if>
       </f:case>
       <f:case value="FLUID">

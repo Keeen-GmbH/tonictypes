@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -19,15 +20,15 @@ class SearchSessionService extends SessionService
      * Session Prefix Key
      * @var string
      */
-    const SESSION_PREFIX_KEY = "tx-tonictypes-search";
+    public const SESSION_PREFIX_KEY = 'tx-tonictypes-search';
 
     /**
      * Session Keys for Sorting
      * @var string
      */
-    const SESSION_KEY_SEARCH_FIELDS = "tx-tonictypes-search-fields";
-    const SESSION_KEY_SEARCH_STRING = "tx-tonictypes-search-string";
-    const SESSION_KEY_SEARCH_TYPE = "tx-tonictypes-search-type";
+    public const SESSION_KEY_SEARCH_FIELDS = 'tx-tonictypes-search-fields';
+    public const SESSION_KEY_SEARCH_STRING = 'tx-tonictypes-search-string';
+    public const SESSION_KEY_SEARCH_TYPE = 'tx-tonictypes-search-type';
 
     /**
      * Set the search fields

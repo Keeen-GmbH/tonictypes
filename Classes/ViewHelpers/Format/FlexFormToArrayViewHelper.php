@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -52,7 +53,7 @@ class FlexFormToArrayViewHelper extends AbstractViewHelper
      */
     public function render(): array
     {
-        if($this->arguments['flex'] == '') {
+        if ($this->arguments['flex'] == '') {
             return [];
         }
 

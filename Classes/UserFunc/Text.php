@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,10 +10,10 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\UserFunc;
 
 use K3n\Tonictypes\Domain\Model\Variable;
-use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Utility\LocalizationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -58,7 +59,7 @@ class Text
      */
     public function displayNothing(array &$config, &$parentObject)
     {
-        return "";
+        return '';
     }
 
     /**
@@ -70,8 +71,57 @@ class Text
      */
     public function displayNoConfigurationMessage(array &$config, &$parentObject)
     {
-        $message = LocalizationUtility::translate("message.this_field_has_no_configuration");
+        $message = LocalizationUtility::translate('message.this_field_has_no_configuration');
         return "<div class=\"message message-alert\">{$message}</div>";
+    }
+
+    /**
+     * Notice when a stored field type is no longer registered (e.g. Pro-only type without Pro).
+     *
+     * @param array $config
+     * @param mixed $parentObject
+     */
+    public function displayUnsupportedFieldTypeMessage(array &$config, &$parentObject): string
+    {
+        $type = '';
+        $row = $config['row'] ?? [];
+        if (isset($row['type'])) {
+            $type = is_array($row['type']) ? (string)($row['type'][0] ?? '') : (string)$row['type'];
+        }
+        if ($type === '' && isset($config['flexParentDatabaseRow']['type'])) {
+            $parentType = $config['flexParentDatabaseRow']['type'];
+            $type = is_array($parentType) ? (string)($parentType[0] ?? '') : (string)$parentType;
+        }
+        $typeLabel = $type !== '' ? strtoupper($type) : 'TCA';
+
+        $message = LocalizationUtility::translate(
+            'message.unsupported_field_type',
+            [$typeLabel]
+        );
+        if ($message === '') {
+            $message = sprintf(
+                'The "%s" field is not available in the free version. Please upgrade to Tonictypes Professional to use this field type.',
+                $typeLabel
+            );
+        }
+
+        $linkLabel = LocalizationUtility::translate('message.unsupported_field_type.link');
+        if ($linkLabel === '') {
+            $linkLabel = LocalizationUtility::translate('pro.upgrade_to_pro');
+        }
+        if ($linkLabel === '') {
+            $linkLabel = 'Upgrade to Tonictypes Professional';
+        }
+
+        return '<div class="alert tonictypes-alert-pro tonictypes-pro-upgrade-box" role="alert">'
+            . '<p class="tonictypes-pro-upgrade-box__text">'
+            . htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . '</p>'
+            . '<a class="btn tonictypes-btn-pro"'
+            . ' href="https://t3planet.de/tonictypes" target="_blank" rel="noopener noreferrer">'
+            . htmlspecialchars($linkLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . '</a>'
+            . '</div>';
     }
 
     /**
@@ -83,15 +133,17 @@ class Text
      */
     public function displayMessage(array &$config, &$parentObject)
     {
-        $message = "Error @ {$config["itemFormElName"]}";
+        $message = "Error @ {$config['itemFormElName']}";
 
-        $parameters = $config["parameters"];
-        if (isset($parameters["message"]))
-            $message = $parameters["message"];
+        $parameters = $config['parameters'];
+        if (isset($parameters['message'])) {
+            $message = $parameters['message'];
+        }
 
-        $severity = "danger";
-        if (isset($parameters["severity"]))
-            $severity = $parameters["severity"];
+        $severity = 'danger';
+        if (isset($parameters['severity'])) {
+            $severity = $parameters['severity'];
+        }
 
         return "<div class=\"alert alert-{$severity}\">{$message}</div>";
     }

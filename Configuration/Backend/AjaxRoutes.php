@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -13,38 +14,46 @@ return [
     // Table Routes
     'tonictypes_table_status' => [
         'path' => '/tonictypes/table/status',
-        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableStatusAction'
+        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableStatusAction',
     ],
     'tonictypes_table_migrate' => [
         'path' => '/tonictypes/table/migrate',
-        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableMigrateAction'
+        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableMigrateAction',
     ],
     'tonictypes_table_delete' => [
         'path' => '/tonictypes/table/delete',
-        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableDeleteAction'
+        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableDeleteAction',
+    ],
+    'tonictypes_table_drop_orphan_columns' => [
+        'path' => '/tonictypes/table/drop-orphan-columns',
+        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableDropOrphanColumnsAction',
     ],
     'tonictypes_table_generate_tca' => [
         'path' => '/tonictypes/table/generate-tca',
-        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableGenerateTcaAction'
+        'target' => \K3n\Tonictypes\Controller\Backend\TableController::class . '::tableGenerateTcaAction',
     ],
 
     // Class Routes
     'tonictypes_class_status' => [
         'path' => '/tonictypes/class/status',
-        'target' => \K3n\Tonictypes\Controller\Backend\ClassController::class . '::classStatusAction'
+        'target' => \K3n\Tonictypes\Controller\Backend\ClassController::class . '::classStatusAction',
     ],
     'tonictypes_class_migrate' => [
         'path' => '/tonictypes/class/migrate',
-        'target' => \K3n\Tonictypes\Controller\Backend\ClassController::class . '::classMigrateAction'
+        'target' => \K3n\Tonictypes\Controller\Backend\ClassController::class . '::classMigrateAction',
     ],
     'tonictypes_class_delete' => [
         'path' => '/tonictypes/class/delete',
-        'target' => \K3n\Tonictypes\Controller\Backend\ClassController::class . '::classDeleteAction'
+        'target' => \K3n\Tonictypes\Controller\Backend\ClassController::class . '::classDeleteAction',
     ],
 
     // Querybuilder related
     'tonictypes_querybuilder_configuration_get' => [
         'path' => '/tonictypes/querybuilder/configuration/get',
-        'target' => \K3n\Tonictypes\Controller\Backend\QueryBuilderController::class . '::getConfigurationAction'
+        'target' => \K3n\Tonictypes\Controller\Backend\QueryBuilderController::class . '::getConfigurationAction',
+    ],
+    'tonictypes_predefined_datatype_import' => [
+        'path' => '/tonictypes/predefined-datatype/import',
+        'target' => \K3n\Tonictypes\Controller\Backend\PredefinedDatatypeImportController::class . '::importAction',
     ],
 ];

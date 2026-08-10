@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,46 +14,44 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Utility;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 class CheckboxUtility
 {
-	/**
-	 * Gets the selected checkboxes as an array
-	 *
-	 * @param int $resultInt
-	 * @return array
-	 */
-	public static function getSelectedIds(int $resultInt, int $max = 10): array
-	{
-		$ret = [];
-		for ($i=0; $i < $max; $i++)	{
-			// Separate bits and emit values (0 or 1)
-			$ret[$i]= ($resultInt & pow(2,$i)) ? 1 : 0;
-		}
+    /**
+     * Gets the selected checkboxes as an array
+     *
+     * @param int $resultInt
+     * @return array
+     */
+    public static function getSelectedIds(int $resultInt, int $max = 10): array
+    {
+        $ret = [];
+        for ($i = 0; $i < $max; $i++) {
+            // Separate bits and emit values (0 or 1)
+            $ret[$i] = ($resultInt & pow(2, $i)) ? 1 : 0;
+        }
 
-		$selected = $ret;
+        $selected = $ret;
 
-		return $selected;
-	}
+        return $selected;
+    }
 
-	/**
-	 * Gets an integer value for a selection array
-	 *
-	 * @param array $selectionArray
-	 * @return int
-	 */
-	public static function getIntForSelectionArray(array $selectionArray): int
-	{
-		$res = 0;
-		if (count($selectionArray) > 0) {
-			foreach ($selectionArray as $key=>$val) {
+    /**
+     * Gets an integer value for a selection array
+     *
+     * @param array $selectionArray
+     * @return int
+     */
+    public static function getIntForSelectionArray(array $selectionArray): int
+    {
+        $res = 0;
+        if (count($selectionArray) > 0) {
+            foreach ($selectionArray as $key => $val) {
                 if ($val == 1) {
-					$res+=pow(2,$key);
+                    $res += pow(2, $key);
                 }
             }
-		}
+        }
 
-		return $res;
-	}
+        return $res;
+    }
 }

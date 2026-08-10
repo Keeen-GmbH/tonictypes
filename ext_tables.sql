@@ -14,6 +14,7 @@ CREATE TABLE tx_tonictypes_domain_model_datatype (
 	color varchar(255) DEFAULT '' NOT NULL,
 	hide_records tinyint(1) unsigned DEFAULT '0' NOT NULL,
 	hide_add tinyint(1) unsigned DEFAULT '0' NOT NULL,
+	default_hidden tinyint(1) unsigned DEFAULT '0' NOT NULL,
 	title_divider varchar(100) DEFAULT ' ' NOT NULL,
 	tablename varchar(255) DEFAULT '' NOT NULL,
 	disable_general_tab tinyint(1) unsigned DEFAULT '0' NOT NULL,
@@ -42,6 +43,7 @@ CREATE TABLE tx_tonictypes_domain_model_datatype (
 
 	sys_language_uid int(11) DEFAULT '0' NOT NULL,
 	l10n_parent int(11) DEFAULT '0' NOT NULL,
+	l10n_state text,
 	l10n_diffsource mediumblob,
 
 	PRIMARY KEY (uid),
@@ -104,6 +106,7 @@ CREATE TABLE tx_tonictypes_domain_model_field (
 
 	sys_language_uid int(11) DEFAULT '0' NOT NULL,
 	l10n_parent int(11) DEFAULT '0' NOT NULL,
+	l10n_state text,
 	l10n_diffsource mediumblob,
 
 	PRIMARY KEY (uid),
@@ -155,6 +158,7 @@ CREATE TABLE tx_tonictypes_domain_model_fieldvalue (
 
 	sys_language_uid int(11) DEFAULT '0' NOT NULL,
 	l10n_parent int(11) DEFAULT '0' NOT NULL,
+	l10n_state text,
 	l10n_diffsource mediumblob,
 
 	PRIMARY KEY (uid),
@@ -212,6 +216,7 @@ CREATE TABLE tx_tonictypes_domain_model_variable (
 
 	sys_language_uid int(11) DEFAULT '0' NOT NULL,
 	l10n_parent int(11) DEFAULT '0' NOT NULL,
+	l10n_state text,
 	l10n_diffsource mediumblob,
 
 	PRIMARY KEY (uid),

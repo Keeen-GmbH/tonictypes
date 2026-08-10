@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,6 +10,7 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\Service\Query;
 
 use K3n\Tonictypes\Domain\Model\Field;
@@ -22,7 +24,6 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
 class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
-
 {
     /**
      * @var VariableRepository
@@ -97,7 +98,7 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
      */
     protected function _parseRules(?\stdClass &$filter, array $variables = []): \stdClass
     {
-        if(is_null($filter)) {
+        if (is_null($filter)) {
             $std = new \stdClass();
             $std->rules = [];
             return $std;
@@ -108,16 +109,16 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
             return $parsed;
         }
 
-        if(count($parsed->rules) > 0) {
-            foreach($parsed->rules as $_i=>$_rule) {
+        if (count($parsed->rules) > 0) {
+            foreach ($parsed->rules as $_i => $_rule) {
                 if (!$_rule instanceof \stdClass) {
                     continue;
                 }
 
-                if(property_exists($_rule, 'value') && $_rule->value) {
-                    if(is_array($_rule->value)) {
+                if (property_exists($_rule, 'value') && $_rule->value) {
+                    if (is_array($_rule->value)) {
                         // We need to render each array element
-                        foreach($_rule->value as $_r=>$_v) {
+                        foreach ($_rule->value as $_r => $_v) {
                             $parsed->rules[$_i]->value[$_r] = $this->fluidRenderService->renderFluid($_v, $variables);
                         }
                     } else {
@@ -125,7 +126,7 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
                     }
                 }
 
-                if(property_exists($_rule, 'rules')) {
+                if (property_exists($_rule, 'rules')) {
                     $parsed->rules[$_i]->rules = $this->_parseRules($parsed->rules[$_i], $variables);
                 }
             }
@@ -143,18 +144,18 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
      * @param string $postProcessIdentifier
      * @return \stdClass
      */
-    public function parseFilters($settings,
+    public function parseFilters(
+        $settings,
         array $variables = [],
         string $itemIdentifier = 'filters',
         string $filterIdentifier = 'querybuilder',
         string $conditionIdentifier = 'activate_condition',
-        string $postProcessIdentifier = 'post_process'): \stdClass
-
-    {
+        string $postProcessIdentifier = 'post_process'
+    ): \stdClass {
 
         $rawFilters = [];
-        if(array_key_exists('field_value_filter', $settings)) {
-            if(!is_array($settings['field_value_filter'])) {
+        if (array_key_exists('field_value_filter', $settings)) {
+            if (!is_array($settings['field_value_filter'])) {
                 $rawFilters = [];
             } else {
                 $rawFilters = $settings['field_value_filter'];
@@ -165,21 +166,21 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
         $filters->condition = 'AND';
         $filters->rules = [];
 
-        foreach($rawFilters as $_rawFilter) {
+        foreach ($rawFilters as $_rawFilter) {
             $postProcess = $_rawFilter[$itemIdentifier][$postProcessIdentifier];
-            if($postProcess != '') {
+            if ($postProcess != '') {
                 continue;
             }
 
-            if(isset($_rawFilter[$itemIdentifier][$conditionIdentifier]) && isset($_rawFilter[$itemIdentifier][$filterIdentifier])) {
+            if (isset($_rawFilter[$itemIdentifier][$conditionIdentifier]) && isset($_rawFilter[$itemIdentifier][$filterIdentifier])) {
                 $condition = $_rawFilter[$itemIdentifier][$conditionIdentifier];
-                if($this->_validate($condition, $variables)) {
+                if ($this->_validate($condition, $variables)) {
                     $filter = json_decode($_rawFilter[$itemIdentifier][$filterIdentifier]);
                     $parsedFilter = $this->_parseRules($filter, $variables);
 
-                    if(count($parsedFilter->rules) > 1) {
+                    if (count($parsedFilter->rules) > 1) {
 
-                        foreach($parsedFilter->rules as $_r) {
+                        foreach ($parsedFilter->rules as $_r) {
                             if ($_r instanceof \stdClass) {
                                 $_r->post_process = $postProcess;
                             }
@@ -209,15 +210,16 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
      * @param string $postProcessIdentifier
      * @return array
      */
-    public function parsePostProcessFilters($settings,
+    public function parsePostProcessFilters(
+        $settings,
         array $variables = [],
         string $itemIdentifier = 'filters',
         string $filterIdentifier = 'querybuilder',
         string $conditionIdentifier = 'activate_condition',
-        string $postProcessIdentifier = 'post_process'): array
-    {
+        string $postProcessIdentifier = 'post_process'
+    ): array {
         $rawFilters = [];
-        if(array_key_exists('field_value_filter', $settings)) {
+        if (array_key_exists('field_value_filter', $settings)) {
             if (!is_array($settings['field_value_filter'])) {
                 $rawFilters = [];
             } else {
@@ -226,15 +228,15 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         $filters = [];
-        foreach($rawFilters as $_rawFilter) {
+        foreach ($rawFilters as $_rawFilter) {
             $postProcess = $_rawFilter[$itemIdentifier][$postProcessIdentifier];
-            if($postProcess == '') {
+            if ($postProcess == '') {
                 continue;
             }
 
-            if(isset($_rawFilter[$itemIdentifier][$conditionIdentifier]) && isset($_rawFilter[$itemIdentifier][$filterIdentifier])) {
+            if (isset($_rawFilter[$itemIdentifier][$conditionIdentifier]) && isset($_rawFilter[$itemIdentifier][$filterIdentifier])) {
                 $condition = $_rawFilter[$itemIdentifier][$conditionIdentifier];
-                if($this->_validate($condition, $variables)) {
+                if ($this->_validate($condition, $variables)) {
                     $filter = json_decode($_rawFilter[$itemIdentifier][$filterIdentifier]);
                     $filter->post_process = $postProcess;
                     $filters[] = $this->_parseRules($filter, $variables);
@@ -253,15 +255,16 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
      * @param string $orderIdentifier
      * @return array
      */
-    public function parseOrderings($settings,
+    public function parseOrderings(
+        $settings,
         array $variables = [],
         string $itemIdentifier = 'ordering',
         string $fieldIdentifier = 'field',
         string $orderIdentifier = 'order',
-        string $conditionIdentifier = 'condition'): array
-    {
+        string $conditionIdentifier = 'condition'
+    ): array {
         $rawOrderings = [];
-        if(array_key_exists('orderings', $settings)) {
+        if (array_key_exists('orderings', $settings)) {
             if (!is_array($settings['orderings'])) {
                 $rawOrderings = [];
             } else {
@@ -270,25 +273,25 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         $orderings = [];
-        foreach($rawOrderings as $_ordering) {
+        foreach ($rawOrderings as $_ordering) {
 
             $condition = $_ordering[$itemIdentifier][$conditionIdentifier];
-            if($this->_validate($condition, $variables)) {
+            if ($this->_validate($condition, $variables)) {
 
                 $orderingField = $_ordering[$itemIdentifier][$fieldIdentifier];
 
-                if(MathUtility::canBeInterpretedAsInteger($orderingField)) {
+                if (MathUtility::canBeInterpretedAsInteger($orderingField)) {
                     $field = $this->fieldRepository->findByUid($orderingField, false);
-                    if(!$field instanceof Field) {
+                    if (!$field instanceof Field) {
                         continue;
                     }
 
                     $orderingField = $field->getVariableName();
 
-                    if(array_key_exists('subfield', $_ordering['ordering'])) {
-                      if ($_ordering['ordering']['subfield'] != '') {
-                        $orderingField = "{$orderingField}.{$_ordering['ordering']['subfield']}";
-                      }
+                    if (array_key_exists('subfield', $_ordering['ordering'])) {
+                        if ($_ordering['ordering']['subfield'] != '') {
+                            $orderingField = "{$orderingField}.{$_ordering['ordering']['subfield']}";
+                        }
                     }
                 }
 
@@ -298,12 +301,12 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
 
         // Respect Overrides
         $sortingVariableKey = (string)($settings['sorting_variable'] ?? '');
-        if($sortingVariableKey !== '' && array_key_exists($sortingVariableKey, $variables) && $variables[$sortingVariableKey] != '') {
+        if ($sortingVariableKey !== '' && array_key_exists($sortingVariableKey, $variables) && $variables[$sortingVariableKey] != '') {
             $sortingVariableName = $variables[$sortingVariableKey];
-            $orderDir = array_key_exists($sortingVariableName, $orderings)?$orderings[$sortingVariableName]:QueryInterface::ORDER_ASCENDING;
+            $orderDir = array_key_exists($sortingVariableName, $orderings) ? $orderings[$sortingVariableName] : QueryInterface::ORDER_ASCENDING;
             $orderVariableKey = (string)($settings['order_variable'] ?? '');
-            if($orderVariableKey !== '' && array_key_exists($orderVariableKey, $variables) && $variables[$orderVariableKey] != '') {
-                if(strtoupper((string)$variables[$orderVariableKey]) != QueryInterface::ORDER_ASCENDING) {
+            if ($orderVariableKey !== '' && array_key_exists($orderVariableKey, $variables) && $variables[$orderVariableKey] != '') {
+                if (strtoupper((string)$variables[$orderVariableKey]) != QueryInterface::ORDER_ASCENDING) {
                     $orderDir = QueryInterface::ORDER_DESCENDING;
                 }
             }
@@ -312,14 +315,14 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         // Check for injected variables in order direction
-        foreach($orderings as $_ordering=>$dir) {
-            if(MathUtility::canBeInterpretedAsInteger($dir)) {
+        foreach ($orderings as $_ordering => $dir) {
+            if (MathUtility::canBeInterpretedAsInteger($dir)) {
                 $variableUid = $dir;
                 $variable = $this->variableRepository->findByUid($variableUid, true);
-                if($variable instanceof Variable) {
+                if ($variable instanceof Variable) {
                     $value = $this->variableFactory->prepareVariableValue($variable);
 
-                    if($value == 'ASC' || $value == 'DESC') {
+                    if ($value == 'ASC' || $value == 'DESC') {
                         // Ordering direction is valid, so we change it here with the value from the variable
                         $orderings[$_ordering] = $value;
                     } else {
@@ -344,12 +347,12 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
         $limit = $settings['limit'];
 
         $limitVariableKey = (string)($settings['limit_variable'] ?? '');
-        if($limitVariableKey !== '' && array_key_exists($limitVariableKey, $variables) && $variables[$limitVariableKey] != '' && !is_null($variables[$limitVariableKey])) {
+        if ($limitVariableKey !== '' && array_key_exists($limitVariableKey, $variables) && $variables[$limitVariableKey] != '' && !is_null($variables[$limitVariableKey])) {
             // Limit comes from a variable
             $limit = (int)$variables[$limitVariableKey];
         }
 
-        if($limit == '') {
+        if ($limit == '') {
             $limit = null;
         }
 
@@ -364,15 +367,15 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
     public function parseOffset(array $settings, array $variables): ?int
     {
         // Can be numeric, or ''
-        $offset = $settings['offset'];
+        $offset = $settings['offset'] ?? 0;
 
         $offsetVariableKey = (string)($settings['offset_variable'] ?? '');
-        if($offsetVariableKey !== '' && array_key_exists($offsetVariableKey, $variables) && $variables[$offsetVariableKey] != '' && !is_null($variables[$offsetVariableKey])) {
+        if ($offsetVariableKey !== '' && array_key_exists($offsetVariableKey, $variables) && $variables[$offsetVariableKey] != '' && !is_null($variables[$offsetVariableKey])) {
             // Limit comes from a variable
             $offset = (int)$variables[$offsetVariableKey];
         }
 
-        if($offset == '') {
+        if ($offset == '') {
             $offset = null;
         }
 
@@ -386,7 +389,7 @@ class QueryFilterService implements \TYPO3\CMS\Core\SingletonInterface
      */
     protected function _validate($condition, array $variables): bool
     {
-        if($condition == '') {
+        if ($condition == '') {
             return true;
         }
 

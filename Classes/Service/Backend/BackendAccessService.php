@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -23,7 +24,6 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
 
 class BackendAccessService
 {
@@ -54,22 +54,22 @@ class BackendAccessService
         return null;
     }
 
-	/**
-	 * Gets the tonictypes logo url and respects custom logo
-	 * settings in the users TSconfig settings.
-	 * @return string
-	 */
-	public function getLogoUrl(): string
-	{
-		// Default Logo
-		$logo = 'EXT:tonictypes/Resources/Public/Images/logo_tonictypes.svg';
+    /**
+     * Gets the tonictypes logo url and respects custom logo
+     * settings in the users TSconfig settings.
+     * @return string
+     */
+    public function getLogoUrl(): string
+    {
+        // Default Logo
+        $logo = 'EXT:tonictypes/Resources/Public/Images/logo_tonictypes.svg';
 
-		if ($customLogo = $this->getTonictypesTSConfig('customLogo')) {
+        if ($customLogo = $this->getTonictypesTSConfig('customLogo')) {
             $logo = $customLogo;
         }
 
-		return $this->_getImageUrl($logo);
-	}
+        return $this->_getImageUrl($logo);
+    }
 
     /**
      * Gets the tonictypes logo url and respects custom logo
@@ -113,7 +113,7 @@ class BackendAccessService
      * @param Datatype $datatype
      * @return string
      */
-	public function getRecordEditButton(AbstractRecordModel $record, Datatype $datatype): string
+    public function getRecordEditButton(AbstractRecordModel $record, Datatype $datatype): string
     {
         $buttonHtml = '';
         if ($record->getUid() > 0) {
@@ -151,70 +151,70 @@ class BackendAccessService
         return (bool)$this->getTonictypesTSConfig('enableRecordEditButton');
     }
 
-	/**
-	 * Gets the setting from the user TSconfig to disable
-	 * the tonictypes logo in the backend
-	 *
-	 * @return bool
-	 */
-	public function disableTonictypesLogo(): bool
-	{
+    /**
+     * Gets the setting from the user TSconfig to disable
+     * the tonictypes logo in the backend
+     *
+     * @return bool
+     */
+    public function disableTonictypesLogo(): bool
+    {
         return (bool)$this->getTonictypesTSConfig('disableTonictypesLogo');
-	}
+    }
 
-	/**
-	 * Gets the tonictypes support email and resprects custom email
-	 * address that is configured in the users TSconfig settings.
-	 *
-	 * @return string
-	 */
-	public function getSupportEmail(): string
-	{
-		return $this->getTonictypesTSConfig('customSupportEmail')??'support@tonictypes.com';
-	}
+    /**
+     * Gets the tonictypes support email and resprects custom email
+     * address that is configured in the users TSconfig settings.
+     *
+     * @return string
+     */
+    public function getSupportEmail(): string
+    {
+        return $this->getTonictypesTSConfig('customSupportEmail') ?? 'support@tonictypes.com';
+    }
 
-	/**
-	 * Checks whether the user has access to this toolbar item
-	 * @return bool TRUE if user has access, FALSE if not
-	 */
-	public function disableToolbarItem(): bool
-	{
-		return (bool)$this->getTonictypesTSConfig('disableTonictypesToolbarItem')??false;
-	}
+    /**
+     * Checks whether the user has access to this toolbar item
+     * @return bool TRUE if user has access, FALSE if not
+     */
+    public function disableToolbarItem(): bool
+    {
+        return (bool)$this->getTonictypesTSConfig('disableTonictypesToolbarItem') ?? false;
+    }
 
     /**
      * Checks for disabling a message
      * @return bool
      */
-	public function disableSupportMessage(): bool
+    public function disableSupportMessage(): bool
     {
-        return (bool)$this->getTonictypesTSConfig('disableSupportMessage')??false;
+        return (bool)$this->getTonictypesTSConfig('disableSupportMessage') ?? false;
     }
 
-	/**
-	 * Gets the storage pids of the accessible
-	 * mounts
-	 * @return array
-	 */
-	public function getAccessibleStoragePids(): array
-	{
-		$beUser = $this->getBackendUser();
-		return $beUser->returnWebmounts();
-	}
+    /**
+     * Gets the storage pids of the accessible
+     * mounts
+     * @return array
+     */
+    public function getAccessibleStoragePids(): array
+    {
+        $beUser = $this->getBackendUser();
+        return $beUser->returnWebmounts();
+    }
 
-	/**
-	 * Check if logged in as admin
-	 * @return bool
-	 */
-	public function isAdmin(): bool
-	{
-	    $beUser = $this->getBackendUser();
-	    if ($beUser) {
+    /**
+     * Check if logged in as admin
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        $beUser = $this->getBackendUser();
+        if ($beUser) {
             return (bool)$beUser->isAdmin();
         }
 
-	    return false;
-	}
+        return false;
+    }
 
     /**
      * Gets a pages ts config by a given
@@ -270,12 +270,12 @@ class BackendAccessService
         return (int)$wsId;
     }
 
-	/**
-	 * Returns the current BE user.
-	 * @return BackendUserAuthentication
-	 */
-	public function getBackendUser(): ?BackendUserAuthentication
-	{
-		return $GLOBALS['BE_USER'];
-	}
+    /**
+     * Returns the current BE user.
+     * @return BackendUserAuthentication
+     */
+    public function getBackendUser(): ?BackendUserAuthentication
+    {
+        return $GLOBALS['BE_USER'];
+    }
 }

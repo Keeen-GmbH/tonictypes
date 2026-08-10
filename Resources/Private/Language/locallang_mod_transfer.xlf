@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="messages" date="2026-06-09T12:00:00Z">
+        <header/>
+        <body>
+            <trans-unit id="mlang_tabs_tab">
+                <source>Export / Import</source>
+            </trans-unit>
+            <trans-unit id="mlang_labels_tablabel">
+                <source>Datatype Transfer</source>
+            </trans-unit>
+            <trans-unit id="module.title">
+                <source>Datatype Import / Export</source>
+            </trans-unit>
+            <trans-unit id="mlang_labels_tabdescr">
+                <source>Export and import Tonictypes datatypes.</source>
+            </trans-unit>
+            <trans-unit id="tab.export">
+                <source>Export</source>
+            </trans-unit>
+            <trans-unit id="tab.import">
+                <source>Import</source>
+            </trans-unit>
+            <trans-unit id="export.description">
+                <source>Select datatypes to export. Datatype configuration, fields, variables, and the record table schema are included. Record content is not exported.</source>
+            </trans-unit>
+            <trans-unit id="export.select_all">
+                <source>Select all</source>
+            </trans-unit>
+            <trans-unit id="export.button">
+                <source>Export selected</source>
+            </trans-unit>
+            <trans-unit id="export.success">
+                <source>Export completed. Check your browser downloads.</source>
+            </trans-unit>
+            <trans-unit id="export.failed">
+                <source>Export failed.</source>
+            </trans-unit>
+            <trans-unit id="export.no_datatypes">
+                <source>No datatypes found.</source>
+            </trans-unit>
+            <trans-unit id="import.description">
+                <source>Upload a .t3tt.zip structure archive and assign a storage page for each datatype before importing. Record content is not imported.</source>
+            </trans-unit>
+            <trans-unit id="import.mapping_title">
+                <source>Storage page mapping</source>
+            </trans-unit>
+            <trans-unit id="loader.working">
+                <source>Please wait…</source>
+            </trans-unit>
+            <trans-unit id="loader.export">
+                <source>Preparing export…</source>
+            </trans-unit>
+            <trans-unit id="loader.mapping">
+                <source>Reading archive…</source>
+            </trans-unit>
+            <trans-unit id="loader.import">
+                <source>Importing datatypes…</source>
+            </trans-unit>
+            <trans-unit id="import.file">
+                <source>Archive file</source>
+            </trans-unit>
+            <trans-unit id="import.target_pid">
+                <source>Target storage page</source>
+            </trans-unit>
+            <trans-unit id="import.default_pid">
+                <source>Default storage page</source>
+            </trans-unit>
+            <trans-unit id="import.storage_page">
+                <source>Storage page</source>
+            </trans-unit>
+            <trans-unit id="import.preview">
+                <source>Preview</source>
+            </trans-unit>
+            <trans-unit id="import.execute">
+                <source>Import</source>
+            </trans-unit>
+            <trans-unit id="import.success">
+                <source>Import completed.</source>
+            </trans-unit>
+            <trans-unit id="import.finished_warnings">
+                <source>Import finished with warnings.</source>
+            </trans-unit>
+            <trans-unit id="import.failed">
+                <source>Import failed.</source>
+            </trans-unit>
+            <trans-unit id="import.preview_failed">
+                <source>Preview failed.</source>
+            </trans-unit>
+            <trans-unit id="import.premium_fields_blocked">
+                <source>You cannot import this datatype because it contains premium field type(s). Please upgrade to Tonictypes Professional to use these fields.</source>
+            </trans-unit>
+            <trans-unit id="error.no_selection">
+                <source>Please select at least one datatype.</source>
+            </trans-unit>
+            <trans-unit id="error.no_file">
+                <source>Please choose an archive file.</source>
+            </trans-unit>
+            <trans-unit id="error.no_target">
+                <source>Please select a target storage page.</source>
+            </trans-unit>
+            <trans-unit id="error.no_mapping">
+                <source>Please assign a storage page to each datatype in the preview.</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

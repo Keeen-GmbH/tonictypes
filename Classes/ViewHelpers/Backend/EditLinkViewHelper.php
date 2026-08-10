@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -47,9 +48,9 @@ class EditLinkViewHelper extends AbstractLinkViewHelper
     {
         return static::renderStatic(
             [
-                'id' => $this->arguments["id"],
-                'table' => $this->arguments["table"],
-                'returnUrl' => $this->arguments["returnUrl"],
+                'id' => $this->arguments['id'],
+                'table' => $this->arguments['table'],
+                'returnUrl' => $this->arguments['returnUrl'],
             ],
             $this->buildRenderChildrenClosure(),
             $this->renderingContext
@@ -69,7 +70,7 @@ class EditLinkViewHelper extends AbstractLinkViewHelper
             'record_edit',
             [
                 'edit['.$arguments['table'].'][' . $arguments['id'] . ']' => 'edit',
-                'returnUrl' => (isset($arguments["returnUrl"]))?$arguments["returnUrl"]:GeneralUtility::getIndpEnv('REQUEST_URI'),
+                'returnUrl' => (isset($arguments['returnUrl'])) ? $arguments['returnUrl'] : GeneralUtility::getIndpEnv('REQUEST_URI'),
             ]
         );
     }

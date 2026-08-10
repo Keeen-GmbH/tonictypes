@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -14,13 +15,13 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Service\Query;
 
 use K3n\Tonictypes\Service\QueryBuilderParser\ExtbaseQueryParser;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryHelper;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Query;
-use TYPO3\CMS\Core\Database\Connection;
 
 class ExtbaseQueryService implements SingletonInterface
 {
@@ -70,15 +71,15 @@ class ExtbaseQueryService implements SingletonInterface
     public function applySettingsToQuery(Query $query, array $settings, array $storagePids = []): Query
     {
         $includeHidden = (bool)$settings['include_hidden'];
-        if($includeHidden === true) {
+        if ($includeHidden === true) {
             $query->getQuerySettings()->setIgnoreEnableFields(true);
         }
 
         $includeRecursive = (bool)$settings['include_recursive'];
-        if($includeRecursive === true && !empty($storagePids)) {
+        if ($includeRecursive === true && !empty($storagePids)) {
             $pids = [];
-            foreach($storagePids as $_sPid) {
-                $recursivePids = $this->getRecursivePids($_sPid,true);
+            foreach ($storagePids as $_sPid) {
+                $recursivePids = $this->getRecursivePids($_sPid, true);
                 $pids = array_merge($pids, $recursivePids);
             }
             $pids = array_unique($pids);
@@ -117,22 +118,22 @@ class ExtbaseQueryService implements SingletonInterface
         $postProcessFilters = $this->queryFilterService->parsePostProcessFilters($settings, $variables);
 
         $ids = [];
-        if(count($postProcessFilters) > 0) {
-            foreach($postProcessFilters as $_filter) {
+        if (count($postProcessFilters) > 0) {
+            foreach ($postProcessFilters as $_filter) {
                 $postProcessType = $_filter->post_process;
                 $singleResult = $this->getQueryResult($query, $_filter);
-                if(!array_key_exists($postProcessType, $ids)) {
+                if (!array_key_exists($postProcessType, $ids)) {
                     $ids[$postProcessType] = [];
                 }
 
-                $ids[$postProcessType][] = array_column($singleResult->execute(true),'uid');
+                $ids[$postProcessType][] = array_column($singleResult->execute(true), 'uid');
             }
         }
 
-        if(array_key_exists('diff', $ids)) {
-            if(count($ids['diff']) >= 2) {
+        if (array_key_exists('diff', $ids)) {
+            if (count($ids['diff']) >= 2) {
                 $result = call_user_func_array('array_intersect', $ids['diff']);
-                if(!empty($result)) {
+                if (!empty($result)) {
                     $query->matching($query->in('uid', $result));
                 } else {
                     // We enforce no found values, because no values match
@@ -157,17 +158,17 @@ class ExtbaseQueryService implements SingletonInterface
     public function applyLimitOffsetToQuery(Query $query, array $settings, array $variables = []): Query
     {
         // Order and Order Direction
-        if($orderings = $this->queryFilterService->parseOrderings($settings, $variables)) {
+        if ($orderings = $this->queryFilterService->parseOrderings($settings, $variables)) {
             // Setting configured orderings
             $query->setOrderings($orderings);
         }
 
         // Limit
-        if($limit = $this->queryFilterService->parseLimit($settings, $variables)) {
+        if ($limit = $this->queryFilterService->parseLimit($settings, $variables)) {
             $query->setLimit($limit);
 
             // Offset is only available, when limit is set
-            if($offset = $this->queryFilterService->parseOffset($settings, $variables)) {
+            if ($offset = $this->queryFilterService->parseOffset($settings, $variables)) {
                 $query->setOffset($offset);
             }
         }

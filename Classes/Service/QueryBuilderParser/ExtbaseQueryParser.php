@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,7 +14,7 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Service\QueryBuilderParser;
 
-use \stdClass;
+use stdClass;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Qom\ConstraintInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\Query;
@@ -29,7 +30,6 @@ use TYPO3\CMS\Extbase\Persistence\Generic\Query;
  */
 class ExtbaseQueryParser
 {
-
     use ExtbaseQueryFunctions;
 
     protected $fields;
@@ -44,7 +44,7 @@ class ExtbaseQueryParser
     {
         $this->fields = $fields;
 
-        if(!$filters instanceof stdClass) {
+        if (!$filters instanceof stdClass) {
             $filters = $this->decodeJSON($filters);
         }
 
@@ -57,7 +57,7 @@ class ExtbaseQueryParser
 
         $constraints = $this->createConstraints($filters->rules, $query, $filters->condition);
 
-        if(is_null($constraints)) {
+        if (is_null($constraints)) {
             return $query;
         }
 
@@ -122,7 +122,7 @@ class ExtbaseQueryParser
         if (property_exists($rule, 'value') && is_string($rule->value) && strpos($rule->value, '|') !== false) {
             if (!is_array($rule->value)) {
                 $values = explode('|', $rule->value);
-                if(count($values) == 2) {
+                if (count($values) == 2) {
                     $rule->value = end($values);
                     $rule->field = $rule->field.'.'.reset($values);
                 }
@@ -259,15 +259,15 @@ class ExtbaseQueryParser
         $operator = $sqlOperator['operator'];
 
         if ($this->operatorRequiresArray($operator)) {
-            if(!is_array($value)) {
+            if (!is_array($value)) {
                 $value = GeneralUtility::trimExplode(',', $value);
             }
             return $this->makeQueryWhenArray($query, $rule, $sqlOperator, $value);
-        } else if ($this->operatorIsNull($operator)) {
+        } elseif ($this->operatorIsNull($operator)) {
             return $this->makeQueryWhenNull($query, $rule, $sqlOperator);
         }
 
-        $field = str_replace('FIELD:','', $rule->field);
+        $field = str_replace('FIELD:', '', $rule->field);
 
         switch ($rule->operator) {
             case 'not_equal':

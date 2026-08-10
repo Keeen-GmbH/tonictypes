@@ -1,0 +1,24 @@
+<!-- ORPHAN / UNUSED COLUMNS -->
+<div class="callout callout-warning d-flex flex-column">
+    <h5 class="callout-title">
+        <strong>
+            <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.message.orphan_columns" />
+        </strong>
+    </h5>
+    <div class="callout-body">
+        <p>
+            <f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.description.orphan_columns" arguments="{0:tableName}" />
+        </p>
+        <ul>
+            <f:for each="{orphanColumns}" as="orphanColumn">
+                <li><code>{orphanColumn}</code></li>
+            </f:for>
+        </ul>
+        <div class="d-flex flex-column mt-2">
+            <button type="button" class="btn btn-warning w-auto align-self-start" id="tonictypes_table_drop_orphan_columns">
+                <core:icon identifier="actions-edit-delete" size="small" />&nbsp;<f:translate key="LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.button.drop_orphan_columns" />
+            </button>
+        </div>
+    </div>
+</div>
+<!-- /ORPHAN / UNUSED COLUMNS -->

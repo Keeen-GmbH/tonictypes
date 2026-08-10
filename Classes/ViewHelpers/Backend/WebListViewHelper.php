@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -46,8 +47,8 @@ class WebListViewHelper extends AbstractLinkViewHelper
     {
         return static::renderStatic(
             [
-                'id'        => $this->arguments["id"],
-                'returnUrl' => $this->arguments["returnUrl"],
+                'id'        => $this->arguments['id'],
+                'returnUrl' => $this->arguments['returnUrl'],
             ],
             $this->buildRenderChildrenClosure(),
             $this->renderingContext
@@ -68,7 +69,7 @@ class WebListViewHelper extends AbstractLinkViewHelper
             'web_list',
             [
                 'id'        => $arguments['id'],
-                'returnUrl' => (isset($arguments["returnUrl"])) ? $arguments["returnUrl"] : GeneralUtility::getIndpEnv('REQUEST_URI'),
+                'returnUrl' => (isset($arguments['returnUrl'])) ? $arguments['returnUrl'] : GeneralUtility::getIndpEnv('REQUEST_URI'),
             ]
         );
     }

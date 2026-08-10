@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -46,10 +47,10 @@ class NewLinkViewHelper extends AbstractLinkViewHelper
     {
         return static::renderStatic(
             [
-                'pid'       => $this->arguments["pid"],
-                'table'     => $this->arguments["table"],
-                'id'        => $this->arguments["id"],
-                'returnUrl' => $this->arguments["returnUrl"],
+                'pid'       => $this->arguments['pid'],
+                'table'     => $this->arguments['table'],
+                'id'        => $this->arguments['id'],
+                'returnUrl' => $this->arguments['returnUrl'],
             ],
             $this->buildRenderChildrenClosure(),
             $this->renderingContext
@@ -67,11 +68,11 @@ class NewLinkViewHelper extends AbstractLinkViewHelper
     {
         $urlParameters = [
             'edit[' . $arguments['table'] . '][' . $arguments['pid'] . ']' => 'new',
-            'returnUrl'                                                    => (isset($arguments["returnUrl"])) ? $arguments["returnUrl"] : GeneralUtility::getIndpEnv('REQUEST_URI'),
+            'returnUrl'                                                    => (isset($arguments['returnUrl'])) ? $arguments['returnUrl'] : GeneralUtility::getIndpEnv('REQUEST_URI'),
         ];
 
-        if (isset($arguments["id"]) && $arguments["id"] > 0) {
-            $urlParameters["id"] = $arguments["id"];
+        if (isset($arguments['id']) && $arguments['id'] > 0) {
+            $urlParameters['id'] = $arguments['id'];
         }
 
         return self::getModuleUrl(

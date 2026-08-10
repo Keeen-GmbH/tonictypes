@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,14 +14,18 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\EventListener;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Throwable;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\TypoScript\IncludeTree\Event\ModifyLoadedPageTsConfigEvent;
 
-final readonly class ModifyLoadedPageTsConfigEventListener
+final class ModifyLoadedPageTsConfigEventListener implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     public function __construct(
-        private ConnectionPool $connectionPool
+        private readonly ConnectionPool $connectionPool,
     ) {
     }
 
@@ -33,8 +38,9 @@ final readonly class ModifyLoadedPageTsConfigEventListener
                 ->from('tx_tonictypes_domain_model_datatype')
                 ->executeQuery()
                 ->fetchFirstColumn();
-        } catch (Throwable) {
-            // Keep backend boot stable if schema is not ready yet.
+        } catch (Throwable $exception) {
+            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+
             return;
         }
 

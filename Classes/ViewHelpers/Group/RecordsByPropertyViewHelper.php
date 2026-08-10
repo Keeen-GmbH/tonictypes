@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,7 +14,6 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\ViewHelpers\Group;
 
-use K3n\Tonictypes\Service\Query\ExtbaseQueryService;
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
@@ -30,7 +30,7 @@ class RecordsByPropertyViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         $this->registerArgument('records', '\\Iterator', 'Records to filter', true);
-        $this->registerArgument('property', 'string','Field Name', true);
+        $this->registerArgument('property', 'string', 'Field Name', true);
         $this->registerArgument('returnOnlyGroups', 'bool', 'Return only groups', false, false);
         $this->registerArgument('multiple', 'bool', 'Groups have multiple values', false, false);
         parent::initializeArguments();
@@ -45,12 +45,12 @@ class RecordsByPropertyViewHelper extends AbstractViewHelper
         $property = $this->arguments['property'];
         $sorted = [];
 
-        if($records instanceof QueryResult || $records instanceof ObjectStorage) {
-            if(count($records)) {
-                foreach($records as $_record) {
-                    if($this->arguments['multiple'] === true) {
+        if ($records instanceof QueryResult || $records instanceof ObjectStorage) {
+            if (count($records)) {
+                foreach ($records as $_record) {
+                    if ($this->arguments['multiple'] === true) {
                         $values = GeneralUtility::trimExplode(',', $_record->_getProperty($property));
-                        foreach($values as $_v) {
+                        foreach ($values as $_v) {
                             $sorted[$_v][] = $_record;
                         }
                     } else {
@@ -59,12 +59,12 @@ class RecordsByPropertyViewHelper extends AbstractViewHelper
 
                 }
             }
-        } else if(is_array($records)) {
-            if(count($records)) {
-                foreach($records as $_record) {
-                    if($this->arguments['multiple'] === true) {
+        } elseif (is_array($records)) {
+            if (count($records)) {
+                foreach ($records as $_record) {
+                    if ($this->arguments['multiple'] === true) {
                         $values = GeneralUtility::trimExplode(',', $_record->_getProperty($property));
-                        foreach($values as $_v) {
+                        foreach ($values as $_v) {
                             $sorted[$_v][] = $_record;
                         }
                     } else {
@@ -76,7 +76,7 @@ class RecordsByPropertyViewHelper extends AbstractViewHelper
             throw new \InvalidArgumentException('Argument \'records\' given with incompatible type!');
         }
 
-        if($this->arguments['returnOnlyGroups']) {
+        if ($this->arguments['returnOnlyGroups']) {
             $sorted = array_keys($sorted);
         }
 

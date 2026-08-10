@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -183,18 +184,18 @@ class VariableFactory implements SingletonInterface
             case Variable::VARIABLE_TYPE_GET:
             case Variable::VARIABLE_TYPE_POST:
             case Variable::VARIABLE_TYPE_GET_POST:
-                $parameterName = ($variable->getParameterName() != '')?$variable->getParameterName():$variable->getVariableName();
+                $parameterName = ($variable->getParameterName() != '') ? $variable->getParameterName() : $variable->getVariableName();
                 $value = GetPostUtility::getEnvironmentalParameterValue($parameterName, (string)$type);
                 if ($value) {
                     if (is_array($value)) {
-                        $value = array_map(function($v) {
+                        $value = array_map(function ($v) {
                             return GetPostUtility::secureVariableGet($v);
                         }, $value);
                     } else {
                         $value = GetPostUtility::secureVariableGet((string)$value);
                     }
 
-                    if($variable->hasValueSwitch()) {
+                    if ($variable->hasValueSwitch()) {
                         $value = $this->_getValueByValueSwitch($value, $variable);
                     } else {
                         $value = $this->_getValueByValueSettings($value, $variable);
@@ -207,7 +208,7 @@ class VariableFactory implements SingletonInterface
                 $value = $variable->castType($value);
                 return $value;
             case Variable::VARIABLE_TYPE_DATABASE:
-                $fields = GeneralUtility::trimExplode(",", $variable->getColumnName());
+                $fields = GeneralUtility::trimExplode(',', $variable->getColumnName());
                 $table = $variable->getTableContent();
                 $where = $variable->getWhereClause();
                 return $this->fieldRepository->rawQuery($fields, $table, $where);
@@ -247,8 +248,8 @@ class VariableFactory implements SingletonInterface
                 $userFunc = $variable->getUserFunc();
 
                 $params = [
-                    "parameters" => [
-                        "variable" => $variable,
+                    'parameters' => [
+                        'variable' => $variable,
                     ],
                 ];
 
@@ -267,7 +268,7 @@ class VariableFactory implements SingletonInterface
                 return $this->sessionServiceContainer;
             case Variable::VARIABLE_TYPE_EXTENSION_CONFIG:
                 $extension = $variable->getExtConf();
-                if(ExtensionManagementUtility::isLoaded($extension)) {
+                if (ExtensionManagementUtility::isLoaded($extension)) {
                     return GeneralUtility::makeInstance(ExtensionConfiguration::class)->get($extension);
                 }
                 return null;
@@ -278,10 +279,11 @@ class VariableFactory implements SingletonInterface
                 $typoscript = GeneralUtility::removeDotsFromTS($typoscript);
                 $path = $variable->getTyposcriptPath();
                 try {
-                    $value = ArrayUtility::getValueByPath($typoscript,$path,'.');
+                    $value = ArrayUtility::getValueByPath($typoscript, $path, '.');
                     return $value;
                 } catch (\InvalidArgumentException $ie) {
-                } catch (\Exception $e) { }
+                } catch (\Exception $e) {
+                }
                 return null;
             case Variable::VARIABLE_TYPE_FIXED:
             default:
@@ -292,13 +294,13 @@ class VariableFactory implements SingletonInterface
     /**
      * @param mixed $value
      * @param Variable $variable
-     * @param string $valueFluidField
+     * @param string $fluidValueField
      * @param string $conditionField
      * @return mixed
      */
     protected function _getValueByValueSwitch($value, Variable $variable, $fluidValueField = 'fluid_code', $conditionField = 'condition')
     {
-        $variableName = ($variable->getParameterName() != '')?$variable->getParameterName(): $variable->getVariableName();
+        $variableName = ($variable->getParameterName() != '') ? $variable->getParameterName() : $variable->getVariableName();
 
         $valueSwitch = $variable->getValueSwitch();
         $envVariables = [
@@ -306,10 +308,10 @@ class VariableFactory implements SingletonInterface
             'variable' => $variable,
         ];
 
-        foreach($valueSwitch as $_switch) {
+        foreach ($valueSwitch as $_switch) {
             // Check condition
             $condition = $_switch[$conditionField];
-            if($this->conditionService->isValid($condition,$envVariables)) {
+            if ($this->conditionService->isValid($condition, $envVariables)) {
                 $fluidCode = $_switch[$fluidValueField];
                 return $this->fluidRenderService->renderFluid($fluidCode, $envVariables);
             }
@@ -326,17 +328,17 @@ class VariableFactory implements SingletonInterface
     {
         /* Check for allowed values in list */
         $allowedValues = $variable->getAllowedValues();
-        if(!empty($allowedValues)) {
-            if(is_array($value)) {
+        if (!empty($allowedValues)) {
+            if (is_array($value)) {
                 $vA = [];
-                foreach($value as $_k=>$_v) {
-                    if(in_array($_v,$allowedValues)) {
+                foreach ($value as $_k => $_v) {
+                    if (in_array($_v, $allowedValues)) {
                         $vA[$_k] = $_v;
                     }
                 }
                 $value = $vA;
             } else {
-                if(!in_array($value, $allowedValues)) {
+                if (!in_array($value, $allowedValues)) {
                     $value = null;
                 }
             }
@@ -345,7 +347,7 @@ class VariableFactory implements SingletonInterface
 
         /* Regex value */
         $regEx = (string)$variable->getRegex();
-        if($regEx != '') {
+        if ($regEx != '') {
             $result = preg_match($regEx, $value);
             if ($result === 0 || $result === false) {
                 $value = null;

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,6 +10,7 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\Domain\Repository;
 
 use TYPO3\CMS\Extbase\Persistence\Exception\InvalidQueryException;
@@ -16,6 +18,25 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
 class DatatypeRepository extends AbstractRepository
 {
+    /**
+     * Find datatype by published record tablename (ignores storage PID).
+     *
+     * Default Extbase findOneBy() respects storage pages and often returns null
+     * for MCP / DataHandler hooks outside a configured plugin storage context.
+     */
+    public function findOneByTablename(string $tablename, bool $onlyEnabled = false): ?\K3n\Tonictypes\Domain\Model\Datatype
+    {
+        $tablename = trim($tablename);
+        if ($tablename === '') {
+            return null;
+        }
+
+        $query = $this->createQueryWithSettings(false, !$onlyEnabled, false);
+        $result = $query->matching($query->equals('tablename', $tablename))->execute()->getFirst();
+
+        return $result instanceof \K3n\Tonictypes\Domain\Model\Datatype ? $result : null;
+    }
+
     /**
      * FindAll Override
      *
@@ -25,15 +46,16 @@ class DatatypeRepository extends AbstractRepository
      */
     public function findAll(bool $respectStoragePage = true, array $orderings = [])
     {
-		$query = $this->createQueryWithSettings(true, false, $respectStoragePage);
-		$querySettings = $query->getQuerySettings();
+        $query = $this->createQueryWithSettings(true, false, $respectStoragePage);
+        $querySettings = $query->getQuerySettings();
 
-		if (!empty($orderings))
-			$query->setOrderings($orderings);
+        if (!empty($orderings)) {
+            $query->setOrderings($orderings);
+        }
 
-		$this->setDefaultQuerySettings($querySettings);
-		return $query->execute();
-	}
+        $this->setDefaultQuerySettings($querySettings);
+        return $query->execute();
+    }
 
     /**
      * Finds all records on a given storage page id
@@ -44,8 +66,8 @@ class DatatypeRepository extends AbstractRepository
      */
     public function findAllOnPid(int $storagePid, array $orderings = []): QueryResultInterface
     {
-		return $this->findAllOnPids([$storagePid], $orderings);
-	}
+        return $this->findAllOnPids([$storagePid], $orderings);
+    }
 
     /**
      * Gets the ids of all datatypes, where records of these
@@ -55,16 +77,18 @@ class DatatypeRepository extends AbstractRepository
      */
     public function getRecordHiddenIds(): array
     {
-		$query = $this->createQueryWithSettings(true,true,false);
-		$datatypes =  $query->matching(	$query->equals("hide_records", 1) )->execute();
+        $query = $this->createQueryWithSettings(true, true, false);
+        $datatypes =  $query->matching($query->equals('hide_records', 1))->execute();
 
-		$ids = [];
-		if ($datatypes && $datatypes->count() > 0)
-			foreach ($datatypes as $_datatype)
-				$ids[] = $_datatype->getUid();
+        $ids = [];
+        if ($datatypes && $datatypes->count() > 0) {
+            foreach ($datatypes as $_datatype) {
+                $ids[] = $_datatype->getUid();
+            }
+        }
 
-		return $ids;
-	}
+        return $ids;
+    }
 
     /**
      * Finds datatype by the hidden setting
@@ -76,14 +100,14 @@ class DatatypeRepository extends AbstractRepository
      */
     public function findByHiddenSetting(bool $hiddenInLists = true, bool $hiddenAdd = true): QueryResultInterface
     {
-		$query = $this->createQueryWithSettings(true,true,false);
-		return $query->matching(
-			$query->logicalAnd(
-				$query->greaterThanOrEqual("hide_records", (int)$hiddenInLists),
-				$query->lessThanOrEqual("hide_add", (int)$hiddenAdd)
-			)
-		)->execute();
-	}
+        $query = $this->createQueryWithSettings(true, true, false);
+        return $query->matching(
+            $query->logicalAnd(
+                $query->greaterThanOrEqual('hide_records', (int)$hiddenInLists),
+                $query->lessThanOrEqual('hide_add', (int)$hiddenAdd)
+            )
+        )->execute();
+    }
 
     /**
      * Find all datatypes of records that exists on
@@ -94,21 +118,21 @@ class DatatypeRepository extends AbstractRepository
      */
     public function findAllOfRecordsOnPid(array $storagePids): array
     {
-		$pids = implode(",", $storagePids);
-		$statement = "SELECT datatype FROM tx_tonictypes_domain_model_record WHERE pid IN ({$pids}) GROUP BY datatype";
-		$query = $this->createQuery();
+        $pids = implode(',', $storagePids);
+        $statement = "SELECT datatype FROM tx_tonictypes_domain_model_record WHERE pid IN ({$pids}) GROUP BY datatype";
+        $query = $this->createQuery();
 
-		$query->statement($statement);
-		$datatypes = $query->execute(true);
+        $query->statement($statement);
+        $datatypes = $query->execute(true);
 
-		$datatypeIds = [];
-		if (is_array($datatypes))
-		{
-			foreach ($datatypes as $_datatype)
-				$datatypeIds[] = $_datatype["datatype"];
-		}
+        $datatypeIds = [];
+        if (is_array($datatypes)) {
+            foreach ($datatypes as $_datatype) {
+                $datatypeIds[] = $_datatype['datatype'];
+            }
+        }
 
-		return $this->findByUids($datatypeIds);
-	}
+        return $this->findByUids($datatypeIds);
+    }
 
 }

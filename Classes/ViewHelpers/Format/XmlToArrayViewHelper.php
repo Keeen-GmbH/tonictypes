@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,10 +14,8 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\ViewHelpers\Format;
 
-use K3n\Tonictypes\Utility\ArrayUtility;
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 
 class XmlToArrayViewHelper extends AbstractViewHelper
 {
@@ -39,7 +38,7 @@ class XmlToArrayViewHelper extends AbstractViewHelper
      */
     public function render(): array
     {
-        if($this->arguments['xml'] == '') {
+        if ($this->arguments['xml'] == '') {
             return [];
         }
 

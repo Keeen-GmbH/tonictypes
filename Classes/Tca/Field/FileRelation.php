@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -14,7 +15,6 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Tca\Field;
 
 use K3n\Tonictypes\Tca;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 class FileRelation extends Tca\AbstractField implements Tca\FieldInterface
 {
@@ -52,7 +52,7 @@ class FileRelation extends Tca\AbstractField implements Tca\FieldInterface
     {
         // allowed
         $allowed = $this->getField()->getConfig('allowed');
-        if($allowedDefault = $this->getField()->getConfig('allowed_default')){
+        if ($allowedDefault = $this->getField()->getConfig('allowed_default')) {
             if ($allowedDefault != '') {
                 $allowed = $allowedDefault;
             }

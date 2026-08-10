@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -18,15 +19,19 @@ use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
 use K3n\Tonictypes\Factory\TableFactory;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Service\Settings\Plugin\PluginSettingsService;
+use K3n\Tonictypes\Service\Tca\DatatypeTcaFileService;
 use K3n\Tonictypes\Utility\LocalizationUtility;
-use Throwable;
-use TYPO3\CMS\Core\Http\Response;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class TableController extends AbstractBackendController
+class TableController extends AbstractBackendController implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     protected function writeTcaPhpFile(string $tableName, array $tca): string
     {
         if (!str_starts_with($tableName, 'tx_tonictypes_domain_model_record_')) {
@@ -44,7 +49,7 @@ class TableController extends AbstractBackendController
         $contents = "<?php\n"
             . "declare(strict_types=1);\n"
             . "defined('TYPO3') or die();\n\n"
-            . "return " . var_export($tca, true) . ";\n";
+            . 'return ' . var_export($tca, true) . ";\n";
 
         $old = @file_get_contents($absFile);
         if (is_string($old) && md5($old) === md5($contents)) {
@@ -181,7 +186,7 @@ class TableController extends AbstractBackendController
         $tableExists = false;
         $tcaFileExists = false;
 
-        if(!is_null($tableName) && $tableName != '') {
+        if (!is_null($tableName) && $tableName != '') {
             $tableExists = $this->tableFactory->tableExists($tableName);
             $tcaFile = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Configuration/TCA/' . $tableName . '.php');
             $tcaFileExists = file_exists($tcaFile);
@@ -191,6 +196,7 @@ class TableController extends AbstractBackendController
         $createStatement = null;
         $updateStatements = [];
         $missingColumns = [];
+        $orphanColumns = [];
         $tableLayout = null;
         if (is_numeric($datatypeId)) {
             /* @var Datatype $datatype */
@@ -201,6 +207,7 @@ class TableController extends AbstractBackendController
                     $sqlStatements = $this->tableFactory->getSqlStatements($createStatement);
                     $updateStatements = $this->tableFactory->getUpdateStatements($sqlStatements, $tableName);
                     $missingColumns = $this->tableFactory->getMissingColumns($tableName, $datatype);
+                    $orphanColumns = $this->tableFactory->getOrphanColumns($tableName, $datatype);
                     $tableLayout = $this->tableFactory->getTableLayout($tableName);
                 } catch (\Exception $e) {
                     $response = GeneralUtility::makeInstance(Response::class);
@@ -214,8 +221,8 @@ class TableController extends AbstractBackendController
         $templateFile = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Resources/Private/Templates/UserFunc/Table/Status.html');
         $view->setTemplatePathAndFilename($templateFile);
 
-        $tableNeedsUpdate = (count($missingColumns)>0);
-        if(is_array($updateStatements) && array_key_exists('change', $updateStatements) && is_array($updateStatements['change']) && !empty($updateStatements['change'])) {
+        $tableNeedsUpdate = (count($missingColumns) > 0);
+        if (is_array($updateStatements) && array_key_exists('change', $updateStatements) && is_array($updateStatements['change']) && !empty($updateStatements['change'])) {
             $tableNeedsUpdate = true;
         }
 
@@ -228,6 +235,7 @@ class TableController extends AbstractBackendController
             'updateStatements' => $updateStatements,
             'tableNeedsUpdate' => $tableNeedsUpdate,
             'missingColumns' => $missingColumns,
+            'orphanColumns' => $orphanColumns,
             'tableLayout' => $tableLayout,
             'tableNameWrong' => !$this->tableFactory->isAllowedTablename($tableName),
         ];
@@ -255,21 +263,56 @@ class TableController extends AbstractBackendController
         $tableName = strip_tags($parsedBody['tableName']);
         $tableExists = false;
 
-        if(!is_null($tableName) && $tableName != '') {
+        if (!is_null($tableName) && $tableName != '') {
             $tableExists = $this->tableFactory->tableExists($tableName);
         }
 
-        if($tableExists) {
+        if ($tableExists) {
             try {
                 $this->tableFactory->dropTable($tableName);
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+                $this->logger->warning($e->getMessage(), ['exception' => $e]);
+            }
         }
 
         if (str_starts_with($tableName, 'tx_tonictypes_domain_model_record_')) {
-            $tcaFile = GeneralUtility::getFileAbsFileName('EXT:tonictypes/Configuration/TCA/' . $tableName . '.php');
-            if (is_string($tcaFile) && $tcaFile !== '' && file_exists($tcaFile)) {
-                @unlink($tcaFile);
-            }
+            GeneralUtility::makeInstance(DatatypeTcaFileService::class)->backupAndDelete($tableName);
+        }
+
+        $this->clearAutoloadAndCache();
+
+        return $this->tableStatusAction($request);
+    }
+
+    /**
+     * Drops DB columns that are no longer mapped to datatype fields.
+     */
+    public function tableDropOrphanColumnsAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $parsedBody = $request->getParsedBody();
+        $tableName = strip_tags((string)($parsedBody['tableName'] ?? ''));
+        $datatypeId = (int)($parsedBody['datatypeId'] ?? 0);
+
+        $datatype = $this->datatypeRepository->findByUid($datatypeId);
+        if (!($datatype instanceof Datatype) || $tableName === '') {
+            $response = GeneralUtility::makeInstance(Response::class);
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'html' => LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.check.error.unknown'),
+            ]));
+            return $response;
+        }
+
+        try {
+            $orphanColumns = $this->tableFactory->getOrphanColumns($tableName, $datatype);
+            $this->tableFactory->dropColumns($tableName, $orphanColumns);
+        } catch (\Throwable $exception) {
+            $response = GeneralUtility::makeInstance(Response::class);
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'html' => $exception->getMessage(),
+            ]));
+            return $response;
         }
 
         $this->clearAutoloadAndCache();
@@ -327,11 +370,11 @@ class TableController extends AbstractBackendController
         $datatypeId = (int)$parsedBody['datatypeId'];
         $datatype = $this->datatypeRepository->findByUid($datatypeId);
 
-        if(!($datatype instanceof Datatype)) {
+        if (!($datatype instanceof Datatype)) {
             $response = GeneralUtility::makeInstance(Response::class);
             $response->getBody()->write(json_encode([
                 'success' => false,
-                'html' => LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.migrate.message.records_not_created_yet')
+                'html' => LocalizationUtility::translate('LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:table.migrate.message.records_not_created_yet'),
             ]));
             return $response;
         }
@@ -357,7 +400,49 @@ class TableController extends AbstractBackendController
         // MIGRATION ROUTINE
         ////////////////////////////////////////////////////////////
         try {
-            $result = $this->tableFactory->migrate($sqlStatements, $selectedStatements);
+            $tableExists = $this->tableFactory->tableExists($tableName);
+            $result = [];
+
+            if (!$tableExists) {
+                // install(..., true) uses renameUnused=false so ConnectionMigrator does not strip record tables.
+                $result = $this->tableFactory->install($sqlStatements, true);
+            } else {
+                if ($selectedStatements !== []) {
+                    $result = $this->tableFactory->migrate($sqlStatements, $selectedStatements);
+                }
+
+                // getUpdateSuggestions() runs with renameUnused=true and our XCLASS filters out
+                // ADD/ALTER for tx_tonictypes_domain_model_record_* — so migrate often gets zero SQL.
+                // Fall back to install(createOnly), which builds the diff without that Analyze filter.
+                if ($this->tableFactory->tableNeedsUpdate($tableName, $datatype)) {
+                    $installErrors = $this->tableFactory->install($sqlStatements, true);
+                    $result = array_merge($result, $installErrors);
+                }
+
+                if ($this->tableFactory->tableNeedsUpdate($tableName, $datatype)) {
+                    $missing = array_map(
+                        static fn ($field) => (string)$field->getCode(),
+                        $this->tableFactory->getMissingColumns($tableName, $datatype)
+                    );
+                    throw new \RuntimeException(sprintf(
+                        'Table "%s" still misses column(s): %s',
+                        $tableName,
+                        implode(', ', $missing)
+                    ));
+                }
+            }
+
+            if (is_array($result) && $result !== []) {
+                $errorMessages = [];
+                foreach ($result as $error) {
+                    if (is_string($error) && $error !== '') {
+                        $errorMessages[] = $error;
+                    }
+                }
+                if ($errorMessages !== []) {
+                    throw new \RuntimeException(implode('; ', $errorMessages));
+                }
+            }
         } catch (\Exception $e) {
             $response = GeneralUtility::makeInstance(Response::class);
             $response->getBody()->write(json_encode(['success' => false, 'html' => $e->getMessage()]));
@@ -375,7 +460,7 @@ class TableController extends AbstractBackendController
             } else {
                 $tcaFileStatus = 'failed';
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $tcaFileStatus = 'failed';
         }
 

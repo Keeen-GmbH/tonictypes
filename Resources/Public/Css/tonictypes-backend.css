@@ -53,3 +53,61 @@
 .query-builder .rule-actions {
     padding:3px 5px 0px 0px;
 }
+
+/* Tonictypes Professional upgrade CTAs (magenta instead of Bootstrap warning yellow) */
+:root {
+    --tonictypes-pro-magenta: #d50053;
+    --tonictypes-pro-magenta-hover: #b00045;
+    --tonictypes-pro-magenta-soft: #fce4ee;
+    --tonictypes-pro-magenta-border: #d50053;
+    --tonictypes-pro-magenta-text: #8f0038;
+}
+
+.btn.tonictypes-btn-pro,
+a.btn.tonictypes-btn-pro,
+.btn.btn-warning.tonictypes-btn-pro {
+    color: #fff !important;
+    background-color: var(--tonictypes-pro-magenta) !important;
+    border-color: var(--tonictypes-pro-magenta) !important;
+    font-weight: bold;
+}
+
+.btn.tonictypes-btn-pro:hover,
+a.btn.tonictypes-btn-pro:hover,
+.btn.btn-warning.tonictypes-btn-pro:hover,
+.btn.tonictypes-btn-pro:focus,
+a.btn.tonictypes-btn-pro:focus {
+    color: #fff !important;
+    background-color: var(--tonictypes-pro-magenta-hover) !important;
+    border-color: var(--tonictypes-pro-magenta-hover) !important;
+}
+
+.alert.tonictypes-alert-pro,
+.callout.tonictypes-alert-pro,
+.alert.alert-warning.tonictypes-alert-pro,
+.callout.callout-warning.tonictypes-alert-pro {
+    color: var(--tonictypes-pro-magenta-text);
+    background-color: var(--tonictypes-pro-magenta-soft);
+    border-color: var(--tonictypes-pro-magenta-border);
+}
+
+.tonictypes-pro-upgrade-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+    padding: 1.25rem 1.5rem;
+}
+
+.tonictypes-pro-upgrade-box__text {
+    margin: 0;
+    max-width: 40rem;
+    color: var(--tonictypes-pro-magenta-text);
+    font-weight: 500;
+}
+
+.tonictypes-pro-upgrade-box .btn.tonictypes-btn-pro {
+    margin: 0;
+}

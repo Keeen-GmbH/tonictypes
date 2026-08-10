@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -94,11 +95,11 @@ class RecordsViewHelper extends AbstractViewHelper
     {
         $this->registerArgument('records', '\\TYPO3\\CMS\\Extbase\\Persistence\\Generic\\QueryResult', 'Records to filter', false);
         $this->registerArgument('datatype', 'mixed', 'Datatype to load repository', false);
-        $this->registerArgument('filters', 'array','Array with filter conditions', false, []);
-        $this->registerArgument('variables', 'array','Array with variables to inject', false, []);
+        $this->registerArgument('filters', 'array', 'Array with filter conditions', false, []);
+        $this->registerArgument('variables', 'array', 'Array with variables to inject', false, []);
         $this->registerArgument('respectStoragePage', 'bool', 'Ignore storage pids', false, true);
-        $this->registerArgument('storagePageIds','array', 'Storage page ids', false, []);
-        $this->registerArgument('ignoreEnableFields','bool', 'Ignore Enable fields', false, false);
+        $this->registerArgument('storagePageIds', 'array', 'Storage page ids', false, []);
+        $this->registerArgument('ignoreEnableFields', 'bool', 'Ignore Enable fields', false, false);
 
         parent::initializeArguments();
     }
@@ -115,13 +116,13 @@ class RecordsViewHelper extends AbstractViewHelper
         $query = null;
         if ($records instanceof QueryResult) {
             $query = $records->getQuery();
-        } else if ($datatype instanceof Datatype) {
+        } elseif ($datatype instanceof Datatype) {
             $repository = $datatype->getRepository();
-            if($repository instanceof RepositoryInterface) {
+            if ($repository instanceof RepositoryInterface) {
                 /* @var \K3n\Tonictypes\Domain\Repository\AbstractRepository $repository */
                 $query = $repository->createQuery();
             }
-        } else if (is_numeric($datatype)) {
+        } elseif (is_numeric($datatype)) {
             $datatype = $this->datatypeRepository->findByUid((int)$datatype, false);
             if ($datatype instanceof Datatype) {
                 $repository = $datatype->getRepository();
@@ -133,7 +134,7 @@ class RecordsViewHelper extends AbstractViewHelper
         }
 
 
-        if(is_null($query)) {
+        if (is_null($query)) {
             throw new \Exception('Either argument \'records\' nor argument \'datatype\' did not match the requirements.');
         }
 
@@ -144,7 +145,7 @@ class RecordsViewHelper extends AbstractViewHelper
         $query->getQuerySettings()->setRespectStoragePage($this->arguments['respectStoragePage']);
         $query->getQuerySettings()->setIgnoreEnableFields($this->arguments['ignoreEnableFields']);
 
-        if(!empty($this->arguments['storagePageIds'])) {
+        if (!empty($this->arguments['storagePageIds'])) {
             $query->getQuerySettings()->setStoragePageIds($this->arguments['storagePageIds']);
         }
 

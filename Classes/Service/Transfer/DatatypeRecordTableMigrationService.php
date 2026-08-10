@@ -1,0 +1,472 @@
+<?php
+
+declare(strict_types=1);
+/*
+ * This file is part of the package k3n/tonictypes.
+ */
+
+namespace K3n\Tonictypes\Service\Transfer;
+
+use K3n\Tonictypes\Configuration\ExtensionConfiguration;
+use K3n\Tonictypes\Domain\Model\Datatype;
+use K3n\Tonictypes\Domain\Model\Field;
+use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
+use K3n\Tonictypes\Domain\Repository\FieldRepository;
+use K3n\Tonictypes\Factory\ClassFactory;
+use K3n\Tonictypes\Factory\TableFactory;
+use K3n\Tonictypes\Service\Tca\DatatypeTcaFileService;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
+use TYPO3\CMS\Install\Service\ClearCacheService;
+
+class DatatypeRecordTableMigrationService
+{
+    private const MM_TABLE = 'tx_tonictypes_datatype_field_mm';
+
+    /** @var list<string> */
+    private const SAFE_MIGRATION_ACTIONS = ['add', 'create_table'];
+
+    public function __construct(
+        private readonly ConnectionPool $connectionPool,
+        private readonly DatatypeRepository $datatypeRepository,
+        private readonly FieldRepository $fieldRepository,
+        private readonly TableFactory $tableFactory,
+        private readonly ClassFactory $classFactory,
+        private readonly DatatypeTcaFileService $datatypeTcaFileService,
+        private readonly ClearCacheService $clearCacheService,
+        private readonly PersistenceManager $persistenceManager,
+    ) {
+    }
+
+    /**
+     * Creates or updates the dynamic record table and TCA for a datatype.
+     *
+     * @return array{
+     *     tableName: string,
+     *     created: bool,
+     *     updated: bool,
+     *     tcaStatus: string,
+     *     notes: list<string>,
+     *     droppedOrphanColumns: list<string>
+     * }
+     */
+    public function ensureRecordTable(int $datatypeUid, bool $preferFreshSchema = false): array
+    {
+        $datatype = $this->loadDatatypeWithFields($datatypeUid);
+        if (!$datatype instanceof Datatype) {
+            throw new \RuntimeException(sprintf('Datatype uid %d could not be loaded.', $datatypeUid));
+        }
+
+        $tableName = $datatype->getTablename();
+        if ($tableName === '' || !$this->tableFactory->isAllowedTablename($tableName)) {
+            throw new \RuntimeException(sprintf('Invalid record table name for datatype uid %d.', $datatypeUid));
+        }
+
+        if (!str_starts_with($tableName, 'tx_tonictypes_domain_model_record_')) {
+            throw new \RuntimeException(sprintf('Table "%s" is not a Tonictypes record table.', $tableName));
+        }
+
+        $notes = [];
+        $tableExisted = $this->tableFactory->tableExists($tableName);
+        $wasCreated = false;
+        $wasUpdated = false;
+        $droppedOrphanColumns = [];
+
+        $createStatement = $this->tableFactory->getCreateTableStatementByDatatype($datatype, $tableName);
+        $sqlStatements = $this->tableFactory->getSqlStatements($createStatement);
+        $updateStatements = $this->tableFactory->getUpdateStatements($sqlStatements, $tableName);
+        $safeSelectedStatements = $this->getSafeSelectedStatements($updateStatements);
+        $destructiveChangeCount = $this->countDestructiveChanges($updateStatements);
+
+        if ($tableExisted) {
+            $rowCount = $this->countTableRows($tableName);
+            if ($rowCount === 0) {
+                $this->dropTableSilently($tableName);
+                $notes[] = sprintf(
+                    'Removed empty existing table "%s" before applying imported schema.',
+                    $tableName
+                );
+                $tableExisted = false;
+            } elseif ($destructiveChangeCount > 0) {
+                $notes[] = sprintf(
+                    'Table "%s" contains %d record(s). Skipped %d destructive schema change(s); only new columns were added.',
+                    $tableName,
+                    $rowCount,
+                    $destructiveChangeCount
+                );
+            }
+        }
+
+        if (!$tableExisted) {
+            $this->assertSchemaInstallationSucceeded(
+                $this->tableFactory->install($sqlStatements, true),
+                sprintf('Could not create table "%s"', $tableName)
+            );
+            $wasCreated = true;
+        } elseif ($safeSelectedStatements !== []) {
+            $this->assertSchemaInstallationSucceeded(
+                $this->tableFactory->migrate($sqlStatements, $safeSelectedStatements),
+                sprintf('Could not update table "%s"', $tableName)
+            );
+            $wasUpdated = true;
+        } elseif ($this->tableFactory->tableNeedsUpdate($tableName, $datatype)) {
+            if ($destructiveChangeCount > 0 && $this->countTableRows($tableName) > 0) {
+                $notes[] = sprintf(
+                    'Table "%s" still has schema differences that must be migrated manually in the Tonictypes table wizard.',
+                    $tableName
+                );
+            } else {
+                $this->assertSchemaInstallationSucceeded(
+                    $this->tableFactory->install($sqlStatements, true),
+                    sprintf('Could not update table "%s"', $tableName)
+                );
+                $wasUpdated = true;
+            }
+        }
+
+        if ($preferFreshSchema && $wasUpdated && $destructiveChangeCount > 0) {
+            $notes[] = sprintf(
+                'Imported datatype "%s" was merged into an existing record table. Review the table schema in the Tonictypes backend if fields are missing.',
+                $tableName
+            );
+        }
+
+        // Field type changes (e.g. passthrough int → editor text) are skipped by
+        // safe add-only migration; widen leftover numeric columns explicitly.
+        $widenedColumns = $this->tableFactory->widenTextColumns($tableName, $datatype);
+        if ($widenedColumns !== []) {
+            $wasUpdated = true;
+            $notes[] = sprintf(
+                'Widened column(s) to text storage: %s.',
+                implode(', ', $widenedColumns)
+            );
+        }
+
+        // Publish must match assigned fields: drop DB columns for removed fields so the
+        // datatype UI no longer shows "Unused columns found".
+        $droppedOrphanColumns = $this->dropOrphanColumnsAfterPublish($tableName, $datatype, $notes);
+        if ($droppedOrphanColumns !== []) {
+            $wasUpdated = true;
+        }
+
+        $tcaStatus = $this->datatypeTcaFileService->writeFromDatatype($datatype);
+        $this->cleanupOrphanGeneratedArtifacts($tableName, $notes);
+        $this->clearAutoloadAndCache();
+
+        return [
+            'tableName' => $tableName,
+            'created' => $wasCreated,
+            'updated' => $wasUpdated && !$wasCreated,
+            'tcaStatus' => $tcaStatus,
+            'notes' => $notes,
+            'droppedOrphanColumns' => $droppedOrphanColumns,
+        ];
+    }
+
+    /**
+     * After rename/republish, remove leftover TCA/classes/empty DB tables that no longer
+     * belong to any active datatype (e.g. …_job after switching to …_job2).
+     *
+     * @param list<string> $notes
+     */
+    private function cleanupOrphanGeneratedArtifacts(string $currentTableName, array &$notes): void
+    {
+        $activeTablenames = $this->fetchActiveDatatypeTablenames();
+        if ($currentTableName !== '' && !in_array($currentTableName, $activeTablenames, true)) {
+            $activeTablenames[] = $currentTableName;
+        }
+
+        $removedTca = $this->datatypeTcaFileService->cleanupOrphanGeneratedTcaFiles($activeTablenames);
+        if ($removedTca !== []) {
+            $notes[] = sprintf(
+                'Removed orphan TCA file(s) after publish: %s.',
+                implode(', ', $removedTca)
+            );
+        }
+
+        $removedClasses = $this->classFactory->cleanupOrphanGeneratedClassFiles($activeTablenames);
+        if ($removedClasses !== []) {
+            $notes[] = sprintf(
+                'Removed orphan class file(s) after publish: %s.',
+                implode(', ', array_map('basename', $removedClasses))
+            );
+        }
+
+        $droppedTables = $this->dropEmptyOrphanRecordTables($activeTablenames);
+        if ($droppedTables !== []) {
+            $notes[] = sprintf(
+                'Dropped empty orphan record table(s) after publish: %s.',
+                implode(', ', $droppedTables)
+            );
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function fetchActiveDatatypeTablenames(): array
+    {
+        $datatypeTable = ExtensionConfiguration::EXTENSION_DATATYPE_TABLE;
+        try {
+            $queryBuilder = $this->connectionPool->getQueryBuilderForTable($datatypeTable);
+            $rows = $queryBuilder
+                ->select('tablename')
+                ->from($datatypeTable)
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'deleted',
+                        $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                    ),
+                    $queryBuilder->expr()->neq('tablename', $queryBuilder->createNamedParameter(''))
+                )
+                ->executeQuery()
+                ->fetchFirstColumn();
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $tablenames = [];
+        foreach ($rows as $tablename) {
+            $tablename = trim((string)$tablename);
+            if ($tablename !== '' && str_starts_with($tablename, 'tx_tonictypes_domain_model_record_')) {
+                $tablenames[] = $tablename;
+            }
+        }
+
+        return array_values(array_unique($tablenames));
+    }
+
+    /**
+     * @param list<string> $activeTablenames
+     * @return list<string>
+     */
+    private function dropEmptyOrphanRecordTables(array $activeTablenames): array
+    {
+        $keep = array_fill_keys($activeTablenames, true);
+        $dropped = [];
+
+        try {
+            $connection = $this->connectionPool->getConnectionByName(ConnectionPool::DEFAULT_CONNECTION_NAME);
+            $tableNames = $connection->createSchemaManager()->listTableNames();
+        } catch (\Throwable) {
+            return [];
+        }
+
+        foreach ($tableNames as $tableName) {
+            $tableName = (string)$tableName;
+            if (!str_starts_with($tableName, 'tx_tonictypes_domain_model_record_')) {
+                continue;
+            }
+            if (isset($keep[$tableName])) {
+                continue;
+            }
+            if ($this->countTableRows($tableName) > 0) {
+                continue;
+            }
+            $this->dropTableSilently($tableName);
+            $dropped[] = $tableName;
+        }
+
+        return $dropped;
+    }
+
+    /**
+     * @param list<string> $notes
+     * @return list<string>
+     */
+    private function dropOrphanColumnsAfterPublish(string $tableName, Datatype $datatype, array &$notes): array
+    {
+        if (!$this->tableFactory->tableExists($tableName)) {
+            return [];
+        }
+
+        $orphanColumns = $this->tableFactory->getOrphanColumns($tableName, $datatype);
+        if ($orphanColumns === []) {
+            return [];
+        }
+
+        $result = $this->tableFactory->dropColumns($tableName, $orphanColumns);
+        $dropped = $result['dropped'];
+        if ($dropped !== []) {
+            $notes[] = sprintf(
+                'Dropped unused column(s) from "%s": %s.',
+                $tableName,
+                implode(', ', $dropped)
+            );
+        }
+
+        foreach ($result['errors'] as $columnName => $errorMessage) {
+            $notes[] = sprintf(
+                'Could not drop unused column "%s" from "%s": %s',
+                $columnName,
+                $tableName,
+                $errorMessage
+            );
+        }
+
+        return $dropped;
+    }
+
+    /**
+     * @param array<string, mixed> $updateStatements
+     */
+    private function getSafeSelectedStatements(array $updateStatements): array
+    {
+        $selectedStatements = [];
+        foreach (self::SAFE_MIGRATION_ACTIONS as $action) {
+            if (empty($updateStatements[$action]) || !is_array($updateStatements[$action])) {
+                continue;
+            }
+            $selectedStatements = array_merge(
+                $selectedStatements,
+                array_combine(
+                    array_keys($updateStatements[$action]),
+                    array_fill(0, count($updateStatements[$action]), true)
+                )
+            );
+        }
+
+        return $selectedStatements;
+    }
+
+    /**
+     * @param array<string, mixed> $updateStatements
+     */
+    private function countDestructiveChanges(array $updateStatements): int
+    {
+        $count = 0;
+        foreach (['change', 'change_table'] as $action) {
+            if (!empty($updateStatements[$action]) && is_array($updateStatements[$action])) {
+                $count += count($updateStatements[$action]);
+            }
+        }
+
+        return $count;
+    }
+
+    private function countTableRows(string $tableName): int
+    {
+        if (!$this->tableFactory->tableExists($tableName)) {
+            return 0;
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($tableName);
+
+        return (int)$queryBuilder
+            ->count('uid')
+            ->from($tableName)
+            ->executeQuery()
+            ->fetchOne();
+    }
+
+    private function dropTableSilently(string $tableName): void
+    {
+        try {
+            $this->tableFactory->dropTable($tableName);
+        } catch (\Throwable) {
+            // Ignore drop failures and let the subsequent install report the real issue.
+        }
+    }
+
+    private function loadDatatypeWithFields(int $datatypeUid): ?Datatype
+    {
+        $this->persistenceManager->clearState();
+        $datatype = $this->datatypeRepository->findByUid($datatypeUid, false);
+        if (!$datatype instanceof Datatype) {
+            return null;
+        }
+
+        $fieldUids = $this->fetchFieldUidsForDatatype($datatypeUid);
+        if ($fieldUids === []) {
+            $datatype->setFields(new ObjectStorage());
+            return $datatype;
+        }
+
+        $fieldsByUid = [];
+        foreach ($this->fieldRepository->findByUids($fieldUids) as $field) {
+            if ($field instanceof Field) {
+                $fieldsByUid[(int)$field->getUid()] = $field;
+            }
+        }
+
+        $storage = new ObjectStorage();
+        foreach ($fieldUids as $fieldUid) {
+            if (isset($fieldsByUid[$fieldUid])) {
+                $storage->attach($fieldsByUid[$fieldUid]);
+            }
+        }
+        $datatype->setFields($storage);
+
+        return $datatype;
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function fetchFieldUidsForDatatype(int $datatypeUid): array
+    {
+        $fieldTable = ExtensionConfiguration::EXTENSION_FIELD_TABLE;
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::MM_TABLE);
+        $rows = $queryBuilder
+            ->select('mm.uid_foreign', 'mm.sorting')
+            ->from(self::MM_TABLE, 'mm')
+            ->innerJoin(
+                'mm',
+                $fieldTable,
+                'field',
+                $queryBuilder->expr()->eq('field.uid', $queryBuilder->quoteIdentifier('mm.uid_foreign'))
+            )
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'mm.uid_local',
+                    $queryBuilder->createNamedParameter($datatypeUid, Connection::PARAM_INT)
+                ),
+                $queryBuilder->expr()->eq('field.deleted', 0)
+            )
+            ->orderBy('mm.sorting')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        return array_map(static fn (array $row): int => (int)$row['uid_foreign'], $rows);
+    }
+
+    /**
+     * @param array<int|string, string> $errors
+     */
+    private function assertSchemaInstallationSucceeded(array $errors, string $context): void
+    {
+        $messages = $this->extractSchemaErrorMessages($errors);
+        if ($messages === []) {
+            return;
+        }
+
+        throw new \RuntimeException(sprintf('%s: %s', $context, implode('; ', $messages)));
+    }
+
+    /**
+     * @param array<int|string, string> $errors
+     * @return list<string>
+     */
+    private function extractSchemaErrorMessages(array $errors): array
+    {
+        $messages = [];
+        foreach ($errors as $error) {
+            if (is_string($error) && $error !== '') {
+                $messages[] = $error;
+            }
+        }
+
+        return $messages;
+    }
+
+    private function clearAutoloadAndCache(): void
+    {
+        if (!defined('TYPO3_COMPOSER_MODE')) {
+            $this->classFactory->dumpAutoload();
+        }
+
+        $this->clearCacheService->clearAll();
+    }
+}

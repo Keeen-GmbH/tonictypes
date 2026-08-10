@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3DataStructure>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <info>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:message.unsupported_field_type.title</label>
+                <config>
+                    <type>user</type>
+                    <userFunc>K3n\Tonictypes\UserFunc\Text->displayUnsupportedFieldTypeMessage</userFunc>
+                </config>
+            </info>
+        </el>
+    </ROOT>
+</T3DataStructure>

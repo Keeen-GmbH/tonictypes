@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -11,59 +12,68 @@
  */
 
 declare(strict_types=1);
+
 namespace K3n\Tonictypes\Service\Settings;
 
 use K3n\Tonictypes\Domain\Model\Field;
+use K3n\Tonictypes\Service\Transfer\DatatypeTransferImportService;
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class FieldSettingsService extends AbstractSettingsService implements SingletonInterface
 {
-	/**
-	 * Field Configuration
-	 *
-	 * @var array
-	 */
-	protected $fieldConfig = [];
+    private const UNSUPPORTED_FIELDTYPE_FLEXFORM = 'FILE:EXT:tonictypes/Configuration/FlexForms/Field/Unsupported.xml';
 
-	/**
-	 * Gets the complete field configuration from
-	 * the plugin settings in typoscript
-	 * @return array
-	 */
-	public function getFieldConfiguration(int $pid = 0): array
-	{
-	    $fieldConfiguration = $this->getConfiguration('plugin.tx_tonictypes.fieldtypes', $pid);
-        return GeneralUtility::removeDotsFromTS($fieldConfiguration);
-	}
+    public function getFieldConfiguration(int $pid = 0): array
+    {
+        $fieldConfiguration = $this->getConfiguration('plugin.tx_tonictypes.fieldtypes', $pid);
+        return is_array($fieldConfiguration) ? $fieldConfiguration : [];
+    }
 
-	/**
-	 * Gets the according field configuration by
-	 * a given field type identifier
-	 *
-	 * @param string $type
-	 * @return array
-	 */
-	public function getFieldTypeConfiguration(string $type, int $pid = 0): array
-	{
-	    $fieldConfig = $this->getFieldConfiguration($pid);
-	    if (array_key_exists($type, $fieldConfig)) {
-	        return $fieldConfig[$type];
-        }
-	    return [];
-	}
+    public function getFieldTypeConfiguration(string $type, int $pid = 0): array
+    {
+        $fieldConfig = $this->getFieldConfiguration($pid);
+        return array_key_exists($type, $fieldConfig) ? $fieldConfig[$type] : [];
+    }
 
     /**
-     * Gets the tca flexform configuration
-     * @return array
+     * @return array<string, string>
      */
-	public function getTcaFlexFormConfiguration(int $pid = 0): array
+    public function getTcaFlexFormConfiguration(int $pid = 0): array
     {
-        $dsConfig = [];
+        $emptyDs = 'FILE:EXT:tonictypes/Configuration/FlexForms/Field/Empty.xml';
+        $dsConfig = ['default' => $emptyDs];
         $typesConfiguration = $this->getFieldConfiguration($pid);
-        foreach ($typesConfiguration as $_id=>$_config) {
-            if (isset($_config['flexform'])) {
-                $dsConfig[$_id] = 'FILE:'.$_config['flexform'];
+        $fieldtypesLoaded = $typesConfiguration !== [];
+
+        foreach ($typesConfiguration as $typeId => $typeConfig) {
+            if (!is_string($typeId) || $typeId === '') {
+                continue;
+            }
+            $dsConfig[$typeId] = isset($typeConfig['flexform']) && $typeConfig['flexform'] !== ''
+                ? 'FILE:' . $typeConfig['flexform']
+                : $emptyDs;
+        }
+
+        $premiumWithoutPro = !ExtensionManagementUtility::isLoaded('tonictypes_pro');
+        $premiumTypes = array_fill_keys(DatatypeTransferImportService::PREMIUM_FIELD_TYPES, true);
+
+        foreach ($this->getUsedFieldTypesFromDatabase() as $usedType) {
+            if ($usedType === '' || isset($dsConfig[$usedType])) {
+                continue;
+            }
+            // Pro-only types without Pro → unsupported notice.
+            // Any other used type without TS entry still needs a TCA type/showitem
+            // so FormFlex AJAX (recordTypeValue) does not fatal.
+            if ($premiumWithoutPro && isset($premiumTypes[$usedType])) {
+                $dsConfig[$usedType] = self::UNSUPPORTED_FIELDTYPE_FLEXFORM;
+            } elseif ($fieldtypesLoaded) {
+                $dsConfig[$usedType] = self::UNSUPPORTED_FIELDTYPE_FLEXFORM;
+            } else {
+                $dsConfig[$usedType] = $emptyDs;
             }
         }
 
@@ -71,36 +81,55 @@ class FieldSettingsService extends AbstractSettingsService implements SingletonI
     }
 
     /**
-     * @param Field $field
-     * @return string|null
+     * @return list<string>
      */
-    public function getValueGeneratorClass(Field $field, int $pid = 0): ?string
+    public function getUsedFieldTypesFromDatabase(): array
     {
-        $fieldConfiguration = $this->getFieldConfiguration($pid);
-        if(isset($fieldConfiguration[$field->getType()]['value']) && $fieldConfiguration[$field->getType()]['value'] != '') {
-            return $fieldConfiguration[$field->getType()]['value'];
+        try {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getQueryBuilderForTable('tx_tonictypes_domain_model_field');
+            $queryBuilder->getRestrictions()->removeAll();
+            $rows = $queryBuilder
+                ->select('type')
+                ->from('tx_tonictypes_domain_model_field')
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'deleted',
+                        $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)
+                    )
+                )
+                ->groupBy('type')
+                ->executeQuery()
+                ->fetchAllAssociative();
+        } catch (\Throwable $exception) {
+            return [];
         }
-        return null;
-    }
 
-    /**
-     * Gets an array with all declared field types that
-     * are configured with a value generator class
-     * @return array
-     */
-    public function getFieldTypesWithValueGenerator(int $pid = 0): array
-    {
-        $fieldTypes = [];
-        $fieldConfiguration = $this->getFieldConfiguration($pid);
-
-        foreach($fieldConfiguration as $fT=>$_fc) {
-            if(isset($_fc['value'])) {
-                if(class_exists($_fc['value'])) {
-                    $fieldTypes[] = $fT;
-                }
+        $types = [];
+        foreach ($rows as $row) {
+            $type = trim((string)($row['type'] ?? ''));
+            if ($type !== '') {
+                $types[] = $type;
             }
         }
 
+        return array_values(array_unique($types));
+    }
+
+    public function getValueGeneratorClass(Field $field, int $pid = 0): ?string
+    {
+        $valueClass = $this->getFieldConfiguration($pid)[$field->getType()]['value'] ?? '';
+        return $valueClass !== '' ? $valueClass : null;
+    }
+
+    public function getFieldTypesWithValueGenerator(int $pid = 0): array
+    {
+        $fieldTypes = [];
+        foreach ($this->getFieldConfiguration($pid) as $fieldType => $config) {
+            if (!empty($config['value']) && class_exists((string)$config['value'])) {
+                $fieldTypes[] = $fieldType;
+            }
+        }
         return $fieldTypes;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -12,7 +13,6 @@ declare(strict_types=1);
  */
 
 namespace K3n\Tonictypes\Controller\Backend;
-
 
 use K3n\Tonictypes\Factory\ClassFactory;
 use TYPO3\CMS\Install\Service\ClearCacheService;

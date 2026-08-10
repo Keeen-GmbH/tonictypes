@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -123,13 +124,13 @@ class EditDocumentController extends \TYPO3\CMS\Backend\Controller\EditDocumentC
         $parsedBody = $request->getParsedBody();
         $doSave = property_exists($this, 'doSave') ? (bool)$this->{'doSave'} : false;
         if ((
-                $doSave
+            $doSave
                 || isset($parsedBody['_savedok'])
                 || isset($parsedBody['_saveandclosedok'])
                 || isset($parsedBody['_savedokview'])
                 || isset($parsedBody['_savedoknew'])
                 || isset($parsedBody['_duplicatedoc'])
-            )
+        )
             && $request->getMethod() === 'POST'
         ) {
             $processDataResponse = (new \ReflectionMethod($this, 'processData'))->invoke($this, $view, $request);
@@ -202,7 +203,7 @@ class EditDocumentController extends \TYPO3\CMS\Backend\Controller\EditDocumentC
          ***********************************************************************************************************/
         $view->assign('tonictypesContext', false);
         $datatypeUid = 0;
-        $datatypeByTable = $this->datatypeRepository->findOneBy(['tablename' => $tableName]);
+        $datatypeByTable = $this->datatypeRepository->findOneByTablename($tableName);
         if ($datatypeByTable instanceof Datatype) {
             $datatypeUid = (int)$datatypeByTable->getUid();
         }

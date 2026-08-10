@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -63,7 +64,6 @@ class Constants
     /**
      * Displays the information field in the constants editor
      * @param array $config
-     * @param ExtendedTemplateService $extTs
      * @return string
      */
     public function displayExtensionInformation(array $config): string
@@ -79,13 +79,13 @@ class Constants
         $emConfPro = GeneralUtility::getFileAbsFileName($emConfPro);
 
         // Check for pro extension existence and use that instead
-        if(file_exists($emConfPro)) {
+        if (file_exists($emConfPro)) {
             $emConf = $emConfPro;
         }
 
         require_once($emConf);
 
-        if (!is_array($EM_CONF[$_EXTKEY])) {
+        if (!is_array($EM_CONF[$_EXTKEY] ?? null)) {
             return '<div class="alert alert-danger" style="padding:10px;">Error loading extension information!</div>';
         }
 
@@ -94,7 +94,7 @@ class Constants
         // Prepare icon path
         foreach ($icons as $_iconId => $_iconPath) {
             $pos               = strpos($_iconPath, 'ext/tonictypes/');
-            if($pos !== false) {
+            if ($pos !== false) {
                 $correctedIconPath = substr($_iconPath, $pos);
                 $correctedIconPath = str_replace('ext/tonictypes/', 'EXT:tonictypes/', $correctedIconPath);
                 $icons[$_iconId]   = $correctedIconPath;

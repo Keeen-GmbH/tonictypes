@@ -174,7 +174,7 @@ class {className} extends \K3n\Tonictypes\Domain\Model\AbstractRecordModel
     * {field.frontendLabel}
     * @var {field.tca.variableType}
     */
-    protected ${field.code} = '{field.tca.defaultValue}';
+    protected ${field.code} = '{field.tca.defaultValueForProperty}';
 </f:section>
 
 <f:section name="string_getter">
@@ -244,7 +244,7 @@ class {className} extends \K3n\Tonictypes\Domain\Model\AbstractRecordModel
     * {field.frontendLabel}
     * @var {field.frontendType}
     */
-    protected ${field.code} = {f:if(condition:'{field.tca.defaultValue} != \'\'',then:'true',else:'false')};
+    protected ${field.code} = {f:if(condition:'{field.tca.defaultValueForProperty} != \'\'',then:'true',else:'false')};
 </f:section>
 
 <f:section name="bool_getter">
@@ -279,7 +279,7 @@ class {className} extends \K3n\Tonictypes\Domain\Model\AbstractRecordModel
     * {field.frontendLabel}
     * @var {field.frontendType}
     */
-    protected ${field.code} = {f:if(condition:'{field.tca.defaultValue} > 0',then:field.tca.defaultValue,else:0)};
+    protected ${field.code} = {f:if(condition:'{field.tca.defaultValueForProperty} > 0',then:field.tca.defaultValueForProperty,else:0)};
 </f:section>
 
 <f:section name="int_getter">
@@ -314,7 +314,7 @@ class {className} extends \K3n\Tonictypes\Domain\Model\AbstractRecordModel
     * {field.frontendLabel}
     * @var {field.frontendType}
     */
-    protected ${field.code} = {f:if(condition:'{field.tca.defaultValue} > 0',then:field.tca.defaultValue,else:0)};
+    protected ${field.code} = {f:if(condition:'{field.tca.defaultValueForProperty} > 0',then:field.tca.defaultValueForProperty,else:0)};
 </f:section>
 
 <f:section name="float_getter">

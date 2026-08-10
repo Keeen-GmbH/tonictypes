@@ -1,0 +1,82 @@
+parameters:
+  level: 3
+  bootstrapFiles:
+    - Build/phpstan-bootstrap.php
+  paths:
+    - Classes
+    - Tests
+  excludePaths:
+    # Generated at publish time for each datatype.
+    - Classes/Domain/Model/Record/*
+    - Classes/Domain/Repository/Record/*
+    # Optional typo3/cms-dashboard (not always installed in CI matrix).
+    - Classes/Widgets/*
+    # Version-specific XCLASSes live under Resources/Private/Php/Schema/ (not analysed).
+    # Shared logic: Classes/Database/Schema/TonictypesSchemaDiffFilterTrait.php
+  parallel:
+    maximumNumberOfProcesses: 4
+  tmpDir: .Build/phpstan
+  treatPhpDocTypesAsCertain: false
+  reportUnmatchedIgnoredErrors: false
+  ignoreErrors:
+    # Remaining legacy Extbase / TYPO3 v12–v14 API and PHPDoc noise.
+    -
+      identifier: method.notFound
+      path: Classes/*
+    -
+      identifier: staticMethod.notFound
+      path: Classes/*
+    -
+      identifier: classConstant.notFound
+      path: Classes/*
+    -
+      identifier: classConstant.phpDocType
+      path: Classes/*
+    -
+      identifier: throws.notThrowable
+      path: Classes/*
+    -
+      identifier: parameter.phpDocType
+      path: Classes/*
+    -
+      identifier: parameter.notFound
+      path: Classes/*
+    -
+      identifier: parameterByRef.type
+      path: Classes/*
+    -
+      identifier: return.type
+      path: Classes/*
+    -
+      identifier: return.phpDocType
+      path: Classes/*
+    -
+      identifier: return.missing
+      path: Classes/*
+    -
+      identifier: property.phpDocType
+      path: Classes/*
+    -
+      identifier: property.notFound
+      path: Classes/*
+    -
+      identifier: assign.propertyType
+      path: Classes/*
+    -
+      identifier: variable.undefined
+      path: Classes/*
+    -
+      identifier: nullCoalesce.variable
+      path: Classes/*
+    -
+      identifier: arguments.count
+      path: Classes/*
+    -
+      identifier: varTag.nativeType
+      path: Classes/*
+    -
+      identifier: class.notFound
+      path: Classes/*
+    -
+      identifier: method.childReturnType
+      path: Classes/*

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -15,7 +16,6 @@ namespace K3n\Tonictypes\Controller;
 
 use K3n\Tonictypes\Domain\Model\AbstractRecordModel;
 use K3n\Tonictypes\Domain\Model\Datatype;
-use K3n\Tonictypes\Domain\Model\Variable;
 use K3n\Tonictypes\Domain\Repository\AbstractRepository;
 use K3n\Tonictypes\Event\BeforeDynamicDetailViewRenderEvent;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
@@ -25,15 +25,12 @@ use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\LanguageAspect;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Pagination\SlidingWindowPagination;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Http\ForwardResponse;
 use TYPO3\CMS\Extbase\Pagination\QueryResultPaginator;
-use TYPO3\CMS\Extbase\Persistence\Generic\Query;
 use TYPO3\CMS\Extbase\Persistence\Generic\Storage\Typo3DbQueryParser;
-use TYPO3\CMS\Core\Http\PropagateResponseException;
 use TYPO3\CMS\Fluid\View\FluidViewAdapter;
 
 class RecordController extends AbstractController
@@ -60,25 +57,25 @@ class RecordController extends AbstractController
      * Default Variable Names
      * @var string
      */
-    const DEFAULT_VAR_COBJ = 'cObj';
-    const DEFAULT_VAR_SETTINGS = 'settings';
-    const DEFAULT_VAR_DATATYPE = 'datatype';
-    const DEFAULT_VAR_ERRORS = 'errors';
-    const DEFAULT_VAR_DETAILPID = 'detailPid';
-    const DEFAULT_VAR_OVERALLCOUNT = 'overallCount';
-    const DEFAULT_VAR_RECORD_UID = 'recordUid';
+    public const DEFAULT_VAR_COBJ = 'cObj';
+    public const DEFAULT_VAR_SETTINGS = 'settings';
+    public const DEFAULT_VAR_DATATYPE = 'datatype';
+    public const DEFAULT_VAR_ERRORS = 'errors';
+    public const DEFAULT_VAR_DETAILPID = 'detailPid';
+    public const DEFAULT_VAR_OVERALLCOUNT = 'overallCount';
+    public const DEFAULT_VAR_RECORD_UID = 'recordUid';
 
     // Paginator Related
-    const DEFAULT_VAR_PAGINATOR = 'p_paginator';
-    const DEFAULT_VAR_PAGING = 'p_paging';
-    const DEFAULT_VAR_PAGES = 'p_pages';
-    const DEFAULT_VAR_ITEMS_PER_PAGE_VARIABLE_NAME = 'p_items_per_page_var_name';
-    const DEFAULT_VAR_PAGE_NUMBER_VARIABLE_NAME = 'p_page_number_var_name';
+    public const DEFAULT_VAR_PAGINATOR = 'p_paginator';
+    public const DEFAULT_VAR_PAGING = 'p_paging';
+    public const DEFAULT_VAR_PAGES = 'p_pages';
+    public const DEFAULT_VAR_ITEMS_PER_PAGE_VARIABLE_NAME = 'p_items_per_page_var_name';
+    public const DEFAULT_VAR_PAGE_NUMBER_VARIABLE_NAME = 'p_page_number_var_name';
 
     /**
      * Default Items per Page on Pagination
      */
-    const PAGINATION_DEFAULT_ITEMS_PER_PAGE = 10;
+    public const PAGINATION_DEFAULT_ITEMS_PER_PAGE = 10;
 
     /**
      * Returns a response object with either the given html string or the current rendered view as content.
@@ -161,7 +158,7 @@ class RecordController extends AbstractController
             if ($templateSelection == PluginSettingsService::TEMPLATE_SELECTION_FLUID) {
                 $type = PluginSettingsService::TEMPLATE_SELECTION_FLUID;
                 $source = $fluidCode;
-            } else if ($templateSelection == PluginSettingsService::TEMPLATE_SELECTION_CUSTOM) {
+            } elseif ($templateSelection == PluginSettingsService::TEMPLATE_SELECTION_CUSTOM) {
                 if ($templateOverride === '1') {
                     // Selected template is a file relation
                     /* @var \TYPO3\CMS\Core\Resource\FileReference $fileRelation */
@@ -211,9 +208,9 @@ class RecordController extends AbstractController
                 // A template id was selected, so we need to get the template path
                 if ($view instanceof FluidViewAdapter) {
                     $view->getRenderingContext()->getTemplatePaths()->setTemplatePathAndFilename($source);
-                } else if (method_exists($view, 'setTemplatePathAndFilename')) {
+                } elseif (method_exists($view, 'setTemplatePathAndFilename')) {
                     $view->setTemplatePathAndFilename($source);
-                } else if (!is_null($view->getRenderingContext())) {
+                } elseif (!is_null($view->getRenderingContext())) {
                     $view->getRenderingContext()->getTemplatePaths()->setTemplatePathAndFilename($source);
                 }
                 break;
@@ -234,7 +231,7 @@ class RecordController extends AbstractController
         $this->prepareCacheIdentifier();
         $cacheIdentifierVariables = $this->cacheIdentifier . '_variables';
 
-        $staticCache = (bool)($this->settings['static_cache']??false);
+        $staticCache = (bool)($this->settings['static_cache'] ?? false);
 
         // Check for cache existence and directly jump back, when cache is found, to prevent additional processes
         // PLEASE NOTE:
@@ -245,8 +242,8 @@ class RecordController extends AbstractController
             // We check the cache for our variables
             if ($this->getCache()->has($cacheIdentifierVariables)) {
                 $cached = json_decode($this->getCache()->get($cacheIdentifierVariables), true);
-                if(null !== $cached) {
-                  return $cached;
+                if (null !== $cached) {
+                    return $cached;
                 }
             }
 
@@ -262,13 +259,13 @@ class RecordController extends AbstractController
             $action = reset($controllerConfiguration[RecordController::class]['actions']) . 'Action';
         }
 
-        if(!empty($this->variables[(int)$returnOnlyValues])) {
+        if (!empty($this->variables[(int)$returnOnlyValues])) {
             return $this->variables[(int)$returnOnlyValues];
         }
 
 
         // Obtain used variables
-        $variableIds = GeneralUtility::intExplode(',', $this->settings['variables'],true);
+        $variableIds = GeneralUtility::intExplode(',', $this->settings['variables'], true);
         $variables = [];
         if (!empty($variableIds)) {
             $variables = $this->variableRepository->findByUids($variableIds);
@@ -277,7 +274,7 @@ class RecordController extends AbstractController
         $vars = [];
         foreach ($variables as $_v) {
             /* @var Variable $_v */
-            $vars[$_v->getVariableName()] = ($returnOnlyValues === true)?$_v->getValue():$_v;
+            $vars[$_v->getVariableName()] = ($returnOnlyValues === true) ? $_v->getValue() : $_v;
         }
 
         // Default Variables
@@ -285,12 +282,12 @@ class RecordController extends AbstractController
         $vars[self::DEFAULT_VAR_COBJ] = $this->request->getAttribute('currentContentObject')?->data ?? [];
 
         // Datatype
-        $datatypeUid = ($this->settings['datatype_selection']??0);
+        $datatypeUid = ($this->settings['datatype_selection'] ?? 0);
         if ($datatypeUid && $datatypeUid > 0) {
             $datatype = $this->datatypeRepository->findByUid($datatypeUid);
             $vars[self::DEFAULT_VAR_DATATYPE] = $datatype;
 
-            if($datatype instanceof Datatype) {
+            if ($datatype instanceof Datatype) {
                 /* @var Datatype $datatype */
                 // Selected datatype is ok, so we need to get an instance of the according repository
                 /* @var AbstractRepository $repository */
@@ -306,7 +303,7 @@ class RecordController extends AbstractController
                             $vars[self::DEFAULT_VAR_DETAILPID] = $this->_getDetailPid($vars);
                             break;
                         case 'dynamicDetailAction':
-                            $recordUid = (int)($this->request->getArguments()[$this->settings['singleRecordVariableName']]??0);
+                            $recordUid = (int)($this->request->getArguments()[$this->settings['singleRecordVariableName']] ?? 0);
                             $record = $repository->findByUid($recordUid);
                             $vars[$this->settings['singleRecordVariableName']] = $record;
                             $vars[self::DEFAULT_VAR_RECORD_UID] = $recordUid;
@@ -326,17 +323,17 @@ class RecordController extends AbstractController
                             $vars[self::DEFAULT_VAR_OVERALLCOUNT] = $result->count();
                             $result = $this->extbaseQueryService->applyLimitOffsetToQuery($result, $this->settings, $vars);
 
-                            if(isset($this->settings['debug']) && $this->settings['debug'] == 1) {
+                            if (isset($this->settings['debug']) && $this->settings['debug'] == 1) {
                                 $queryParser = GeneralUtility::makeInstance(Typo3DbQueryParser::class);
-                                echo "<code>".$queryParser->convertQueryToDoctrineQueryBuilder($result)->getSQL()."</code>";
+                                echo '<code>'.$queryParser->convertQueryToDoctrineQueryBuilder($result)->getSQL().'</code>';
                             }
 
                             $records = $result->execute();
 
                             // Check for pagination
-                            $enablePagination = (bool)($this->settings['enable_pagination']??false);
+                            $enablePagination = (bool)($this->settings['enable_pagination'] ?? false);
 
-                            if($enablePagination === true) {
+                            if ($enablePagination === true) {
                                 $requestArguments = $this->request->getArguments();
                                 $queryParams = $this->request->getQueryParams();
                                 $itemsPerPageVariableName = (string)($this->settings['items_per_page_variable'] ?? 'itemsPerPage');
@@ -360,7 +357,7 @@ class RecordController extends AbstractController
                                 $currentPage = (int)$currentPageRaw;
 
                                 // Current page needs to be at least 1
-                                if($currentPage <= 0) {
+                                if ($currentPage <= 0) {
                                     $currentPage = 1;
                                 }
 
@@ -497,8 +494,8 @@ class RecordController extends AbstractController
 
         // Directly render the template and put anything else to exit
         if ((bool)($this->settings['render_only_template'] ?? false) === true) {
-          echo $content;
-          exit();
+            echo $content;
+            exit();
         }
 
         $response = $this->htmlResponse($content);
@@ -514,7 +511,7 @@ class RecordController extends AbstractController
     {
         $response = (new ForwardResponse('dynamicDetail'))
             ->withArguments([
-                $this->settings['singleRecordVariableName'] => (int)$this->settings['single_record_selection']
+                $this->settings['singleRecordVariableName'] => (int)$this->settings['single_record_selection'],
         ]);
 
         return $response;
@@ -588,15 +585,15 @@ class RecordController extends AbstractController
                 $content = $this->getCache()->get($this->cacheIdentifier) . "\r\n" . '<!-- CACHE: ' . $this->cacheIdentifier . ' -->';
             }
         } else {
-          $content = $this->view->render();
-          // Set content to cache
-          $this->getCache()->set($this->cacheIdentifier, $content, [], $this->pluginSettingsService->getCacheLifetime());
+            $content = $this->view->render();
+            // Set content to cache
+            $this->getCache()->set($this->cacheIdentifier, $content, [], $this->pluginSettingsService->getCacheLifetime());
         }
 
         // Directly render the template and put anything else to exit
         if ((bool)($this->settings['render_only_template'] ?? false) === true) {
-          echo $content;
-          exit();
+            echo $content;
+            exit();
         }
 
         $response = $this->htmlResponse($content);
@@ -611,15 +608,15 @@ class RecordController extends AbstractController
      */
     protected function _getDetailPid(array $variables): ?int
     {
-        $configuration = ($this->settings['detail_pid']??false);
+        $configuration = ($this->settings['detail_pid'] ?? false);
 
-        if(!is_array($configuration)) {
+        if (!is_array($configuration)) {
             return null;
         }
 
         foreach ($configuration as $_detailPidSingle) {
             $condition = $_detailPidSingle['pageids']['condition'];
-            if ($condition == '' || $this->conditionService->isValid( $condition, $variables)) {
+            if ($condition == '' || $this->conditionService->isValid($condition, $variables)) {
                 $rawPageId = $_detailPidSingle['pageids']['pageid'] ?? null;
                 if (is_int($rawPageId) || (is_string($rawPageId) && ctype_digit($rawPageId))) {
                     return (int)$rawPageId;
@@ -645,7 +642,7 @@ class RecordController extends AbstractController
      */
     protected function _getTemplateSwitch(array $variables): ?array
     {
-        $templateSwitch = ($this->settings['template_switch']??false);
+        $templateSwitch = ($this->settings['template_switch'] ?? false);
 
         if (!is_array($templateSwitch)) {
             return null;
@@ -706,9 +703,9 @@ class RecordController extends AbstractController
      */
     public function getConfiguredHeaders(): array
     {
-        $headerConfig = ($this->settings['custom_headers']??[]);
+        $headerConfig = ($this->settings['custom_headers'] ?? []);
 
-        if(!is_array($headerConfig)) {
+        if (!is_array($headerConfig)) {
             return [];
         }
 
@@ -739,8 +736,8 @@ class RecordController extends AbstractController
      */
     protected function processPreparedHeaders(ResponseInterface &$response): void
     {
-        if(is_array($this->_headers) && !empty($this->_headers)) {
-            foreach($this->_headers as $_name=>$_value) {
+        if (is_array($this->_headers) && !empty($this->_headers)) {
+            foreach ($this->_headers as $_name => $_value) {
                 if (!is_string($_name) || trim($_name) === '' || !$this->isValidHeaderName($_name)) {
                     continue;
                 }
@@ -757,8 +754,8 @@ class RecordController extends AbstractController
 
     protected function prepareVarsForCaching(array &$vars): void
     {
-        foreach($vars as $_i=>$_v) {
-            if(is_object($_v)) {
+        foreach ($vars as $_i => $_v) {
+            if (is_object($_v)) {
                 switch (get_class($_v)) {
                     case \K3n\Tonictypes\Domain\Model\AbstractRecordModel::class:
                     case \K3n\Tonictypes\Domain\Model\Datatype::class:
@@ -766,7 +763,7 @@ class RecordController extends AbstractController
                         break;
                     case \TYPO3\CMS\Extbase\Persistence\Generic\QueryResult::class:
                         $vars[$_i] = $_v->toArray();
-                        foreach($vars[$_i] as $_j=>$_item) {
+                        foreach ($vars[$_i] as $_j => $_item) {
                             $vars[$_i][$_j] = $_item->_getProperties();
                         }
                         break;

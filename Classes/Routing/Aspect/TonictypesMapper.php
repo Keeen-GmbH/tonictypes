@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -14,7 +15,6 @@ declare(strict_types=1);
 namespace K3n\Tonictypes\Routing\Aspect;
 
 use K3n\Tonictypes\Domain\Model\Datatype;
-use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
 use K3n\Tonictypes\Tca\Generator;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Routing\Aspect\PersistedPatternMapper;
@@ -58,13 +58,13 @@ class TonictypesMapper extends PersistedPatternMapper
     {
         $datatypeUid = $settings['datatype'] ?? null;
 
-        if(!is_numeric($datatypeUid)) {
+        if (!is_numeric($datatypeUid)) {
             throw new \InvalidArgumentException('datatype must be integer', 1639584156);
         }
 
         $datatype = BackendUtility::getRecord('tx_tonictypes_domain_model_datatype', $datatypeUid, 'tablename');
 
-        if(!$datatype || !array_key_exists('tablename', $datatype)) {
+        if (!$datatype || !array_key_exists('tablename', $datatype)) {
             throw new \InvalidArgumentException('datatype with uid \''.$datatypeUid.'\' not found', 1639584369);
         }
 

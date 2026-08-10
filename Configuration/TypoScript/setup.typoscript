@@ -163,14 +163,6 @@ plugin.tx_tonictypes.fieldtypes {
     flexform = EXT:tonictypes/Configuration/FlexForms/Field/Link.xml
   }
 
-  # Field Declaration for Input Field
-  dyninput {
-    class = K3n\Tonictypes\Tca\Field\DynamicInput
-    icon = EXT:tonictypes/Resources/Public/Icons/Field/dyninput.gif
-    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.dynamic_input
-    flexform = EXT:tonictypes/Configuration/FlexForms/Field/DynamicInput.xml
-  }
-
   # Field Declaration for Images
   image {
     class = K3n\Tonictypes\Tca\Field\Image
@@ -195,43 +187,12 @@ plugin.tx_tonictypes.fieldtypes {
     flexform = EXT:tonictypes/Configuration/FlexForms/Field/Tree.xml
   }
 
-  # Field Declaration for a flexform field
-  flex {
-    class = K3n\Tonictypes\Tca\Field\Flex
-    icon = EXT:tonictypes/Resources/Public/Icons/Field/flex.gif
-    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.flex
-  }
-
-  # Field Declaration for inline elements
-  inline {
-    class = K3n\Tonictypes\Tca\Field\Inline
-    icon = EXT:tonictypes/Resources/Public/Icons/Field/inline.gif
-    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.inline
-    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Inline.xml
-  }
-
-  # Field Declaration for inline elements
-  datatype {
-    class = K3n\Tonictypes\Tca\Field\Datatype
-    icon = EXT:tonictypes/Resources/Public/Icons/Field/datatype.gif
-    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.datatype
-    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Datatype.xml
-  }
-
   # Field Declaration for database elements
   relation {
     class = K3n\Tonictypes\Tca\Field\FileRelation
     icon = EXT:tonictypes/Resources/Public/Icons/Field/relation.gif
     label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.file_relation
     flexform = EXT:tonictypes/Configuration/FlexForms/Field/FileRelation.xml
-  }
-
-  # Field Declaration for a tca field
-  tca {
-    class = K3n\Tonictypes\Tca\Field\Tca
-    icon = EXT:tonictypes/Resources/Public/Icons/Field/tca.gif
-    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.tca
-    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Tca.xml
   }
 
   # Field Declaration for Color Picker Field
@@ -242,12 +203,7 @@ plugin.tx_tonictypes.fieldtypes {
     flexform = EXT:tonictypes/Configuration/FlexForms/Field/ColorPicker.xml
   }
 
-  # Field Declaration for a  passthrough field
-  passthrough {
-    class = K3n\Tonictypes\Tca\Field\PassThrough
-    icon = EXT:tonictypes/Resources/Public/Icons/Field/passthrough.gif
-    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.passthrough
-    flexform = EXT:tonictypes/Configuration/FlexForms/Field/PassThrough.xml
-  }
+  # Pro-only fieldtypes (dyninput, flex, inline, datatype, tca, passthrough,
+  # user, content, fluid) are registered by EXT:tonictypes_pro.
 
 }

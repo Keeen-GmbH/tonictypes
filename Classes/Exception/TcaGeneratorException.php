@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -12,9 +13,9 @@ declare(strict_types=1);
  */
 
 namespace K3n\Tonictypes\Exception;
+
 use TYPO3\CMS\Core\Exception;
 
 class TcaGeneratorException extends Exception
 {
-
 }

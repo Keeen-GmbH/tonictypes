@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,21 +14,11 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Service\Backend;
 
-use K3n\Tonictypes\Domain\Model\AbstractRecordModel;
-use K3n\Tonictypes\Domain\Model\Datatype;
-use K3n\Tonictypes\Fluid\View\StandaloneView;
-use K3n\Tonictypes\Utility\LocalizationUtility;
-use K3n\Tonictypes\Utility\UrlUtility;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\ApplicationType;
-use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
 
 class FlashMessageService
 {
@@ -52,7 +43,7 @@ class FlashMessageService
     public function addFlashMessage(string $message, string $title = '', $severity = ContextualFeedbackSeverity::OK, ?ServerRequestInterface $checkRequest = null): void
     {
         $sendMessage = true;
-        if($checkRequest instanceof ServerRequestInterface) {
+        if ($checkRequest instanceof ServerRequestInterface) {
             $sendMessage = false;
             if (ApplicationType::fromRequest($checkRequest)->isBackend() && in_array($checkRequest->getAttribute('route')->getPath(), $this->allowedRoutes)) {
                 // Request is valid and flash message can be sent
@@ -60,8 +51,9 @@ class FlashMessageService
             }
         }
 
-        if($sendMessage === true) {
-            $message = GeneralUtility::makeInstance(FlashMessage::class,
+        if ($sendMessage === true) {
+            $message = GeneralUtility::makeInstance(
+                FlashMessage::class,
                 $message,
                 $title,
                 $severity,

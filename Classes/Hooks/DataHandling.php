@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -18,27 +19,26 @@ use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Model\Field;
 use K3n\Tonictypes\Domain\Repository\AbstractRepository;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
+use K3n\Tonictypes\Evaluation\DatatypeNameEvaluation;
 use K3n\Tonictypes\Factory\ClassFactory;
 use K3n\Tonictypes\Factory\TableFactory;
 use K3n\Tonictypes\Form\Value\AbstractValue;
+use K3n\Tonictypes\Service\Backend\FlashMessageService;
 use K3n\Tonictypes\Service\Cache\TcaCacheService;
 use K3n\Tonictypes\Service\Settings\FieldSettingsService;
+use K3n\Tonictypes\Service\Tca\DatatypeTcaFileService;
 use K3n\Tonictypes\Utility\UrlUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
-use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use K3n\Tonictypes\Service\Backend\FlashMessageService;
 use TYPO3\CMS\Core\Database\Query\Restriction\EndTimeRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
 use TYPO3\CMS\Core\Database\Query\Restriction\StartTimeRestriction;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use K3n\Tonictypes\Evaluation\DatatypeNameEvaluation;
 
 class DataHandling
 {
@@ -192,6 +192,19 @@ class DataHandling
      */
     public function processCmdmap_deleteAction(string $table, int $id, array $recordToDelete, bool &$recordWasDeleted, &$parentObj)
     {
+        if ($table !== 'tx_tonictypes_domain_model_datatype') {
+            return;
+        }
+
+        $tableName = trim((string)($recordToDelete['tablename'] ?? ''));
+        if ($tableName === '') {
+            $datatype = BackendUtility::getRecord($table, $id, 'tablename');
+            $tableName = trim((string)($datatype['tablename'] ?? ''));
+        }
+
+        GeneralUtility::makeInstance(DatatypeTcaFileService::class)->backupAndDelete($tableName);
+        $this->tcaCacheService->remove('Tca_Datatype_' . $id);
+        $this->tcaCacheService->remove('Tca_Complete_' . $id);
     }
 
     /**
@@ -221,7 +234,7 @@ class DataHandling
             $datatype = BackendUtility::getRecord($table, $id);
 
             $tableExists = false;
-            if(is_array($datatype) && array_key_exists('tablename', $datatype) && !is_null($datatype['tablename']) && $datatype['tablename'] != '') {
+            if (is_array($datatype) && array_key_exists('tablename', $datatype) && !is_null($datatype['tablename']) && $datatype['tablename'] != '') {
                 $tableExists = $this->tableFactory->tableExists($datatype['tablename']);
             }
 
@@ -232,12 +245,19 @@ class DataHandling
                     $tableName = $datatype['tablename'];
                     if ($tableName) {
                         $connection = $this->_getConnectionForTable($tableName);
-                        $connection->update($tableName,['icon' => $fieldArray['icon']],['deleted' => 0]);
+                        $connection->update($tableName, ['icon' => $fieldArray['icon']], ['deleted' => 0]);
                     }
                 }
 
-                // Clear datatype tca cache
-                $this->tcaCacheService->remove("Tca_Datatype_{$datatype["uid"]}");
+                // Clear datatype tca cache (base + complete so options like default_hidden take effect)
+                $this->tcaCacheService->remove("Tca_Datatype_{$datatype['uid']}");
+                $this->tcaCacheService->remove("Tca_Complete_{$datatype['uid']}");
+
+                $datatypeModel = $this->datatypeRepository->findByUid((int)$datatype['uid'], false);
+                if ($datatypeModel instanceof Datatype) {
+                    GeneralUtility::makeInstance(DatatypeTcaFileService::class)
+                        ->writeFromDatatype($datatypeModel);
+                }
             }
 
         }
@@ -245,16 +265,16 @@ class DataHandling
         /*********************************************************************************************
          * Check if table is a tonictypes record table
          *********************************************************************************************/
-        if($this->tableFactory->isRecordTable($table)) {
+        if ($this->tableFactory->isRecordTable($table)) {
 
             // Check if id is like NEW<hash>
-            if(!MathUtility::canBeInterpretedAsInteger($id)) {
-                if(array_key_exists($id, $parentObj->substNEWwithIDs)) {
+            if (!MathUtility::canBeInterpretedAsInteger($id)) {
+                if (array_key_exists($id, $parentObj->substNEWwithIDs)) {
                     $id = $parentObj->substNEWwithIDs[$id];
                 }
             }
 
-            if(MathUtility::canBeInterpretedAsInteger($id)) {
+            if (MathUtility::canBeInterpretedAsInteger($id)) {
                 // Generate values when a record was saved and the id is int
                 // This regenerates values for post-processing purposes,
                 // configured in tonictypess field configuration 'value'
@@ -294,7 +314,7 @@ class DataHandling
         $datatypeUid = MathUtility::canBeInterpretedAsInteger((string)$datatypeUid) ? (int)$datatypeUid : 0;
 
         if ($datatypeUid <= 0) {
-            $datatypeByTable = $this->datatypeRepository->findOneBy(['tablename' => $table]);
+            $datatypeByTable = $this->datatypeRepository->findOneByTablename($table);
             if ($datatypeByTable instanceof Datatype) {
                 $datatypeUid = $datatypeByTable->getUid();
                 $recordRow['datatype'] = $datatypeUid;
@@ -302,15 +322,15 @@ class DataHandling
             }
         }
 
-        if($datatypeUid > 0) {
+        if ($datatypeUid > 0) {
             /* @var Datatype $datatype */
             $datatype = $this->datatypeRepository->findByUid($datatypeUid, false);
-            if($datatype instanceof Datatype) {
+            if ($datatype instanceof Datatype) {
                 $repository = $datatype->getRepository();
-                if($repository instanceof AbstractRepository) {
-                    $recordsWSOL = $repository->findbyUids([$id],[],[HiddenRestriction::class,StartTimeRestriction::class,EndTimeRestriction::class]);
+                if ($repository instanceof AbstractRepository) {
+                    $recordsWSOL = $repository->findbyUids([$id], [], [HiddenRestriction::class,StartTimeRestriction::class,EndTimeRestriction::class]);
                     $record = reset($recordsWSOL);
-                    if($record instanceof AbstractRecordModel) {
+                    if ($record instanceof AbstractRecordModel) {
                         $recordPid = MathUtility::canBeInterpretedAsInteger((string)($recordRow['pid'] ?? null))
                             ? (int)$recordRow['pid']
                             : 0;
@@ -336,13 +356,13 @@ class DataHandling
                         $valueGeneratorFields = $this->fieldSettingsService->getFieldTypesWithValueGenerator($recordPid);
                         $update = [];
                         $pathSegments = [];
-                        foreach($datatype->getFields() as $_field) {
+                        foreach ($datatype->getFields() as $_field) {
                             /* @var Field $_field */
                             // Check if vield is a value generator field
-                            if(in_array($_field->getType(), $valueGeneratorFields)) {
+                            if (in_array($_field->getType(), $valueGeneratorFields)) {
                                 // The value for this field needs to be re-generated
                                 $valueClass = $this->fieldSettingsService->getValueGeneratorClass($_field, $recordPid);
-                                if(class_exists($valueClass)) {
+                                if (class_exists($valueClass)) {
                                     /* @var AbstractValue $value */
                                     $value = GeneralUtility::makeInstance($valueClass);
                                     $value->setRecord($record);
@@ -358,7 +378,7 @@ class DataHandling
 
                                     } catch (\Exception $e) {
                                         // We continue the process, maybe the field does not want to write the result
-                                        $this->backendFlashMessageService->addFlashMessage($e->getMessage(), '',ContextualFeedbackSeverity::ERROR);
+                                        $this->backendFlashMessageService->addFlashMessage($e->getMessage(), '', ContextualFeedbackSeverity::ERROR);
                                     }
 
                                 }
@@ -376,12 +396,12 @@ class DataHandling
                         }
 
                         // Generation of the 'title'
-                        if($datatype->getHasTitleField()) {
+                        if ($datatype->getHasTitleField()) {
                             $newTitle = '';
                             $divider = $datatype->getTitleDivider();
-                            $divider = str_replace("X", " ", $divider);
-                            foreach($datatype->getFields() as $_field) {
-                                if($_field->getIsRecordTitle()) {
+                            $divider = str_replace('X', ' ', $divider);
+                            foreach ($datatype->getFields() as $_field) {
+                                if ($_field->getIsRecordTitle()) {
                                     $newTitle .= $recordRow[$_field->getVariableName()].$divider;
                                 }
                             }
@@ -394,8 +414,8 @@ class DataHandling
 
                         // Generation of path_segment
                         $pathSegmentFromPost = '';
-                        if(array_key_exists('data', $_POST) && array_key_exists($table, $_POST['data']) && array_key_exists($id, $_POST['data'][$table])) {
-                            if(array_key_exists('path_segment', $_POST['data'][$table][$id])) {
+                        if (array_key_exists('data', $_POST) && array_key_exists($table, $_POST['data']) && array_key_exists($id, $_POST['data'][$table])) {
+                            if (array_key_exists('path_segment', $_POST['data'][$table][$id])) {
                                 $pathSegmentFromPost = $_POST['data'][$table][$id]['path_segment'];
                             }
                         }
@@ -403,17 +423,17 @@ class DataHandling
                         $pathSegment = str_replace(' ', '-', $pathSegment);
                         $pathSegment = UrlUtility::generatePathSegment($pathSegment);
 
-                        if($pathSegment != '' && !empty($pathSegments)) {
-                            if(($pathSegmentFromPost != $pathSegment) && ($pathSegmentFromPost != '')) {
+                        if ($pathSegment != '' && !empty($pathSegments)) {
+                            if (($pathSegmentFromPost != $pathSegment) && ($pathSegmentFromPost != '')) {
                                 $pathSegment = $pathSegmentFromPost;
                             }
                             $record->setPathSegment($pathSegment);
                             $update['path_segment'] = $pathSegment;
                         }
 
-                        if($pathSegment == '' && empty($pathSegments)) {
+                        if ($pathSegment == '' && empty($pathSegments)) {
                             $pathSegment = UrlUtility::generatePathSegment($record->getTitle());
-                            if(($pathSegmentFromPost != $pathSegment) && ($pathSegmentFromPost != '')) {
+                            if (($pathSegmentFromPost != $pathSegment) && ($pathSegmentFromPost != '')) {
                                 $pathSegment = $pathSegmentFromPost;
                             }
                             $update['path_segment'] = $pathSegment;
@@ -421,9 +441,9 @@ class DataHandling
 
                         $record->setPathSegment($pathSegment);
 
-                        if(!empty($update)) {
+                        if (!empty($update)) {
                             // RAW UPDATE TABLE
-                            $this->_getConnectionForTable($table)->update($table, $update, ['uid'=>$id], []);
+                            $this->_getConnectionForTable($table)->update($table, $update, ['uid' => $id], []);
                         }
                     }
                 }
@@ -478,7 +498,7 @@ class DataHandling
                 && MathUtility::canBeInterpretedAsInteger((string)$incomingDatatype)
                 && (int)$incomingDatatype > 0;
             if (!$hasDatatype) {
-                $datatype = $this->datatypeRepository->findOneBy(['tablename' => $table]);
+                $datatype = $this->datatypeRepository->findOneByTablename($table);
                 if ($datatype instanceof Datatype) {
                     $incomingFieldArray['datatype'] = $datatype->getUid();
                 }
@@ -491,7 +511,7 @@ class DataHandling
                  * Clearing the cache, when EXT:tonictypes Static was added or exists in the template static
                  *********************************************************************************************/
                 if (isset($incomingFieldArray['include_static_file'])) {
-                    $staticFileInclude = GeneralUtility::trimExplode(',',$incomingFieldArray['include_static_file'],true);
+                    $staticFileInclude = GeneralUtility::trimExplode(',', $incomingFieldArray['include_static_file'], true);
 
                     if (in_array('EXT:tonictypes/Configuration/TypoScript', $staticFileInclude)) {
                         $this->cacheManager->flushCaches();
@@ -524,22 +544,63 @@ class DataHandling
                     $set = true;
                     $validatedName = $nameEvaluator->evaluateFieldValue($incomingName, '', $set);
                     if ($validatedName === '') {
+                        $error = $nameEvaluator->getValidationError($incomingName)
+                            ?? 'Invalid datatype name.';
                         $this->backendFlashMessageService->addFlashMessage(
-                            'Invalid datatype name: PHP reserved keywords are not allowed.',
+                            $error,
                             '',
                             ContextualFeedbackSeverity::ERROR
                         );
                         $incomingFieldArray = null;
                         return;
                     }
+                    $incomingFieldArray['name'] = $validatedName;
                 }
-                // We need to check if the tablename is set
-                // If no tablename is defined, we need to create one out of the datatype name
-                $tableName = ($incomingFieldArray['tablename'])??'';
-                if($tableName == '' || !strpos($tableName,'tx_tonictypes_domain_model_record_') === false) {
-                    if(array_key_exists('name', $incomingFieldArray)) {
-                        $incomingFieldArray['tablename'] = $this->tableFactory->suggestTableNameByDatatypeName($incomingFieldArray['name']);
+
+                $isNewRecord = !MathUtility::canBeInterpretedAsInteger($id);
+                $existing = [];
+                if (!$isNewRecord) {
+                    $existing = BackendUtility::getRecord($table, (int)$id, 'name,tablename') ?: [];
+                }
+
+                $nameForTable = trim((string)($incomingFieldArray['name'] ?? ($existing['name'] ?? '')));
+                $currentTable = trim((string)($existing['tablename'] ?? ''));
+                $payloadHasTablename = array_key_exists('tablename', $incomingFieldArray);
+                $payloadTable = $payloadHasTablename
+                    ? trim((string)$incomingFieldArray['tablename'])
+                    : '';
+
+                if ($isNewRecord) {
+                    // Always derive a sanitized SQL table name for new datatypes.
+                    if (($payloadTable === '' || !$this->tableFactory->isAllowedTablename($payloadTable))
+                        && $nameForTable !== ''
+                    ) {
+                        $incomingFieldArray['tablename'] = $this->tableFactory->suggestTableNameByDatatypeName($nameForTable);
                     }
+                } elseif ($payloadHasTablename && $payloadTable !== '' && !$this->tableFactory->isAllowedTablename($payloadTable)) {
+                    // Sanitize invalid explicit tablename instead of storing parentheses etc.
+                    if ($nameForTable === '') {
+                        $this->backendFlashMessageService->addFlashMessage(
+                            sprintf('Invalid tablename "%s". Use only lowercase letters, numbers and underscores.', $payloadTable),
+                            '',
+                            ContextualFeedbackSeverity::ERROR
+                        );
+                        $incomingFieldArray = null;
+                        return;
+                    }
+                    $incomingFieldArray['tablename'] = $this->tableFactory->suggestTableNameByDatatypeName($nameForTable);
+                } elseif (
+                    $nameForTable !== ''
+                    && (
+                        ($currentTable !== '' && !$this->tableFactory->isAllowedTablename($currentTable))
+                        || (
+                            array_key_exists('name', $incomingFieldArray)
+                            && ($currentTable === '' || !$this->tableFactory->tableExists($currentTable))
+                        )
+                    )
+                ) {
+                    // Auto-heal invalid stored names, and keep unpublished tables in sync with name.
+                    $incomingFieldArray['tablename'] = $this->tableFactory->suggestTableNameByDatatypeName($nameForTable);
                 }
                 break;
             default:

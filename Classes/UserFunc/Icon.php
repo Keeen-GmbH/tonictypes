@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -19,73 +20,73 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 
 class Icon
 {
-	/**
-	 * Gets icons
-	 *
-	 * @param array $config Configuration Array
-	 * @param mixed $parentObject Parent Object
-	 * @return array
-	 */
-	public function displayIconSelection(array &$config, &$parentObject): string
-	{
-		$fieldName = (string)($config['itemFormElName'] ?? $config['itemFormElname'] ?? '');
-		$fieldId = $this->resolveItemFormElementId($config);
-		$value = (string)($config['itemFormElValue'] ?? $config['itemFormElvalue'] ?? '');
-		$checked		= ($value == "")?"checked":"";
-		$onChange = $config['fieldChangeFunc']['TBE_EDITOR_fieldChanged'] ?? '';
-		if (!is_string($onChange)) {
-			$onChange = '';
-		}
+    /**
+     * Gets icons
+     *
+     * @param array $config Configuration Array
+     * @param mixed $parentObject Parent Object
+     * @return string
+     */
+    public function displayIconSelection(array &$config, &$parentObject): string
+    {
+        $fieldName = (string)($config['itemFormElName'] ?? $config['itemFormElname'] ?? '');
+        $fieldId = $this->resolveItemFormElementId($config);
+        $value = (string)($config['itemFormElValue'] ?? $config['itemFormElvalue'] ?? '');
+        $checked		= ($value == '') ? 'checked' : '';
+        $onChange = $config['fieldChangeFunc']['TBE_EDITOR_fieldChanged'] ?? '';
+        if (!is_string($onChange)) {
+            $onChange = '';
+        }
         //onchange=\"{$onChange}\"
 
-		/* @var TonictypesIconRegistry $dvIconRegistry */
-		$dvIconRegistry = GeneralUtility::makeInstance(TonictypesIconRegistry::class);
-		$icons = $dvIconRegistry->getIcons(['EXT:tonictypes/Resources/Public/Icons/Datatype'],'extensions-tonictypes-',false);
+        /* @var TonictypesIconRegistry $dvIconRegistry */
+        $dvIconRegistry = GeneralUtility::makeInstance(TonictypesIconRegistry::class);
+        $icons = $dvIconRegistry->getIcons(['EXT:tonictypes/Resources/Public/Icons/Datatype'], 'extensions-tonictypes-', false);
 
-		$html = "";
+        $html = '';
 
-        $border = "1px solid #c0c0c0";
-        if ($checked == "checked") {
-            $border = "2px solid #000";
+        $border = '1px solid #c0c0c0';
+        if ($checked == 'checked') {
+            $border = '2px solid #000';
         }
 
-		// Empty - Default Icon
-		$emptyOptionId = $fieldId . '_empty';
-		$html .= "<div style=\"width:50px; height: 30px; border: {$border}; margin:0 3px 3px 0; padding: 3px; \">";
-		$html .= "<input type=\"radio\" {$checked} id=\"{$emptyOptionId}\" name=\"{$fieldName}\" value=\"\" style=\"float:left; margin-right:4px; \">";
-		$html .= "<label for=\"{$emptyOptionId}\" style=\"display:block; width: 22px; float: left; cursor:pointer;\">" . "</label>";
-		$html .= "</div>";
+        // Empty - Default Icon
+        $emptyOptionId = $fieldId . '_empty';
+        $html .= "<div style=\"width:50px; height: 30px; border: {$border}; margin:0 3px 3px 0; padding: 3px; \">";
+        $html .= "<input type=\"radio\" {$checked} id=\"{$emptyOptionId}\" name=\"{$fieldName}\" value=\"\" style=\"float:left; margin-right:4px; \">";
+        $html .= "<label for=\"{$emptyOptionId}\" style=\"display:block; width: 22px; float: left; cursor:pointer;\">" . '</label>';
+        $html .= '</div>';
 
-		$i = 1;
-		foreach ($icons as $_hash=>$_file) {
-			$file = GeneralUtility::getFileAbsFileName($_file);
-			if (file_exists($file)) {
-				$imageSize = getimagesize($file);
-                if(!is_array($imageSize)) {
+        $i = 1;
+        foreach ($icons as $_hash => $_file) {
+            $file = GeneralUtility::getFileAbsFileName($_file);
+            if (file_exists($file)) {
+                $imageSize = getimagesize($file);
+                if (!is_array($imageSize)) {
                     continue;
                 }
-				$xS = $imageSize[0];
-				$yS = $imageSize[1];
-				$checked = ($value == $_hash)? "checked" : "";
-                $border = "1px solid #c0c0c0";
+                $xS = $imageSize[0];
+                $yS = $imageSize[1];
+                $checked = ($value == $_hash) ? 'checked' : '';
+                $border = '1px solid #c0c0c0';
                 if ($value == $_hash) {
-                    $border = "2px solid #000";
+                    $border = '2px solid #000';
                 }
 
-				$img = PathUtility::getAbsoluteWebPath($file);
-				if ($xS <= 22 && $yS <= 22) {
-					$optionId = $fieldId . '_' . $i;
-					$html .= "<div style=\"width:50px; height: 30px; float: left; border: {$border}; margin:0 3px 3px 0; padding: 3px; \">";
-					$html .= "<input type=\"radio\" {$checked} id=\"{$optionId}\" name=\"{$fieldName}\" value=\"{$_hash}\" style=\"float:left; margin-right:4px; \">";
-					$html .= "<label for=\"{$optionId}\" style=\"display:block; width: 22px; float: left; cursor:pointer;\">" . "<img src=\"{$img}\" border=\"0\" title=\"extensions-tonictypes-{$_hash}\">" . "</label>";
-					$html .= "</div>";
-				}
+                $img = PathUtility::getAbsoluteWebPath($file);
+                if ($xS <= 22 && $yS <= 22) {
+                    $optionId = $fieldId . '_' . $i;
+                    $html .= "<div style=\"width:50px; height: 30px; float: left; border: {$border}; margin:0 3px 3px 0; padding: 3px; \">";
+                    $html .= "<input type=\"radio\" {$checked} id=\"{$optionId}\" name=\"{$fieldName}\" value=\"{$_hash}\" style=\"float:left; margin-right:4px; \">";
+                    $html .= "<label for=\"{$optionId}\" style=\"display:block; width: 22px; float: left; cursor:pointer;\">" . "<img src=\"{$img}\" border=\"0\" title=\"extensions-tonictypes-{$_hash}\">" . '</label>';
+                    $html .= '</div>';
+                }
 
-				$i++;
-			}
-		}
-		return $html;
-	}
+                $i++;
+            }
+        }
+        return $html;
+    }
 
     protected function resolveItemFormElementId(array $config): string
     {

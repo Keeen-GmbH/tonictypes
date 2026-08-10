@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -29,7 +30,7 @@ class ConditionService implements SingletonInterface
      */
     public function getView(): StandaloneView
     {
-        if(!$this->view) {
+        if (!$this->view) {
             $this->view = GeneralUtility::makeInstance(StandaloneView::class);
         }
 
@@ -44,7 +45,7 @@ class ConditionService implements SingletonInterface
      */
     public function isValid(string $condition, array $variables = []): bool
     {
-        if($condition == '') {
+        if ($condition == '') {
             return true;
         }
 

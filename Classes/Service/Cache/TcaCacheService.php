@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -20,7 +21,7 @@ class TcaCacheService extends CacheService
      */
     public function __construct()
     {
-        $this->setCacheName("tonictypes_tca_cache");
+        $this->setCacheName('tonictypes_tca_cache');
     }
 
 }

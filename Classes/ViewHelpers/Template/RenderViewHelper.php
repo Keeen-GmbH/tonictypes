@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,7 +14,7 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\ViewHelpers\Template;
 
-use K3n\Tonictypes\Configuration\ExtensionConfiguration;
+use K3n\Tonictypes\Domain\Model\Variable;
 use K3n\Tonictypes\Domain\Repository\VariableRepository;
 use K3n\Tonictypes\Factory\VariableFactory;
 use K3n\Tonictypes\Fluid\View\StandaloneView;
@@ -24,7 +25,6 @@ use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use K3n\Tonictypes\Domain\Model\Variable;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Exception\InvalidArgumentNameException;
 
@@ -106,7 +106,7 @@ class RenderViewHelper extends AbstractViewHelper
         $languageAspect = $context->getAspect('language');
 
         $data = [
-            $languageAspect->getId()
+            $languageAspect->getId(),
         ];
         $data = array_merge($this->arguments['arguments'], $additionalParameters);
         $data = array_merge($data, $additionalParameters);

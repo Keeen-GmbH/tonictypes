@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -118,14 +119,14 @@ abstract class AbstractField
     public function mergeConfigurationToTca(array $tca): array
     {
         if ($this->getField()->getRequestUpdate()) {
-            $tca["onChange"] = "reload";
+            $tca['onChange'] = 'reload';
         }
 
-        if($fieldEval = $this->getField()->getEval()) {
-            $prevEval = GeneralUtility::trimExplode(',', ($tca['config']['eval']??''), true);
+        if ($fieldEval = $this->getField()->getEval()) {
+            $prevEval = GeneralUtility::trimExplode(',', ($tca['config']['eval'] ?? ''), true);
             $fieldEval = GeneralUtility::trimExplode(',', $fieldEval, true);
             $eval = array_merge($prevEval, $fieldEval);
-            $tca['config']['eval'] = implode(',',$eval);
+            $tca['config']['eval'] = implode(',', $eval);
         }
 
         // displayCond
@@ -138,24 +139,24 @@ abstract class AbstractField
         $view = $this->getView();
         $view->assignMultiple($this->_getDefaultViewVariables());
 
-        if(is_array($defaultValue)) {
-            if(!empty($defaultValue)) {
+        if (is_array($defaultValue)) {
+            if (!empty($defaultValue)) {
                 foreach ($defaultValue as $i => $_dV) {
                     $defaultValue[$i] = $view->renderSource($_dV);
                 }
                 $tca['config']['default'] = $defaultValue;
             }
-        } else if (is_string($defaultValue) && $defaultValue != '') {
+        } elseif (is_string($defaultValue) && $defaultValue != '') {
             $tca['config']['default'] = $view->renderSource($defaultValue);
         }
 
         // description
-        if($description = $this->getField()->getDescription()) {
+        if ($description = $this->getField()->getDescription()) {
             $tca['description'] = $description;
         }
 
         // exclude
-        if($this->getField()->getL10nExclude() == true) {
+        if ($this->getField()->getL10nExclude() == true) {
             $tca['l10n_mode'] = 'exclude';
         }
 
@@ -220,13 +221,31 @@ abstract class AbstractField
             }
         }
 
-        if(!$hasDefault) {
+        if (!$hasDefault) {
             return null;
         }
 
         return $values;
     }
 
+    /**
+     * Scalar default for Extbase class property init (Update Class / Fluid templates).
+     * getDefaultValue() often returns an array, which Fluid cannot cast to string.
+     *
+     * @return string|int|float|bool
+     */
+    public function getDefaultValueForProperty()
+    {
+        $value = $this->getDefaultValue();
+        if (is_array($value)) {
+            $value = reset($value);
+        }
+        if (is_array($value) || $value === null || $value === false) {
+            return '';
+        }
+
+        return $value;
+    }
 
     /**
      * Determines the value of the field
@@ -279,9 +298,9 @@ abstract class AbstractField
 
         if (is_array($defaultValue) && !is_null($position)) {
             return $defaultValue[$position];
-        } else if (is_array($defaultValue) && is_null($position)) {
+        } elseif (is_array($defaultValue) && is_null($position)) {
             return reset($defaultValue);
-        } else if (is_string($defaultValue) && strlen($defaultValue)) {
+        } elseif (is_string($defaultValue) && strlen($defaultValue)) {
             return $defaultValue;
         }
 
@@ -352,8 +371,7 @@ abstract class AbstractField
         $items = [];
 
         /* @var FieldValue $fieldValue */
-        switch ($fieldValue->getType())
-        {
+        switch ($fieldValue->getType()) {
             case FieldValue::TYPE_FIXED_VALUE:
                 $labelValueArr = $this->_processLabelValueString($fieldValue->getValueContent());
                 if ($fieldValue->getPretendsEmpty()) {
@@ -362,7 +380,7 @@ abstract class AbstractField
 
                 $items[] = [
                     'label' => $labelValueArr['label'],
-                    'value' => $labelValueArr['value']
+                    'value' => $labelValueArr['value'],
                 ];
                 break;
             case FieldValue::TYPE_DATABASE:
@@ -383,7 +401,7 @@ abstract class AbstractField
 
                     $items[] = [
                         'label' => $labelValueArr['label'],
-                        'value' => $labelValueArr['value']
+                        'value' => $labelValueArr['value'],
                     ];
                 }
                 break;
@@ -398,25 +416,25 @@ abstract class AbstractField
 
                 $items[] = [
                     'label' => $labelValueArr['label'],
-                    'value' => $labelValueArr['value']
+                    'value' => $labelValueArr['value'],
                 ];
                 break;
             default:
                 break;
 
-            /*
-            case FieldValue::TYPE_FIELDVALUES:
-                $field = $fieldValue->getFieldContent();
-                if ($field instanceof FieldModel) {
-                    $fieldItems = $this->getAllFieldItems($field);
-                    if (!empty($fieldItems)) {
-                        foreach ($fieldItems as $value) {
-                            $items[] = [$value, $value];
+                /*
+                case FieldValue::TYPE_FIELDVALUES:
+                    $field = $fieldValue->getFieldContent();
+                    if ($field instanceof FieldModel) {
+                        $fieldItems = $this->getAllFieldItems($field);
+                        if (!empty($fieldItems)) {
+                            foreach ($fieldItems as $value) {
+                                $items[] = [$value, $value];
+                            }
                         }
                     }
-                }
-                break;
-            */
+                    break;
+                */
         }
 
         return $items;

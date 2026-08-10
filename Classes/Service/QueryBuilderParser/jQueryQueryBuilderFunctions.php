@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,8 +14,8 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Service\QueryBuilderParser;
 
+use stdClass;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
-use \stdClass;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -34,53 +35,53 @@ trait jQueryQueryBuilderFunctions
      */
     abstract protected function checkRuleCorrect(stdClass $rule);
 
-    protected $operators = array(
-        'equal' => array('accept_values' => true, 'apply_to' => ['string', 'number', 'datetime']),
-        'not_equal' => array('accept_values' => true, 'apply_to' => ['string', 'number', 'datetime']),
-        'in' => array('accept_values' => true, 'apply_to' => ['string', 'number', 'datetime']),
-        'not_in' => array('accept_values' => true, 'apply_to' => ['string', 'number', 'datetime']),
-        'less' => array('accept_values' => true, 'apply_to' => ['number', 'datetime']),
-        'less_or_equal' => array('accept_values' => true, 'apply_to' => ['number', 'datetime']),
-        'greater' => array('accept_values' => true, 'apply_to' => ['number', 'datetime']),
-        'greater_or_equal' => array('accept_values' => true, 'apply_to' => ['number', 'datetime']),
-        'between' => array('accept_values' => true, 'apply_to' => ['number', 'datetime']),
-        'begins_with' => array('accept_values' => true, 'apply_to' => ['string']),
-        'not_begins_with' => array('accept_values' => true, 'apply_to' => ['string']),
-        'contains' => array('accept_values' => true, 'apply_to' => ['string']),
-        'not_contains' => array('accept_values' => true, 'apply_to' => ['string']),
-        'ends_with' => array('accept_values' => true, 'apply_to' => ['string']),
-        'not_ends_with' => array('accept_values' => true, 'apply_to' => ['string']),
-        'is_empty' => array('accept_values' => false, 'apply_to' => ['string']),
-        'is_not_empty' => array('accept_values' => false, 'apply_to' => ['string']),
-        'is_null' => array('accept_values' => false, 'apply_to' => ['string', 'number', 'datetime']),
-        'is_not_null' => array('accept_values' => false, 'apply_to' => ['string', 'number', 'datetime'])
-    );
+    protected $operators = [
+        'equal' => ['accept_values' => true, 'apply_to' => ['string', 'number', 'datetime']],
+        'not_equal' => ['accept_values' => true, 'apply_to' => ['string', 'number', 'datetime']],
+        'in' => ['accept_values' => true, 'apply_to' => ['string', 'number', 'datetime']],
+        'not_in' => ['accept_values' => true, 'apply_to' => ['string', 'number', 'datetime']],
+        'less' => ['accept_values' => true, 'apply_to' => ['number', 'datetime']],
+        'less_or_equal' => ['accept_values' => true, 'apply_to' => ['number', 'datetime']],
+        'greater' => ['accept_values' => true, 'apply_to' => ['number', 'datetime']],
+        'greater_or_equal' => ['accept_values' => true, 'apply_to' => ['number', 'datetime']],
+        'between' => ['accept_values' => true, 'apply_to' => ['number', 'datetime']],
+        'begins_with' => ['accept_values' => true, 'apply_to' => ['string']],
+        'not_begins_with' => ['accept_values' => true, 'apply_to' => ['string']],
+        'contains' => ['accept_values' => true, 'apply_to' => ['string']],
+        'not_contains' => ['accept_values' => true, 'apply_to' => ['string']],
+        'ends_with' => ['accept_values' => true, 'apply_to' => ['string']],
+        'not_ends_with' => ['accept_values' => true, 'apply_to' => ['string']],
+        'is_empty' => ['accept_values' => false, 'apply_to' => ['string']],
+        'is_not_empty' => ['accept_values' => false, 'apply_to' => ['string']],
+        'is_null' => ['accept_values' => false, 'apply_to' => ['string', 'number', 'datetime']],
+        'is_not_null' => ['accept_values' => false, 'apply_to' => ['string', 'number', 'datetime']],
+    ];
 
-    protected $operator_sql = array(
-        'equal' => array('operator' => '='),
-        'not_equal' => array('operator' => '!='),
-        'in' => array('operator' => 'IN'),
-        'not_in' => array('operator' => 'NOT IN'),
-        'less' => array('operator' => '<'),
-        'less_or_equal' => array('operator' => '<='),
-        'greater' => array('operator' => '>'),
-        'greater_or_equal' => array('operator' => '>='),
-        'between' => array('operator' => 'BETWEEN'),
-        'begins_with' => array('operator' => 'LIKE', 'prepend' => '%'),
-        'not_begins_with' => array('operator' => 'NOT LIKE', 'prepend' => '%'),
-        'contains' => array('operator' => 'LIKE', 'append' => '%', 'prepend' => '%'),
-        'not_contains' => array('operator' => 'NOT LIKE', 'append' => '%', 'prepend' => '%'),
-        'ends_with' => array('operator' => 'LIKE', 'append' => '%'),
-        'not_ends_with' => array('operator' => 'NOT LIKE', 'append' => '%'),
-        'is_empty' => array('operator' => '='),
-        'is_not_empty' => array('operator' => '!='),
-        'is_null' => array('operator' => 'NULL'),
-        'is_not_null' => array('operator' => 'NOT NULL')
-    );
+    protected $operator_sql = [
+        'equal' => ['operator' => '='],
+        'not_equal' => ['operator' => '!='],
+        'in' => ['operator' => 'IN'],
+        'not_in' => ['operator' => 'NOT IN'],
+        'less' => ['operator' => '<'],
+        'less_or_equal' => ['operator' => '<='],
+        'greater' => ['operator' => '>'],
+        'greater_or_equal' => ['operator' => '>='],
+        'between' => ['operator' => 'BETWEEN'],
+        'begins_with' => ['operator' => 'LIKE', 'prepend' => '%'],
+        'not_begins_with' => ['operator' => 'NOT LIKE', 'prepend' => '%'],
+        'contains' => ['operator' => 'LIKE', 'append' => '%', 'prepend' => '%'],
+        'not_contains' => ['operator' => 'NOT LIKE', 'append' => '%', 'prepend' => '%'],
+        'ends_with' => ['operator' => 'LIKE', 'append' => '%'],
+        'not_ends_with' => ['operator' => 'NOT LIKE', 'append' => '%'],
+        'is_empty' => ['operator' => '='],
+        'is_not_empty' => ['operator' => '!='],
+        'is_null' => ['operator' => 'NULL'],
+        'is_not_null' => ['operator' => 'NOT NULL'],
+    ];
 
-    protected $needs_array = array(
+    protected $needs_array = [
         'IN', 'NOT IN', 'BETWEEN',
-    );
+    ];
 
     /**
      * Determine if an operator (LIKE/IN) requires an array.
@@ -207,7 +208,7 @@ trait jQueryQueryBuilderFunctions
     /**
      * Decode the given JSON
      *
-     * @param string incoming json
+     * @param string $json incoming json
      * @throws \Exception
      * @return stdClass
      */
@@ -297,13 +298,13 @@ trait jQueryQueryBuilderFunctions
         if ($sqlOperator['operator'] == 'NULL') {
             if ($condition === 'and') {
                 return $queryBuilder->andWhere($queryBuilder->expr()->isNull($rule->field));
-            } else if ($condition === 'or') {
+            } elseif ($condition === 'or') {
                 return $queryBuilder->orWhere($queryBuilder->expr()->isNull($rule->field));
             }
         } elseif ($sqlOperator['operator'] == 'NOT NULL') {
             if ($condition === 'and') {
                 return $queryBuilder->andWhere($queryBuilder->expr()->isNotNull($rule->field));
-            } else if ($condition === 'or') {
+            } elseif ($condition === 'or') {
                 return $queryBuilder->orWhere($queryBuilder->expr()->isNotNull($rule->field));
             }
         }
@@ -327,14 +328,14 @@ trait jQueryQueryBuilderFunctions
         if ($operator == 'NOT IN') {
             if ($condition === 'and') {
                 return $queryBuilder->andWhere($queryBuilder->expr()->notIn($rule->field, $value));
-            } else if ($condition === 'or') {
+            } elseif ($condition === 'or') {
                 return $queryBuilder->orWhere($queryBuilder->expr()->notIn($rule->field, $value));
             }
         }
 
         if ($condition === 'and') {
             return $queryBuilder->andWhere($queryBuilder->expr()->in($rule->field, $value));
-        } else if ($condition === 'or') {
+        } elseif ($condition === 'or') {
             return $queryBuilder->orWhere($queryBuilder->expr()->in($rule->field, $value));
         }
 
@@ -361,14 +362,17 @@ trait jQueryQueryBuilderFunctions
 
         if ($condition === 'and') {
             return $queryBuilder->andWhere(
-                $queryBuilder->expr()->min($rule->field, $value[0]))
+                $queryBuilder->expr()->min($rule->field, $value[0])
+            )
                 ->andWhere($queryBuilder->expr()->max($rule->field, $value[1]));
         } else {
             if ($condition === 'or') {
                 return $queryBuilder->orWhere(
                     $queryBuilder->expr()->andX(
                         $queryBuilder->expr()->min($rule->field, $value[0]),
-                        $queryBuilder->expr()->max($rule->field, $value[1]
+                        $queryBuilder->expr()->max(
+                            $rule->field,
+                            $value[1]
                         )
                     )
                 );

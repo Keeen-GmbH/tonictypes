@@ -20,7 +20,7 @@ use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 (static function (): void {
     // Add 'tonictypes' group to CType dropdown
-    ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType','tonictypes', 'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:tx_tonictypes.plugins');
+    ExtensionManagementUtility::addTcaSelectItemGroup('tt_content', 'CType', 'tonictypes', 'LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:tx_tonictypes.plugins');
 
     $typo3Major = (new \TYPO3\CMS\Core\Information\Typo3Version())->getMajorVersion();
     $plugins = [

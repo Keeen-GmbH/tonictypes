@@ -54,6 +54,23 @@ $boot = static function (): void {
     ];
 
     /***********************************
+     * TYPO3 v12–v14: codeEditor / t3editor / RTE expect string values.
+     * Cast int leftovers from former passthrough/number columns (strict on v14).
+     ***********************************/
+    $textFieldStringProvider = [
+        'depends' => [
+            \TYPO3\CMS\Backend\Form\FormDataProvider\DatabaseEditRow::class,
+            \TYPO3\CMS\Backend\Form\FormDataProvider\DatabaseRowDefaultValues::class,
+        ],
+    ];
+    if (class_exists(\TYPO3\CMS\Backend\Form\FormDataProvider\TcaText::class)) {
+        $textFieldStringProvider['before'] = [
+            \TYPO3\CMS\Backend\Form\FormDataProvider\TcaText::class,
+        ];
+    }
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']['tcaDatabaseRecord'][\K3n\Tonictypes\Form\FormDataProvider\EnsureTextFieldStringValues::class] = $textFieldStringProvider;
+
+    /***********************************
      * Hook when saving record
      ***********************************/
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['tonictypes'] = \K3n\Tonictypes\Hooks\DataHandling::class;
@@ -96,6 +113,28 @@ $boot = static function (): void {
      ***********************************/
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Core\Routing\PageRouter::class] = [
         'className' => K3n\Tonictypes\Xclass\Core\Routing\PageRouter::class
+    ];
+
+    /***********************************
+     * Ignore Tonictypes dynamic record tables
+     * from Install Tool schema create/alter,
+     * while allowing orphan drop suggestions.
+     *
+     * TYPO3 12 returns Doctrine SchemaDiff; 13+ returns Core SchemaDiff.
+     * Version-specific XCLASS files live outside Classes/ and are require_once'd
+     * only for the running major version (avoids fatal signature mismatches).
+     ***********************************/
+    $tonictypesSchemaDir = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('tonictypes')
+        . 'Resources/Private/Php/Schema/';
+    if ((new \TYPO3\CMS\Core\Information\Typo3Version())->getMajorVersion() >= 13) {
+        require_once $tonictypesSchemaDir . 'ConnectionMigrator.php';
+        $connectionMigratorClass = \K3n\Tonictypes\Database\Schema\ConnectionMigrator::class;
+    } else {
+        require_once $tonictypesSchemaDir . 'LegacyConnectionMigrator.php';
+        $connectionMigratorClass = \K3n\Tonictypes\Database\Schema\LegacyConnectionMigrator::class;
+    }
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Core\Database\Schema\ConnectionMigrator::class] = [
+        'className' => $connectionMigratorClass,
     ];
 
     /***********************************

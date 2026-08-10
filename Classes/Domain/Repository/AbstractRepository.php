@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,13 +10,14 @@
  * Contact: support@tonictypes.com
  *
  */
+
 namespace K3n\Tonictypes\Domain\Repository;
 
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DefaultRestrictionContainer;
-use TYPO3\CMS\Core\Context\LanguageAspect;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\Generic\Query;
@@ -51,8 +53,9 @@ abstract class AbstractRepository extends Repository
             $query->getQuerySettings()->setLanguageAspect(new LanguageAspect($languageUid));
         }
 
-        if (!empty($storagePids))
+        if (!empty($storagePids)) {
             $query->getQuerySettings()->setStoragePageIds($storagePids);
+        }
 
         return $query;
     }
@@ -91,9 +94,9 @@ abstract class AbstractRepository extends Repository
      */
     public function findByUid($uid, bool $onlyEnabled = true, bool $respectSysLanguage = false, ?int $languageUid = null)
     {
-        $query = $this->createQueryWithSettings($respectSysLanguage, !$onlyEnabled, false,[],$languageUid);
+        $query = $this->createQueryWithSettings($respectSysLanguage, !$onlyEnabled, false, [], $languageUid);
         return $query->matching(
-            $query->equals("uid", $uid)
+            $query->equals('uid', $uid)
         )->execute()->getFirst();
     }
 
@@ -101,7 +104,7 @@ abstract class AbstractRepository extends Repository
      * Finds all records on a given storage page id
      *
      * @param array $storagePids
-     * @param array $onlyEnabled
+     * @param bool $onlyEnabled
      * @param null|int $languageUid
      * @return QueryResultInterface
      */
@@ -138,8 +141,8 @@ abstract class AbstractRepository extends Repository
 
         /** @var DefaultRestrictionContainer $defaultRestrictionContainer */
         $defaultRestrictionContainer = GeneralUtility::makeInstance(DefaultRestrictionContainer::class);
-        if(!empty($removeRestrictions)) {
-            foreach($removeRestrictions as $_restriction) {
+        if (!empty($removeRestrictions)) {
+            foreach ($removeRestrictions as $_restriction) {
                 $defaultRestrictionContainer->removeByType($_restriction);
             }
         }
@@ -156,7 +159,7 @@ abstract class AbstractRepository extends Repository
             )
         ;
 
-        if(!empty($storagePids)) {
+        if (!empty($storagePids)) {
             $storagePids = array_map('intval', $storagePids);
             $query->andWhere(
                 $queryBuilder->expr()->in(

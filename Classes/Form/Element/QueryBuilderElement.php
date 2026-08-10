@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the package k3n/tonictypes.
  *
@@ -9,10 +10,11 @@
  * Contact: support@tonictypes.com
  *
  */
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace K3n\Tonictypes\Form\Element;
 
+use K3n\Tonictypes\Fluid\View\StandaloneView;
 use K3n\Tonictypes\Utility\UrlUtility;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 use TYPO3\CMS\Backend\Form\NodeFactory;
@@ -21,7 +23,6 @@ use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Service\FlexFormService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\StringUtility;
-use K3n\Tonictypes\Fluid\View\StandaloneView;
 
 class QueryBuilderElement extends AbstractFormElement
 {
@@ -74,7 +75,7 @@ class QueryBuilderElement extends AbstractFormElement
         ];
 
         $cssFiles = [];
-        foreach($css as $_css) {
+        foreach ($css as $_css) {
             $cssFiles[] = UrlUtility::getFileUrl($_css);
         }
 
@@ -134,7 +135,7 @@ class QueryBuilderElement extends AbstractFormElement
                 $fieldId,                      // Value Field Id
                 $languageUid,                  // Language Uid
                 $pages                         // Page Ids
-        );
+            );
 
         return $result;
     }

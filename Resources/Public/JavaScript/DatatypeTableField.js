@@ -11,9 +11,11 @@ class DatatypeTableField {
         this.deleteButtonId = 'button#tonictypes_table_delete',
         this.migrateButtonId = 'button#tonictypes_table_status_migrate',
         this.generateTcaButtonId = 'button#tonictypes_table_generate_tca',
+        this.dropOrphanColumnsButtonId = 'button#tonictypes_table_drop_orphan_columns',
         this.messages = {
             error: null,
             really: null,
+            dropOrphanColumns: null,
             yes: null,
             no: null
         }
@@ -40,9 +42,10 @@ class DatatypeTableField {
             }
 
             this.messages.error = dataset.messagesError;
-            this.messages.really = dataset.messagesReally
-            this.messages.yes = dataset.messagesYes
-            this.messages.no = dataset.messagesNo
+            this.messages.really = dataset.messagesReally;
+            this.messages.dropOrphanColumns = dataset.messagesDropOrphanColumns;
+            this.messages.yes = dataset.messagesYes;
+            this.messages.no = dataset.messagesNo;
 
             // Assign refresh button
             $(this.refreshButtonId).click(() => {
@@ -111,6 +114,26 @@ class DatatypeTableField {
           }
       ]);
 
+    }
+
+    dropOrphanColumns() {
+      const message = this.messages.dropOrphanColumns || this.messages.really;
+      Modal.confirm(this.getTableNameValue(), message, Severity.warning, [
+          {
+            text: this.messages.yes,
+            active: true,
+            btnClass: "btn-warning",
+            trigger: () => {
+                this.request('tonictypes_table_drop_orphan_columns');
+                Modal.dismiss();
+            }
+          }, {
+            text: this.messages.no,
+            trigger: function() {
+              Modal.dismiss();
+            }
+          }
+      ]);
     }
     assignDatatypeNameListener() {
         $(this.datatypeNameFieldId).on("keyup", (e) => {
@@ -183,6 +206,10 @@ class DatatypeTableField {
 
                     $(this.deleteButtonId).click(() => {
                         this.del();
+                    });
+
+                    $(this.dropOrphanColumnsButtonId).click(() => {
+                        this.dropOrphanColumns();
                     });
                 }
                 // Some endpoints return no html and only perform an action.

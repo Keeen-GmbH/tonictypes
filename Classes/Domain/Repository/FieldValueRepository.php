@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -15,5 +16,4 @@ namespace K3n\Tonictypes\Domain\Repository;
 
 class FieldValueRepository extends AbstractRepository
 {
-
 }

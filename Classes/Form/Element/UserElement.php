@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -13,8 +14,8 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Form\Element;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Form\Element\UserElement as BackendFormUserElement;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class UserElement extends BackendFormUserElement
 {
@@ -39,23 +40,32 @@ class UserElement extends BackendFormUserElement
     /**
      * User defined field type
      *
+     * TYPO3 v13+ treats type="user" without a dedicated renderType as a
+     * fallback (no userFunc). Keep legacy userFunc support for tonictypes
+     * fields (e.g. logo), otherwise defer to the core dummy output.
+     *
      * @return array As defined in initializeResultArray() of AbstractNode
      */
     public function render(): array
     {
         $parameterArray = $this->data['parameterArray'];
+        $userFunc = $parameterArray['fieldConf']['config']['userFunc'] ?? null;
+        if (!is_string($userFunc) || $userFunc === '') {
+            return parent::render();
+        }
+
         $parameterArray['table'] = $this->data['tableName'];
         $parameterArray['field'] = $this->data['fieldName'];
         $parameterArray['row'] = $this->data['databaseRow'];
-        $parameterArray['parameters'] = isset($parameterArray['fieldConf']['config']['parameters']) ? $parameterArray['fieldConf']['config']['parameters']: [];
+        $parameterArray['parameters'] = $parameterArray['fieldConf']['config']['parameters'] ?? [];
         $resultArray = $this->initializeResultArray();
         $result = GeneralUtility::callUserFunction(
-            $parameterArray['fieldConf']['config']['userFunc'],
+            $userFunc,
             $parameterArray,
             $this
         );
 
-        if(is_string($result)) {
+        if (is_string($result)) {
             $resultArray['html'] = $result;
         } else {
             $resultArray['html'] = '';

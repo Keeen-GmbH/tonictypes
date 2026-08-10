@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * This file is part of the package k3n/tonictypes.
@@ -18,31 +19,34 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 
 class UrlUtility
 {
-	/**
-	 * Extracts an id from an url
-	 *
-	 * @param string $url
-	 * @return int
-	 */
-	public static function extractPidFromUrl(string $url): int
-	{
-		$parsedUrl = parse_url($url, PHP_URL_QUERY);
-		if(is_null($parsedUrl)) {
-		    return 0;
+    /**
+     * Extracts an id from an url
+     *
+     * @param string $url
+     * @return int
+     */
+    public static function extractPidFromUrl(string $url): int
+    {
+        $parsedUrl = parse_url($url, PHP_URL_QUERY);
+        if (is_null($parsedUrl)) {
+            return 0;
         }
-		parse_str($parsedUrl, $params);
+        parse_str($parsedUrl, $params);
 
-		$id = 0;
-		if (isset($params["id"]))
-			$id = $params["id"];
+        $id = 0;
+        if (isset($params['id'])) {
+            $id = $params['id'];
+        }
 
-		return (int)$id;
-	}
+        return (int)$id;
+    }
 
     /**
-     * Creates a usage friendly code from a given string
+     * Creates a URL-friendly path segment from a given string
      *
-     * @param string Entry string
+     * @param string $inputStr Entry string
+     * @param string $spaceCharacter Replacement for whitespace
+     * @param bool $strToLower Whether to lowercase the result
      * @return string
      */
     public static function generatePathSegment(string $inputStr, string $spaceCharacter = '-', bool $strToLower = true): string

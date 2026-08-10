@@ -54,6 +54,7 @@ Please refer to this url:
 + No extension programming needed
 + Inject dynamic variables of different types to your fluid templates
 + Easy fluid templating with intuitive customizable variable naming
++ Export and import datatype structures (fields, variables, table schema)
 + Backend Toolbar Item for easy record management (Professional)
 + Language support
 
