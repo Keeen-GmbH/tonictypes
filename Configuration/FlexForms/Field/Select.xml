@@ -127,6 +127,13 @@
                         <type>check</type>
                     </config>
             </include_field_values_as_options>
+            <readOnly>
+                <label>readOnly</label>
+                <config>
+                    <type>check</type>
+                    <renderType>checkboxToggle</renderType>
+                </config>
+            </readOnly>
         </el>
     </ROOT>
 </T3DataStructure>

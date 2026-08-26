@@ -10,6 +10,7 @@
  * Contact: support@tonictypes.com
  *
  */
+
 declare(strict_types=1);
 
 namespace K3n\Tonictypes\Form\Element;
@@ -202,10 +203,22 @@ class QueryBuilderElement extends AbstractFormElement
     protected function flexFormNeedsNormalization(array $flexForm): bool
     {
         if (isset($flexForm['data']) && is_array($flexForm['data'])) {
+            // FormEngine keeps sheet → lDEF → field.vDEF; that must be flattened
+            // before datatype/fields can be resolved for the Query Builder.
+            foreach ($flexForm['data'] as $sheet) {
+                if (!is_array($sheet)) {
+                    continue;
+                }
+                if (array_key_exists('lDEF', $sheet) || array_key_exists('vDEF', $sheet)) {
+                    return true;
+                }
+            }
+
             $datatypeSelection = $flexForm['data']['general_settings']['settings']['datatype_selection'] ?? null;
             if (is_array($datatypeSelection) && (array_key_exists('vDEF', $datatypeSelection) || array_key_exists('lDEF', $datatypeSelection))) {
                 return true;
             }
+
             return false;
         }
 
@@ -260,9 +273,22 @@ class QueryBuilderElement extends AbstractFormElement
 
     protected function resolveFlexFormDatatypeSelection(array $flexForm): int
     {
-        $value = $flexForm['data']['general_settings']['settings']['datatype_selection'] ?? null;
+        // Cover flattened FlexFormService output, normalized sheet data, and raw FormEngine lDEF/vDEF.
+        $candidates = [
+            $flexForm['data']['general_settings']['settings']['datatype_selection'] ?? null,
+            $flexForm['settings']['datatype_selection'] ?? null,
+            $flexForm['data']['general_settings']['lDEF']['settings.datatype_selection']['vDEF'] ?? null,
+            $flexForm['data']['general_settings']['lDEF']['settings.datatype_selection'] ?? null,
+        ];
 
-        return $this->resolvePositiveIntegerValue($value) ?? 0;
+        foreach ($candidates as $value) {
+            $resolved = $this->resolvePositiveIntegerValue($value);
+            if ($resolved !== null) {
+                return $resolved;
+            }
+        }
+
+        return 0;
     }
 
     protected function resolveLanguageUidFromDatabaseRow(array $databaseRow): int

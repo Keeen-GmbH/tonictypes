@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3DataStructure>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <info>
+                <label></label>
+                <config>
+                    <type>user</type>
+                    <userFunc>K3n\Tonictypes\UserFunc\Template->displayTemplate</userFunc>
+                    <parameters>
+                        <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/Notice.html</template>
+                    </parameters>
+                </config>
+            </info>
+            <format>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.number.format</label>
+                <onChange>reload</onChange>
+                <config>
+                    <type>select</type>
+                    <renderType>selectSingle</renderType>
+                    <items type="array">
+                        <numIndex index="0" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.number.format.integer</numIndex>
+                            <numIndex index="1">integer</numIndex>
+                        </numIndex>
+                        <numIndex index="1" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.number.format.decimal</numIndex>
+                            <numIndex index="1">decimal</numIndex>
+                        </numIndex>
+                    </items>
+                    <default>integer</default>
+                    <maxitems>1</maxitems>
+                    <size>1</size>
+                </config>
+            </format>
+            <range_lower>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.number.range_lower</label>
+                <config>
+                    <type>input</type>
+                    <size>10</size>
+                    <eval>trim</eval>
+                </config>
+            </range_lower>
+            <range_upper>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.number.range_upper</label>
+                <config>
+                    <type>input</type>
+                    <size>10</size>
+                    <eval>trim</eval>
+                </config>
+            </range_upper>
+            <default>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.number.default</label>
+                <config>
+                    <type>input</type>
+                    <size>10</size>
+                    <eval>trim</eval>
+                </config>
+            </default>
+            <size>
+                <label>size</label>
+                <config>
+                    <type>input</type>
+                    <size>5</size>
+                    <eval>int</eval>
+                    <default>20</default>
+                </config>
+            </size>
+            <slider>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.number.slider</label>
+                <onChange>reload</onChange>
+                <config>
+                    <type>check</type>
+                    <renderType>checkboxToggle</renderType>
+                </config>
+            </slider>
+            <slider_step>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.number.slider_step</label>
+                <displayCond>FIELD:slider:=:1</displayCond>
+                <config>
+                    <type>input</type>
+                    <size>10</size>
+                    <eval>trim</eval>
+                    <placeholder>1</placeholder>
+                </config>
+            </slider_step>
+            <required>
+                <label>required</label>
+                <config>
+                    <type>check</type>
+                    <renderType>checkboxToggle</renderType>
+                </config>
+            </required>
+            <nullable>
+                <label>nullable</label>
+                <config>
+                    <type>check</type>
+                    <renderType>checkboxToggle</renderType>
+                </config>
+            </nullable>
+            <readOnly>
+                <label>readOnly</label>
+                <config>
+                    <type>check</type>
+                    <renderType>checkboxToggle</renderType>
+                </config>
+            </readOnly>
+        </el>
+    </ROOT>
+</T3DataStructure>

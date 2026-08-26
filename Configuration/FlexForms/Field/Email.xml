@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <T3DataStructure>
     <ROOT>
         <type>array</type>
@@ -12,27 +13,6 @@
                     </parameters>
                 </config>
             </info>
-            <eval>
-                <label>eval</label>
-                <onChange>reload</onChange>
-                <config>
-                    <type>select</type>
-                    <renderType>selectMultipleSideBySide</renderType>
-                    <multiple>0</multiple>
-                    <autosizemax>5</autosizemax>
-                    <items type="array">
-                        <!--
-                        <numIndex index="0" type="array">
-                            <numIndex index="0">required</numIndex>
-                            <numIndex index="1">required</numIndex>
-                        </numIndex>
-                        -->
-                    </items>
-                    <maxitems>9999</maxitems>
-                    <minitems>0</minitems>
-                    <size>5</size>
-                </config>
-            </eval>
             <required>
                 <label>required</label>
                 <config>
@@ -51,23 +31,19 @@
                 <label>placeholder</label>
                 <config>
                     <type>input</type>
-                    <size>15</size>
+                    <size>30</size>
+                    <placeholder>name@example.com</placeholder>
                 </config>
             </placeholder>
-            <range_lower>
-                <label>range -> lower</label>
+            <size>
+                <label>size</label>
                 <config>
                     <type>input</type>
-                    <size>15</size>
+                    <size>5</size>
+                    <eval>int</eval>
+                    <default>30</default>
                 </config>
-            </range_lower>
-            <range_upper>
-                <label>range -> upper</label>
-                <config>
-                    <type>input</type>
-                    <size>15</size>
-                </config>
-            </range_upper>
+            </size>
             <readOnly>
                 <label>readOnly</label>
                 <config>

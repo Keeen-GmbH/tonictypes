@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.2.0
+
+[FEATURE] Add Email, Phone, Number, Slug, and Toggle field types
+[FEATURE] Add FlexForm conversion helper for Fluid templates and dataProcessing
+[FEATURE] Add readOnly option for field configuration
+[TASK] Improve TYPO3 v12–v14 compatibility for frontend auth and Query Builder
+[TASK] Performed code quality assurance (QA/QC) and compatibility testing
+[RELEASE] Minor version release 2.2.0
+
 ## 2.1.0
 
 [FEATURE] Implement datatype export/import transfer module for sharing datatype structures

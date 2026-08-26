@@ -163,6 +163,13 @@
                         <minitems>0</minitems>
                     </config>
             </wrap>
+            <readOnly>
+                <label>readOnly</label>
+                <config>
+                    <type>check</type>
+                    <renderType>checkboxToggle</renderType>
+                </config>
+            </readOnly>
         </el>
     </ROOT>
 </T3DataStructure>

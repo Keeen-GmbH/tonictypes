@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3DataStructure>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <info>
+                <label></label>
+                <config>
+                    <type>user</type>
+                    <userFunc>K3n\Tonictypes\UserFunc\Template->displayTemplate</userFunc>
+                    <parameters>
+                        <template>EXT:tonictypes/Resources/Private/Templates/UserFunc/Field/Notice.html</template>
+                    </parameters>
+                </config>
+            </info>
+            <sourceFields>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.slug.sourceFields</label>
+                <description>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.slug.sourceFields.description</description>
+                <config>
+                    <type>input</type>
+                    <eval>trim</eval>
+                    <size>40</size>
+                    <placeholder>title</placeholder>
+                    <default>title</default>
+                </config>
+            </sourceFields>
+            <fieldSeparator>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.slug.fieldSeparator</label>
+                <config>
+                    <type>input</type>
+                    <eval>trim</eval>
+                    <size>5</size>
+                    <default>-</default>
+                </config>
+            </fieldSeparator>
+            <fallbackCharacter>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.slug.fallbackCharacter</label>
+                <config>
+                    <type>input</type>
+                    <eval>trim</eval>
+                    <size>5</size>
+                    <default>-</default>
+                </config>
+            </fallbackCharacter>
+            <slugEval>
+                <label>LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.slug.eval</label>
+                <config>
+                    <type>select</type>
+                    <renderType>selectSingle</renderType>
+                    <items type="array">
+                        <numIndex index="0" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.slug.eval.uniqueInPid</numIndex>
+                            <numIndex index="1">uniqueInPid</numIndex>
+                        </numIndex>
+                        <numIndex index="1" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.slug.eval.unique</numIndex>
+                            <numIndex index="1">unique</numIndex>
+                        </numIndex>
+                        <numIndex index="2" type="array">
+                            <numIndex index="0">LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:field.slug.eval.uniqueInSite</numIndex>
+                            <numIndex index="1">uniqueInSite</numIndex>
+                        </numIndex>
+                    </items>
+                    <default>uniqueInPid</default>
+                    <maxitems>1</maxitems>
+                    <size>1</size>
+                </config>
+            </slugEval>
+            <size>
+                <label>size</label>
+                <config>
+                    <type>input</type>
+                    <size>5</size>
+                    <eval>int</eval>
+                    <default>50</default>
+                </config>
+            </size>
+            <readOnly>
+                <label>readOnly</label>
+                <config>
+                    <type>check</type>
+                    <renderType>checkboxToggle</renderType>
+                </config>
+            </readOnly>
+        </el>
+    </ROOT>
+</T3DataStructure>

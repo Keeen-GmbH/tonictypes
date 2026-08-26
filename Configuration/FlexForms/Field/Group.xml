@@ -100,6 +100,13 @@
                         <eval>trim</eval>
                     </config>
             </uploadfolder>
+            <readOnly>
+                <label>readOnly</label>
+                <config>
+                    <type>check</type>
+                    <renderType>checkboxToggle</renderType>
+                </config>
+            </readOnly>
         </el>
     </ROOT>
 </T3DataStructure>

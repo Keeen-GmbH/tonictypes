@@ -76,6 +76,7 @@ $boot = static function (): void {
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass']['tonictypes'] = \K3n\Tonictypes\Hooks\DataHandling::class;
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass']['tonictypes'] 	= \K3n\Tonictypes\Hooks\DataHandling::class;
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tce']['formevals'][\K3n\Tonictypes\Evaluation\DatatypeNameEvaluation::class] = '';
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tce']['formevals'][\K3n\Tonictypes\Evaluation\PhoneNumberEvaluation::class] = '';
 
     // We need to add our DataHandler on top of the processing array, to leave version management behind
     array_unshift($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'],\K3n\Tonictypes\Hooks\DataHandling::class);

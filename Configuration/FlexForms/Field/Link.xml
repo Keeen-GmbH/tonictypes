@@ -76,6 +76,13 @@
                         <size>15</size>
                     </config>
             </placeholder>
+            <readOnly>
+                <label>readOnly</label>
+                <config>
+                    <type>check</type>
+                    <renderType>checkboxToggle</renderType>
+                </config>
+            </readOnly>
         </el>
     </ROOT>
 </T3DataStructure>

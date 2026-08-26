@@ -28,11 +28,11 @@
             <readOnly>
                 <label>readOnly</label>
                 <config>
-                    <checkbox>1</checkbox>
                     <type>check</type>
+                    <renderType>checkboxToggle</renderType>
                 </config>
             </readOnly>
-            <!--
+<!--
             No need of this
             <maximumRecordsChecked>
                 <label>maximumRecordsChecked</label>

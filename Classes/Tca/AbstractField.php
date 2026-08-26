@@ -170,6 +170,11 @@ abstract class AbstractField
             $tca['config']['required'] = true;
         }
 
+        // readOnly
+        if ($this->getField()->getConfig('readOnly')) {
+            $tca['config']['readOnly'] = true;
+        }
+
         return $tca;
     }
 

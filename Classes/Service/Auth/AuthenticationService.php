@@ -14,12 +14,19 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\Service\Auth;
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 
+/**
+ * Frontend authentication helpers compatible with TYPO3 v12–v14.
+ *
+ * Prefer the PSR-7 request attribute `frontend.user` (v12+), then fall back to
+ * `$GLOBALS['TSFE']->fe_user` for older request bootstrapping paths.
+ */
 class AuthenticationService extends FrontendUserAuthentication implements SingletonInterface
 {
     /**
@@ -30,8 +37,13 @@ class AuthenticationService extends FrontendUserAuthentication implements Single
      */
     public function logout(): bool
     {
-        if ($this->isLoggedIn() && $this->getFrontendUserUid()) {
-            $GLOBALS['TSFE']->fe_user->logoff();
+        if (!$this->isLoggedIn() || !$this->getFrontendUserUid()) {
+            return false;
+        }
+
+        $feUser = $this->getFrontendUserAuthentication();
+        if ($feUser instanceof FrontendUserAuthentication) {
+            $feUser->logoff();
 
             return true;
         }
@@ -47,7 +59,7 @@ class AuthenticationService extends FrontendUserAuthentication implements Single
      */
     public function isLoggedIn(): bool
     {
-        return GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'id', 0) > 0;
+        return (int)GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'id', 0) > 0;
     }
 
     /**
@@ -68,15 +80,29 @@ class AuthenticationService extends FrontendUserAuthentication implements Single
     }
 
     /**
-     * Gets the current logged in frontend user details
+     * Gets the current logged-in frontend user authentication object.
+     *
+     * Resolution order (TYPO3 v12–v14):
+     * 1. `$GLOBALS['TYPO3_REQUEST']` attribute `frontend.user`
+     * 2. Legacy `$GLOBALS['TSFE']->fe_user` when still available
      *
      * @return FrontendUserAuthentication|null
      * @throws AspectNotFoundException
      */
     public function getFrontendUserAuthentication(): ?FrontendUserAuthentication
     {
-        if ($this->isLoggedIn() && !empty($GLOBALS['TSFE']->fe_user->user['uid'])) {
-            return $GLOBALS['TSFE']->fe_user;
+        if (!$this->isLoggedIn()) {
+            return null;
+        }
+
+        $feUser = $this->resolveFrontendUserFromRequest();
+        if ($this->isUsableFrontendUser($feUser)) {
+            return $feUser;
+        }
+
+        $feUser = $this->resolveFrontendUserFromTypoScriptFrontendController();
+        if ($this->isUsableFrontendUser($feUser)) {
+            return $feUser;
         }
 
         return null;
@@ -90,13 +116,47 @@ class AuthenticationService extends FrontendUserAuthentication implements Single
      */
     public function getFrontendUserUid(): ?int
     {
-        $feUser = $this->getFrontendUser();
+        $contextUid = (int)GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('frontend.user', 'id', 0);
+        if ($contextUid > 0) {
+            return $contextUid;
+        }
 
-        if ($this->isLoggedIn() && isset($feUser['uid'])) {
-            return intval($feUser['uid']);
+        $feUser = $this->getFrontendUser();
+        if (isset($feUser['uid'])) {
+            return (int)$feUser['uid'];
         }
 
         return null;
     }
 
+    protected function resolveFrontendUserFromRequest(): ?FrontendUserAuthentication
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+        if (!$request instanceof ServerRequestInterface) {
+            return null;
+        }
+
+        $feUser = $request->getAttribute('frontend.user');
+
+        return $feUser instanceof FrontendUserAuthentication ? $feUser : null;
+    }
+
+    protected function resolveFrontendUserFromTypoScriptFrontendController(): ?FrontendUserAuthentication
+    {
+        $tsfe = $GLOBALS['TSFE'] ?? null;
+        if (!is_object($tsfe) || !isset($tsfe->fe_user)) {
+            return null;
+        }
+
+        $feUser = $tsfe->fe_user;
+
+        return $feUser instanceof FrontendUserAuthentication ? $feUser : null;
+    }
+
+    protected function isUsableFrontendUser(?FrontendUserAuthentication $feUser): bool
+    {
+        return $feUser instanceof FrontendUserAuthentication
+            && is_array($feUser->user)
+            && !empty($feUser->user['uid']);
+    }
 }

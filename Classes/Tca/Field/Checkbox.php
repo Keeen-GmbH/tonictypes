@@ -76,11 +76,6 @@ class Checkbox extends Radio implements Tca\FieldInterface
             $tca['config']['cols'] = $cols;
         }
 
-        // readOnly
-        if ($readOnly = $this->getField()->getConfig('readOnly')) {
-            $tca['config']['readOnly'] = (int)$readOnly;
-        }
-
         if ($maximumRecordsChecked = $this->getField()->getConfig('maximumRecordsChecked')) {
             $tca['config']['eval'] = 'maximumRecordsChecked';
             $tca['config']['validation'] = [

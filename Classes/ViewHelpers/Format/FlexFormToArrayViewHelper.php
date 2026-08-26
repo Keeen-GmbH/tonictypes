@@ -14,49 +14,34 @@ declare(strict_types=1);
 
 namespace K3n\Tonictypes\ViewHelpers\Format;
 
-use K3n\Tonictypes\Service\FlexForm\FlexFormService;
+use K3n\Tonictypes\DataProcessing\FlexFormProcessor;
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 
+/**
+ * Converts FlexForm XML into a simple array for Fluid templates.
+ */
 class FlexFormToArrayViewHelper extends AbstractViewHelper
 {
-    /**
-     * @var FlexFormService
-     */
-    protected $flexFormService;
+    protected FlexFormProcessor $flexFormProcessor;
 
-    /**
-     * @param FlexFormService $flexFormService
-     */
-    public function injectFlexFormService(FlexFormService $flexFormService)
+    public function injectFlexFormProcessor(FlexFormProcessor $flexFormProcessor): void
     {
-        $this->flexFormService = $flexFormService;
+        $this->flexFormProcessor = $flexFormProcessor;
     }
 
-    /**
-     * Initialize arguments.
-     *
-     * @return void
-     * @api
-     */
     public function initializeArguments(): void
     {
-        $this->registerArgument('flex', 'string', 'FlexForm Input', true);
-        $this->registerArgument('languagePointer', 'string', 'Language Pointer', false, 'lDEF');
-        $this->registerArgument('valuePointer', 'string', 'Value Pointer', false, 'vDEF');
+        $this->registerArgument('flex', 'string', 'FlexForm XML string', true);
+        $this->registerArgument('languagePointer', 'string', 'Language pointer', false, 'lDEF');
+        $this->registerArgument('valuePointer', 'string', 'Value pointer', false, 'vDEF');
         parent::initializeArguments();
     }
 
     /**
-     * Creates code from a string
-     *
-     * @return array
+     * @return array<string, mixed>
      */
     public function render(): array
     {
-        if ($this->arguments['flex'] == '') {
-            return [];
-        }
-
-        return $this->flexFormService->convertFlexFormContentToArray($this->arguments['flex'], $this->arguments['languagePointer'], $this->arguments['valuePointer']);
+        return $this->flexFormProcessor->convert((string)($this->arguments['flex'] ?? ''));
     }
 }

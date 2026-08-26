@@ -38,6 +38,7 @@ class DatatypeTransferImportService
         'inline',
         'datatype',
         'dyninput',
+        'repeater',
         'passthrough',
         'tca',
     ];

@@ -1185,11 +1185,92 @@
             <trans-unit id="type.checkbox">
                 <source>Checkboxes</source>
             </trans-unit>
+            <trans-unit id="type.toggle">
+                <source>Toggle</source>
+            </trans-unit>
+            <trans-unit id="field.toggle.labeled">
+                <source>Show Yes/No labels</source>
+            </trans-unit>
+            <trans-unit id="field.toggle.labeled.description">
+                <source>Use a labeled switch instead of a plain toggle.</source>
+            </trans-unit>
+            <trans-unit id="field.toggle.labelChecked">
+                <source>Label when ON</source>
+            </trans-unit>
+            <trans-unit id="field.toggle.labelUnchecked">
+                <source>Label when OFF</source>
+            </trans-unit>
+            <trans-unit id="field.toggle.defaultOn">
+                <source>Default ON</source>
+            </trans-unit>
+            <trans-unit id="field.toggle.invertStateDisplay">
+                <source>Invert display state</source>
+            </trans-unit>
             <trans-unit id="type.textarea">
                 <source>Textarea</source>
             </trans-unit>
             <trans-unit id="type.input">
                 <source>Input Field</source>
+            </trans-unit>
+            <trans-unit id="type.email">
+                <source>Email</source>
+            </trans-unit>
+            <trans-unit id="type.phone">
+                <source>Phone</source>
+            </trans-unit>
+            <trans-unit id="type.number">
+                <source>Number</source>
+            </trans-unit>
+            <trans-unit id="field.number.format">
+                <source>Format</source>
+            </trans-unit>
+            <trans-unit id="field.number.format.integer">
+                <source>Integer</source>
+            </trans-unit>
+            <trans-unit id="field.number.format.decimal">
+                <source>Decimal</source>
+            </trans-unit>
+            <trans-unit id="field.number.range_lower">
+                <source>Minimum</source>
+            </trans-unit>
+            <trans-unit id="field.number.range_upper">
+                <source>Maximum</source>
+            </trans-unit>
+            <trans-unit id="field.number.default">
+                <source>Default value</source>
+            </trans-unit>
+            <trans-unit id="field.number.slider">
+                <source>Show slider</source>
+            </trans-unit>
+            <trans-unit id="field.number.slider_step">
+                <source>Slider step</source>
+            </trans-unit>
+            <trans-unit id="type.slug">
+                <source>Slug</source>
+            </trans-unit>
+            <trans-unit id="field.slug.sourceFields">
+                <source>Source fields</source>
+            </trans-unit>
+            <trans-unit id="field.slug.sourceFields.description">
+                <source>Comma-separated field codes used to generate the slug (default: title).</source>
+            </trans-unit>
+            <trans-unit id="field.slug.fieldSeparator">
+                <source>Field separator</source>
+            </trans-unit>
+            <trans-unit id="field.slug.fallbackCharacter">
+                <source>Fallback character</source>
+            </trans-unit>
+            <trans-unit id="field.slug.eval">
+                <source>Uniqueness</source>
+            </trans-unit>
+            <trans-unit id="field.slug.eval.uniqueInPid">
+                <source>Unique in page (pid)</source>
+            </trans-unit>
+            <trans-unit id="field.slug.eval.unique">
+                <source>Unique in table</source>
+            </trans-unit>
+            <trans-unit id="field.slug.eval.uniqueInSite">
+                <source>Unique in site</source>
             </trans-unit>
             <trans-unit id="type.colorpicker">
                 <source>Color Picker</source>

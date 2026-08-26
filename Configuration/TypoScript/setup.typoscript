@@ -59,6 +59,38 @@ plugin.tx_tonictypes.fieldtypes {
     flexform = EXT:tonictypes/Configuration/FlexForms/Field/Input.xml
   }
 
+  # Field Declaration for Email Field
+  email {
+    class = K3n\Tonictypes\Tca\Field\Email
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/email.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.email
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Email.xml
+  }
+
+  # Field Declaration for Phone Field
+  phone {
+    class = K3n\Tonictypes\Tca\Field\Phone
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/phone.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.phone
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Phone.xml
+  }
+
+  # Field Declaration for Number Field
+  number {
+    class = K3n\Tonictypes\Tca\Field\Number
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/number.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.number
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Number.xml
+  }
+
+  # Field Declaration for Slug Field
+  slug {
+    class = K3n\Tonictypes\Tca\Field\Slug
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/slug.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.slug
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Slug.xml
+  }
+
   # Field Declaration for Textarea
   textarea {
     class = K3n\Tonictypes\Tca\Field\Textarea
@@ -113,6 +145,14 @@ plugin.tx_tonictypes.fieldtypes {
     icon = EXT:tonictypes/Resources/Public/Icons/Field/checkbox.gif
     label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.checkbox
     flexform = EXT:tonictypes/Configuration/FlexForms/Field/Checkbox.xml
+  }
+
+  # Field Declaration for Toggle
+  toggle {
+    class = K3n\Tonictypes\Tca\Field\Toggle
+    icon = EXT:tonictypes/Resources/Public/Icons/Field/toggle.gif
+    label = LLL:EXT:tonictypes/Resources/Private/Language/locallang.xlf:type.toggle
+    flexform = EXT:tonictypes/Configuration/FlexForms/Field/Toggle.xml
   }
 
   # Field Declaration for a date field
@@ -203,7 +243,7 @@ plugin.tx_tonictypes.fieldtypes {
     flexform = EXT:tonictypes/Configuration/FlexForms/Field/ColorPicker.xml
   }
 
-  # Pro-only fieldtypes (dyninput, flex, inline, datatype, tca, passthrough,
-  # user, content, fluid) are registered by EXT:tonictypes_pro.
+  # Pro-only fieldtypes (dyninput, repeater, flex, inline, datatype, tca,
+  # passthrough, user, content, fluid) are registered by EXT:tonictypes_pro.
 
 }

@@ -39,6 +39,9 @@ services:
     K3n\Tonictypes\Controller\RecordController:
         public: true
 
+    K3n\Tonictypes\DataProcessing\FlexFormProcessor:
+        public: true
+
     K3n\Tonictypes\Widgets\PredefinedDatatypeImportWidget:
         tags:
             - name: dashboard.widget

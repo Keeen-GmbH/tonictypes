@@ -153,6 +153,12 @@ config.tx_extbase{
 }
 ```
 
+## Upgrade notes (2.2.0)
+
++ After upgrade, clear all caches
++ New free field types: Email, Phone, Number, Slug, Toggle
++ FlexForm values can be converted via `FlexFormProcessor` / `tt:format.flexFormToArray`
+
 ## Upgrade notes (2.1.0)
 
 + Requires PHP 8.2 or higher
