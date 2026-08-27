@@ -29,6 +29,11 @@ use TYPO3\CMS\Frontend\Typolink\UnableToLinkException;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
+/**
+ * Builds a URI to a Tonictypes record detail (`tt:uri.record`).
+ *
+ * Defaults to the Dynamic plugin and `dynamicDetail` action.
+ */
 class RecordViewHelper extends AbstractViewHelper
 {
     public function render(): string

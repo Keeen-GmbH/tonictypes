@@ -20,7 +20,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\ViewHelpers\Be\AbstractBackendViewHelper;
 
 /**
- * ViewHelper to create a link to edit a note
+ * Base class for backend module URL ViewHelpers.
+ *
+ * @internal
  */
 abstract class AbstractLinkViewHelper extends AbstractBackendViewHelper
 {

@@ -17,6 +17,9 @@ namespace K3n\Tonictypes\ViewHelpers\String;
 use K3n\Tonictypes\Utility\StringUtility;
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 
+/**
+ * Creates a normalized code/identifier from a string (`tt:string.codeFromString`).
+ */
 class CodeFromStringViewHelper extends AbstractViewHelper
 {
     /**

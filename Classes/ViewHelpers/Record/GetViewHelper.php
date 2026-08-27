@@ -18,6 +18,9 @@ use K3n\Tonictypes\Domain\Model\AbstractRecordModel;
 use K3n\Tonictypes\Domain\Repository\AbstractRepository;
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 
+/**
+ * Loads a Tonictypes record by UID for a given datatype (`tt:record.get`).
+ */
 class GetViewHelper extends AbstractViewHelper
 {
     /**

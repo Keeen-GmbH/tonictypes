@@ -28,6 +28,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Exception\InvalidArgumentNameException;
 
+/**
+ * Renders an arbitrary Fluid template file with optional Tonictypes variables (`tt:template.render`).
+ */
 class RenderViewHelper extends AbstractViewHelper
 {
     /**

@@ -16,6 +16,9 @@ namespace K3n\Tonictypes\ViewHelpers\Array;
 
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 
+/**
+ * Builds a single-key PHP array from the given key and value (`tt:array.keyValuePair`).
+ */
 class KeyValuePairViewHelper extends AbstractViewHelper
 {
     /**

@@ -20,7 +20,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 
 /**
- * ViewHelper to create a link to edit a note
+ * Builds a backend URL to create a new record (`tt:backend.newLink`).
+ *
  * @internal
  */
 class NewLinkViewHelper extends AbstractLinkViewHelper

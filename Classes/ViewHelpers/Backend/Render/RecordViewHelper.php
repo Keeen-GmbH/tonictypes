@@ -21,6 +21,11 @@ use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
+/**
+ * Renders a backend preview for a database record (`tt:backend.render.record`).
+ *
+ * @internal
+ */
 class RecordViewHelper extends AbstractRenderViewHelper
 {
     /**

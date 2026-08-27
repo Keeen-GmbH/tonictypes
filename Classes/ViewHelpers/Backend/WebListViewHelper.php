@@ -21,7 +21,8 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 /**
- * ViewHelper to create a link to the list module
+ * Builds a Web > List module URL (`tt:backend.webList`).
+ *
  * @internal
  */
 class WebListViewHelper extends AbstractLinkViewHelper

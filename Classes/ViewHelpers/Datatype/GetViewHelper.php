@@ -18,6 +18,9 @@ use K3n\Tonictypes\Domain\Model\Datatype;
 use K3n\Tonictypes\Domain\Repository\DatatypeRepository;
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 
+/**
+ * Loads a datatype model by UID (`tt:datatype.get`).
+ */
 class GetViewHelper extends AbstractViewHelper
 {
     /**

@@ -15,9 +15,10 @@ Everything is fully compatible with the TYPO3 core.
 
 ## Documentation
 
-The documentation is available here:
+Official manual (for [docs.typo3.org](https://docs.typo3.org/)):
 
-[https://docs.typo3.org/p/k3n/tonictypes/master/en-us/](https://docs.typo3.org/p/k3n/tonictypes/master/en-us/)
+- Source: [`Documentation/`](Documentation/) in this repository
+- Published: [https://docs.typo3.org/p/k3n/tonictypes/main/en-us/](https://docs.typo3.org/p/k3n/tonictypes/main/en-us/)
 
 Release notes: see [CHANGELOG.md](CHANGELOG.md)
 
@@ -48,7 +49,7 @@ Additional fields and components are also available for specific usage like
 
 Please refer to this url:
 
-[www.tonictypes.com](https://www.tonictypes.com)
+[https://t3planet.de/tonictypes](https://t3planet.de/tonictypes)
 
 
 ## Highlights
@@ -129,13 +130,23 @@ Tonictypes has some additional backend TypoScript configuration possibilities:
 ### Adding new templates
 
 ```
+######################
+# Tonictypes Templates
+######################
 plugin.tx_tonictypes.templates {
-    template1 {
-        group = Allgemein
-        icon = EXT:tonictypes/Resources/Public/Icons/Datatype/animal-dog.png
-        name = Template for Testing
-        file = EXT:yourtemplateext/Resources/Private/Templates/Tonictypes/TemplateOne.html
-    }
+  // Article
+  articleList {
+    group = Article
+    icon = EXT:tonictypes/Resources/Public/Icons/Datatype/blog-blue.png
+    name = Article List
+    file = EXT:my_sitepackage/Resources/Private/Templates/Extensions/Tonictypes/Article/List.html
+  }
+  articleListHome {
+    group = Article
+    icon = EXT:tonictypes/Resources/Public/Icons/Datatype/blog-blue.png
+    name = Article List Home
+    file = EXT:my_sitepackage/Resources/Private/Templates/Extensions/Tonictypes/Article/HomeList.html
+  }
 }
 ```
 

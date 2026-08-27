@@ -18,6 +18,9 @@ use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Returns true when the current TYPO3 major version matches (`tt:typo3.isVersion`).
+ */
 class IsVersionViewHelper extends AbstractViewHelper
 {
     public function initializeArguments(): void

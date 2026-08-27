@@ -17,6 +17,9 @@ namespace K3n\Tonictypes\ViewHelpers\Format;
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Converts a generic XML string into an array (`tt:format.xmlToArray`).
+ */
 class XmlToArrayViewHelper extends AbstractViewHelper
 {
     /**

@@ -19,6 +19,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
 use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 
+/**
+ * Groups records by a property value (`tt:group.recordsByProperty`).
+ */
 class RecordsByPropertyViewHelper extends AbstractViewHelper
 {
     /**

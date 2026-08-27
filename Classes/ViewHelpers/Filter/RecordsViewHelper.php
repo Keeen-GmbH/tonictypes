@@ -22,40 +22,14 @@ use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
 use TYPO3\CMS\Extbase\Persistence\RepositoryInterface;
 
 /**
- * This ViewHelper filters through a record result
+ * Filters a record result or loads filtered records from a datatype (`tt:filter.records`).
  *
- * Examples
- * ========
+ * Example::
  *
- * {dv:filter.records(records:records,filters:filters,variables:variables)}
+ *     {tt:filter.records(records: records, filters: {condition: 'AND', rules: {0: {field: 'title', operator: 'contains', value: 'sales'}}})}
  *
- * {dv:filter.records(records:records,filters:{condition:'AND'}
- *
- * Operators can be found in
- * EXT:tonictypes/Classes/Service/QueryBuilderParser/jQueryQueryBuilderFunctions.php:$operators
- *
- *
- *
- * Example
- * --------
- * {dv:filter.records(records:records,filters:{condition:'AND',rules:{0:{field:'title',operator:'contains',value:'sales'}}})}
- * or
- * {dv:filter.records(datatype:datatype,filters:{condition:'AND',rules:{0:{field:'title',operator:'contains',value:'sales'}}}
- *
- * Example array of a filter
- * -------------------------
- * $filters = [
- *     'condition'=>'AND',
- *     'rules' => [
- *        [
- *           'field' => 'zips',
- *           'operator' => 'contains',
- *           'value' => '30159',
- *        ]
- *     ],
- *  ];
- *
- *
+ * Operators are defined in
+ * EXT:tonictypes/Classes/Service/QueryBuilderParser/jQueryQueryBuilderFunctions.php
  */
 class RecordsViewHelper extends AbstractViewHelper
 {

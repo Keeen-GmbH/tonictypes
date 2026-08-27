@@ -20,6 +20,11 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
+/**
+ * Resolves/renders a registered template file by identifier (`tt:backend.render.templateFile`).
+ *
+ * @internal
+ */
 class TemplateFileViewHelper extends AbstractRenderViewHelper
 {
     /**

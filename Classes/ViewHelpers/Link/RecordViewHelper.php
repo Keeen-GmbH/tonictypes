@@ -29,6 +29,11 @@ use TYPO3\CMS\Frontend\Typolink\LinkFactory;
 use TYPO3\CMS\Frontend\Typolink\UnableToLinkException;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper;
 
+/**
+ * Renders an HTML link to a Tonictypes record detail (`tt:link.record`).
+ *
+ * Defaults to the Dynamic plugin and `dynamicDetail` action.
+ */
 class RecordViewHelper extends AbstractTagBasedViewHelper
 {
     /**

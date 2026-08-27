@@ -17,6 +17,9 @@ namespace K3n\Tonictypes\ViewHelpers\String;
 use K3n\Tonictypes\ViewHelpers\AbstractViewHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Explodes a string into an array (`tt:string.explode`).
+ */
 class ExplodeViewHelper extends AbstractViewHelper
 {
     /**

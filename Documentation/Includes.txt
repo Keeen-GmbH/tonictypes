@@ -1,0 +1,29 @@
+.. ==================================================
+.. Includes for Tonictypes documentation
+.. ==================================================
+
+.. default-role:: literal
+
+.. highlight:: php
+
+.. |extension_name| replace:: Tonictypes
+.. |extension_key| replace:: tonictypes
+.. |package_name| replace:: k3n/tonictypes
+.. |pro_extension_key| replace:: tonictypes_pro
+.. |pro_package_name| replace:: k3n/tonictypes_pro
+.. |extension_version| replace:: 2.2.0
+.. |extension_state| replace:: stable
+.. |extension_license| replace:: GPL-2.0-or-later
+.. |extension_author| replace:: Keeen GmbH
+.. |extension_homepage| replace:: https://www.tonictypes.com
+.. |pro_product_url| replace:: https://t3planet.de/tonictypes
+.. |github_repository| replace:: https://github.com/Keeen-GmbH/tonictypes
+
+.. role:: typoscript(code)
+   :language: typoscript
+
+.. role:: yaml(code)
+   :language: yaml
+
+.. role:: html(code)
+   :language: html

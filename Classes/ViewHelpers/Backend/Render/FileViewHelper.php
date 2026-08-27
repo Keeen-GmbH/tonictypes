@@ -25,6 +25,11 @@ use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
+/**
+ * Renders a backend preview for a file relation (`tt:backend.render.file`).
+ *
+ * @internal
+ */
 class FileViewHelper extends AbstractRenderViewHelper
 {
     /**
